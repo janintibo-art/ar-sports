@@ -1,0 +1,106 @@
+name: Build APK Quest
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: build-apk
+  cancel-in-progress: true
+
+env:
+  GODOT_VERSION: "4.7.2"
+  VENDORS_VERSION: "5.1.0"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Récupérer le code
+        uses: actions/checkout@v4
+
+      - name: Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Cache Godot + plugin
+        id: cache
+        uses: actions/cache@v4
+        with:
+          path: ~/godot-cache
+          key: godot-${{ env.GODOT_VERSION }}-vendors-${{ env.VENDORS_VERSION }}
+
+      - name: Télécharger Godot, modèles Android et plugin Meta
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: |
+          set -e
+          mkdir -p ~/godot-cache && cd ~/godot-cache
+          curl -fsSL -o godot.zip "https://github.com/godotengine/godot-builds/releases/download/${GODOT_VERSION}-stable/Godot_v${GODOT_VERSION}-stable_linux.x86_64.zip"
+          unzip -q godot.zip && rm godot.zip
+          mv "Godot_v${GODOT_VERSION}-stable_linux.x86_64" godot
+          curl -fsSL -o tpl.tpz "https://github.com/godotengine/godot-builds/releases/download/${GODOT_VERSION}-stable/Godot_v${GODOT_VERSION}-stable_export_templates.tpz"
+          mkdir -p templates
+          unzip -qj tpl.tpz 'templates/android_*' 'templates/version.txt' -d templates
+          rm tpl.tpz
+          curl -fsSL -o vendors.zip "https://github.com/GodotVR/godot_openxr_vendors/releases/download/${VENDORS_VERSION}-stable/godotopenxrvendorsaddon.zip"
+          unzip -q vendors.zip -d vendors && rm vendors.zip
+
+      - name: Installer Godot et le SDK Android
+        run: |
+          set -e
+          chmod +x ~/godot-cache/godot
+          sudo ln -sf "$HOME/godot-cache/godot" /usr/local/bin/godot
+          TPL="$HOME/.local/share/godot/export_templates/${GODOT_VERSION}.stable"
+          mkdir -p "$TPL" && cp ~/godot-cache/templates/* "$TPL/"
+          mkdir -p addons && cp -r ~/godot-cache/vendors/asset/addons/godotopenxrvendors addons/
+          SDK="${ANDROID_HOME:-$ANDROID_SDK_ROOT}"
+          yes | "$SDK/cmdline-tools/latest/bin/sdkmanager" --licenses > /dev/null || true
+          "$SDK/cmdline-tools/latest/bin/sdkmanager" "platform-tools" "platforms;android-36" "build-tools;36.1.0" "ndk;29.0.14206865" > /dev/null
+          SETTINGS_MINOR="${GODOT_VERSION%.*}"
+          mkdir -p ~/.config/godot
+          printf '[gd_resource type="EditorSettings" format=3]\n\n[resource]\nexport/android/android_sdk_path = "%s"\nexport/android/java_sdk_path = "%s"\n' "$SDK" "$JAVA_HOME" > "$HOME/.config/godot/editor_settings-${SETTINGS_MINOR}.tres"
+          godot --version
+
+      - name: Importer le projet
+        run: |
+          godot --headless --import > import1.log 2>&1 || echo "Premier import : sortie $? (plantage connu à la fermeture, sans effet)"
+          godot --headless --import 2>&1 | grep -vE "OpenXR-Loader" || true
+
+      - name: Auto-test (scripts + physique du bowling)
+        run: |
+          set -o pipefail
+          timeout 300 godot --headless --fixed-fps 90 -- --selftest 2>&1 | grep -vE "OpenXR-Loader" | tee selftest.log
+          grep -q "SELFTEST score=" selftest.log
+          if grep -qE "SCRIPT ERROR|Parse Error" selftest.log; then exit 1; fi
+
+      - name: Exporter l'APK
+        env:
+          GODOT_ANDROID_KEYSTORE_DEBUG_PATH: ${{ github.workspace }}/keys/debug.keystore
+          GODOT_ANDROID_KEYSTORE_DEBUG_USER: androiddebugkey
+          GODOT_ANDROID_KEYSTORE_DEBUG_PASSWORD: android
+        run: |
+          sed -i "s/^version\/code=.*/version\/code=${{ github.run_number }}/" export_presets.cfg
+          mkdir -p build
+          godot --headless --install-android-build-template --export-debug "Meta Quest" build/ar_sports.apk 2>&1 | grep -vE "OpenXR-Loader"
+          test -f build/ar_sports.apk
+          ls -la build
+
+      - name: Garder l'APK comme artefact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ar_sports-apk
+          path: build/ar_sports.apk
+
+      - name: Publier dans la release « latest »
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release delete latest --yes --cleanup-tag || true
+          gh release create latest build/ar_sports.apk --target "${{ github.sha }}" --title "AR Sports, build ${{ github.run_number }}" --notes "APK de test pour Meta Quest (commit ${{ github.sha }})." --latest
