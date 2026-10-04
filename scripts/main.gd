@@ -5,6 +5,7 @@ extends Node3D
 const GAMES := {
 	"bowling": preload("res://scripts/bowling.gd"),
 	"flechettes": preload("res://scripts/darts.gd"),
+	"pingpong": preload("res://scripts/pingpong.gd"),
 }
 
 var xr_interface: XRInterface
@@ -28,7 +29,7 @@ var _xr_ok := false
 
 func _ready() -> void:
 	var args := OS.get_cmdline_user_args()
-	_selftest = args.has("--selftest") or args.has("--selftest-darts")
+	_selftest = args.has("--selftest") or args.has("--selftest-darts") or args.has("--selftest-pingpong")
 	_build_world()
 	_start_xr()
 	menu = GameMenu.new()
@@ -40,24 +41,32 @@ func _ready() -> void:
 	_switcher.visible = false
 	if _selftest:
 		print("SELFTEST démarrage")
-		_run_selftests(args.has("--selftest-darts"))
+		_run_selftests("darts" if args.has("--selftest-darts") else ("pingpong" if args.has("--selftest-pingpong") else ""))
 	else:
 		show_menu()
 
 
 ## Auto-test : bowling, fléchettes, puis navigation entre les jeux. Quitte avec 1 en cas d'échec.
-func _run_selftests(darts_only: bool) -> void:
-	if not darts_only:
+func _run_selftests(only: String) -> void:
+	if only == "":
 		start_game("bowling")
 		game.enable_selftest()
 		await game.selftest_finished
-	start_game("flechettes")
-	game.enable_selftest()
-	var darts_ok: bool = await game.selftest_finished
-	if not darts_ok:
-		get_tree().quit(1)
-		return
-	if darts_only:
+	if only in ["", "darts"]:
+		start_game("flechettes")
+		game.enable_selftest()
+		var darts_ok: bool = await game.selftest_finished
+		if not darts_ok:
+			get_tree().quit(1)
+			return
+	if only in ["", "pingpong"]:
+		start_game("pingpong")
+		game.enable_selftest()
+		var pp_ok: bool = await game.selftest_finished
+		if not pp_ok:
+			get_tree().quit(1)
+			return
+	if only != "":
 		get_tree().quit(0)
 		return
 	var nav_ok := await _selftest_nav()

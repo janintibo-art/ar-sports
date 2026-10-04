@@ -26,8 +26,10 @@ et fléchettes, joués dans la vraie pièce grâce au passthrough.
 - Auto-test : `godot --headless --fixed-fps 90 -- --selftest` joue une partie
   classique à 2, une rapide sans bumpers, un entraînement à 3, teste la bière,
   puis les fléchettes (tous les secteurs, 301/501, bust, sortie double, horloge,
-  libre, aide à la visée) et la navigation entre jeux. `-- --selftest-darts`
-  ne lance que les fléchettes.
+  libre, aide à la visée), le ping-pong (tirs calculés, règles, matchs complets
+  aux 3 niveaux contre un joueur virtuel, table compacte, entraînement) et la
+  navigation entre jeux. `-- --selftest-darts` / `-- --selftest-pingpong` ne
+  lancent qu'un jeu.
 - Captures hors casque : `xvfb-run godot --rendering-driver opengl3 -s
   tools/shot.gd -- <dossier>`.
 
@@ -58,6 +60,12 @@ et fléchettes, joués dans la vraie pièce grâce au passthrough.
 - `scripts/darts/dart.gd` : fléchette (modèle, plantage, vibration).
 - `scripts/darts/dart_scoreboard.gd` : tableau des scores des fléchettes.
 - `scripts/darts/rules.gd` : conseil de sortie (301/501).
+- `scripts/pingpong.gd` : ping-pong (physique maison de la balle, règles de
+  points, adversaire robot, machine à balles, aide au renvoi, records dans
+  `user://pingpong.cfg`).
+- `scripts/pingpong/ping_table.gd` : table réglementaire (normale ou compacte).
+- `scripts/pingpong/paddle.gd` : raquette (face rouge devant, noire derrière).
+- `scripts/pingpong/ping_scoreboard.gd` : tableau Vous / Ordi.
 
 ## Bowling
 
@@ -79,6 +87,20 @@ et fléchettes, joués dans la vraie pièce grâce au passthrough.
 - Prendre une fléchette dans le porte-fléchettes : **gâchette ou poignée** près
   d'elle, geste de lancer, **relâcher**.
 
+## Ping-pong
+
+- Modes : **Contre l'ordi** (premier à 7 ou 11, 2 points d'écart, service tous
+  les 2 points) et **Entraînement** (machine à balles, série de renvois).
+- Niveaux Facile / Normal / Expert : vitesse, réaction et erreurs du robot, et
+  force de l'aide au renvoi. L'aide ne corrige que les tirs ratés (filet, dehors,
+  dans son camp) ; un bon tir n'est jamais modifié.
+- Raquette dans la main choisie (droite par défaut) : la face regarde dans la
+  direction où pointe la manette. Service : **gâchette** lance la balle en l'air,
+  on la frappe ensuite (un rebond chez soi est toléré). Volée autorisée.
+- Table normale (2,74 m) ou compacte (x0,75) si la pièce est petite.
+- Physique : pas de moteur, gravité simple, rebond table 0,9, raquette 0,55,
+  test de traversée de la raquette (la balle ne passe jamais au travers).
+
 ## Commandes en jeu
 
 - Menu : viser avec le laser, **gâchette** pour choisir. **A/X** replace le
@@ -96,5 +118,6 @@ et fléchettes, joués dans la vraie pièce grâce au passthrough.
 
 ## À faire
 
-- Pétanque et ping-pong (cartes déjà au menu, marquées « bientôt »).
+- Pétanque (carte déjà au menu, marquée « bientôt »).
+- Ping-pong : mode à deux joueurs humains, effets (spin), détection d'une vraie table.
 - Détection des tables et murs (scène Meta) pour le ping-pong et les fléchettes.

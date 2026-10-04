@@ -343,6 +343,36 @@ def bull_ding():
     return norm(reverb(fade(x), 0.8, 0.2), 0.7)
 
 
+def pp_paddle():
+    """Balle de ping-pong frappée par la raquette : toc sec et brillant."""
+    n = int(0.25 * SR)
+    t = np.arange(n) / SR
+    x = np.sin(2 * np.pi * 1650 * t) * np.exp(-t / 0.012)
+    x += np.sin(2 * np.pi * 2480 * t) * np.exp(-t / 0.008) * 0.6
+    x += bp(noise(n), 1500, 6000) * np.exp(-t / 0.004) * 0.7
+    x += np.sin(2 * np.pi * 420 * t) * np.exp(-t / 0.03) * 0.3
+    return norm(fade(x), 0.8)
+
+
+def pp_table():
+    """Rebond de la balle sur la table : tic clair et léger."""
+    n = int(0.2 * SR)
+    t = np.arange(n) / SR
+    x = np.sin(2 * np.pi * 1150 * t) * np.exp(-t / 0.018)
+    x += np.sin(2 * np.pi * 1900 * t) * np.exp(-t / 0.01) * 0.5
+    x += bp(noise(n), 800, 4000) * np.exp(-t / 0.003) * 0.5
+    return norm(fade(x), 0.7)
+
+
+def pp_net():
+    """Balle dans le filet : petit bruit mat."""
+    n = int(0.3 * SR)
+    t = np.arange(n) / SR
+    x = lp(noise(n), 1800) * np.exp(-t / 0.05) * 0.8
+    x += np.sin(2 * np.pi * 180 * t) * np.exp(-t / 0.04) * 0.5
+    return norm(fade(x), 0.6)
+
+
 def pinsetter():
     """Machine qui replace les quilles : moteur + clac."""
     n = int(1.1 * SR)
@@ -515,5 +545,8 @@ if __name__ == "__main__":
     save("pinsetter", pinsetter())
     save("dart_thud", dart_thud())
     save("bull_ding", bull_ding())
+    save("pp_paddle", pp_paddle())
+    save("pp_table", pp_table())
+    save("pp_net", pp_net())
     save("ambience_loop", alley_ambience(), 2)
     save("music_lounge", music(), 3)

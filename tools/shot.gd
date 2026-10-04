@@ -133,4 +133,31 @@ func _run() -> void:
 		await physics_frame
 	_cam(main, Vector3(0.3, 1.6, 0.4), Vector3(0.3, 1.0, -0.2))
 	await _snap("25_darts_porte")
+	# ---- ping-pong
+	main.start_game("pingpong")
+	game = main.game
+	await process_frame
+	game.place_in_front_of(Transform3D(Basis(), Vector3(0, 1.6, 0)))
+	_cam(main, Vector3(0, 1.6, 0), Vector3(0, 1.4, -1))
+	game._open_panel()
+	await _snap("40_pp_reglages")
+	game._close_panel()
+	game.settings["level"] = "normal"
+	game.start_match()
+	for i in 20:
+		await physics_frame
+	_cam(main, Vector3(0, 1.65, 0.3), Vector3(0, 0.9, -2.2))
+	await _snap("41_pp_vue")
+	_cam(main, Vector3(0.9, 1.5, -0.2), Vector3(0, 0.9, -2.6))
+	await _snap("42_pp_cote")
+	game._toss()
+	game._st_bot = true
+	for i in 100:
+		await physics_frame
+	_cam(main, Vector3(0, 1.65, 0.3), Vector3(0, 0.9, -2.2))
+	await _snap("43_pp_echange")
+	for i in 160:
+		await physics_frame
+	_cam(main, Vector3(0.2, 1.7, -2.2), Vector3(0, 1.2, -4.4))
+	await _snap("44_pp_adversaire")
 	quit()

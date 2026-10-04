@@ -20,6 +20,9 @@ const SFX := {
 	"pinsetter": preload("res://sounds/pinsetter.ogg"),
 	"dart_thud": preload("res://sounds/dart_thud.ogg"),
 	"bull_ding": preload("res://sounds/bull_ding.ogg"),
+	"pp_paddle": preload("res://sounds/pp_paddle.ogg"),
+	"pp_table": preload("res://sounds/pp_table.ogg"),
+	"pp_net": preload("res://sounds/pp_net.ogg"),
 }
 
 const LOOPS := {
