@@ -15,7 +15,7 @@ const GAMES := [
 	{"id": "palet", "title": "Palet", "sub": "3 variantes", "color": Color(0.3, 0.7, 0.85), "ready": true},
 	{"id": "billard", "title": "Billard", "sub": "américain · 8 · 9", "color": Color(0.1, 0.5, 0.45), "ready": true},
 	{"id": "babyfoot", "title": "Baby-foot", "sub": "contre l'ordinateur", "color": Color(0.85, 0.35, 0.15), "ready": true},
-	{"id": "tir", "title": "Tir", "sub": "arc · carabine · ball-trap · couteau", "color": Color(0.65, 0.2, 0.3), "ready": true},
+	{"id": "tir", "title": "Tir", "sub": "4 disciplines", "color": Color(0.65, 0.2, 0.3), "ready": true},
 ]
 
 const QUIT := {"id": "quit", "title": "Quitter", "sub": "", "color": Color(0.35, 0.35, 0.42), "ready": true}
@@ -33,7 +33,7 @@ const INTRO_HOLD := 1.9
 const INTRO_MOVE := 0.8
 const INTRO_CARD0 := 2.1
 const INTRO_CARD_STEP := 0.14
-const INTRO_END := 3.2
+const INTRO_END := 3.8
 
 var _panels: Array[StaticBody3D] = []
 var _hovered: StaticBody3D = null
@@ -186,7 +186,7 @@ func place_in_front_of(head: Transform3D) -> void:
 
 func update_hover(objects: Array) -> void:
 	var target: StaticBody3D = null
-	for obj in objects:
+	for obj in (objects if _active and not intro_running() else []):
 		if obj is StaticBody3D and _panels.has(obj):
 			target = obj
 			break
@@ -202,7 +202,7 @@ func update_hover(objects: Array) -> void:
 ## Appelé quand une gâchette est pressée en visant `obj`.
 ## Renvoie true si un jeu a été lancé.
 func click(obj: Object) -> bool:
-	if not (obj is StaticBody3D and _panels.has(obj)):
+	if not _active or intro_running() or _intro_t < 0.0 or not (obj is StaticBody3D and _panels.has(obj)):
 		return false
 	var game: Dictionary = obj.get_meta("game")
 	if game["ready"]:
@@ -229,10 +229,11 @@ func _make_card(game: Dictionary, size: Vector3) -> StaticBody3D:
 	var base: Color = game["color"]
 	if not game["ready"]:
 		base = base.darkened(0.5)
-	var frame := BowlingArt.box(Vector3(size.x + 0.014, size.y + 0.014, 0.012), BowlingArt.unshaded(Color(0.9, 0.9, 0.95) if game["ready"] else Color(0.45, 0.45, 0.5)), Vector3(0, 0, -0.008))
+	var frame := BowlingArt.rounded_panel(Vector2(size.x + 0.014, size.y + 0.014), base.lightened(0.35), base.darkened(0.25), 0.022)
+	frame.position.z = -0.008
 	frame.name = "Cadre"
 	body.add_child(frame)
-	var face := BowlingArt.gradient_panel(Vector2(size.x, size.y), base.lightened(0.18), base.darkened(0.5))
+	var face := BowlingArt.rounded_panel(Vector2(size.x, size.y), Color(0.075, 0.10, 0.17).lerp(base, 0.18), Color(0.018, 0.025, 0.055))
 	face.name = "Fond"
 	face.position = Vector3(0, 0, 0.0)
 	body.add_child(face)
@@ -246,18 +247,23 @@ func _make_card(game: Dictionary, size: Vector3) -> StaticBody3D:
 
 	# Pictogramme en haut, titre et sous-titre dessous
 	var icon := GameIcons.build(game["id"])
-	icon.position = Vector3(0, 0.035, 0.05)
-	icon.scale = Vector3.ONE * 0.95
+	icon.position = Vector3(0, 0.050, 0.05)
+	icon.scale = Vector3.ONE * 0.72
 	body.add_child(icon)
 	if game["ready"]:
 		_icons.append(icon)
 	var title := BowlingArt.label(game["title"], 0.036, Color.WHITE, 12)
 	title.font = BowlingArt.bold_font()
 	title.position = Vector3(0, -0.058, 0.006)
+	BowlingArt.fit_label(title, size.x - 0.025)
 	body.add_child(title)
 	var sub := BowlingArt.label(game["sub"], 0.019, Color(1, 0.95, 0.75) if game["ready"] else Color(1, 1, 1, 0.65), 8)
 	sub.position = Vector3(0, -0.092, 0.006)
+	BowlingArt.fit_label(sub, size.x - 0.022)
 	body.add_child(sub)
+	var strip := BowlingArt.rounded_panel(Vector2(size.x - 0.035, 0.004), base.lightened(0.3), base, 0.002)
+	strip.position = Vector3(0, size.y * 0.5 - 0.014, 0.004)
+	body.add_child(strip)
 	if not game["ready"]:
 		var ribbon := BowlingArt.box(Vector3(0.13, 0.032, 0.004), BowlingArt.unshaded(Color(0.85, 0.2, 0.2)), Vector3(size.x / 2.0 - 0.07, size.y / 2.0 - 0.025, 0.004))
 		body.add_child(ribbon)
@@ -274,7 +280,7 @@ func _set_highlight(panel: StaticBody3D, on: bool) -> void:
 	if on:
 		mat.albedo_color = Color(1.0, 0.85, 0.3)
 	else:
-		mat.albedo_color = Color(0.9, 0.9, 0.95) if game["ready"] else Color(0.45, 0.45, 0.5)
+		mat.albedo_color = Color.WHITE
 	panel.scale = Vector3.ONE * (1.06 if on else 1.0)
 
 

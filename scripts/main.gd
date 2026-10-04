@@ -260,6 +260,7 @@ func _set_passthrough(enable: bool) -> void:
 func show_menu() -> void:
 	close_switcher()
 	if game:
+		remove_child(game)
 		game.queue_free()
 		game = null
 	_current_id = ""
@@ -293,11 +294,13 @@ func start_game(game_id: String) -> void:
 	_intro_done = true
 	_current_id = game_id
 	menu.visible = false
+	menu.process_mode = Node.PROCESS_MODE_DISABLED
 	menu.set_active(false)
 	menu.update_hover([])
 	left_hand.laser_enabled = false
 	right_hand.laser_enabled = false
 	if game:
+		remove_child(game)
 		game.queue_free()
 	game = GAMES[game_id].new()
 	if game.has_method("set_hands"):
@@ -437,7 +440,7 @@ func _on_button_pressed(button: String, hand: Hand) -> void:
 
 
 func _on_button_released(button: String, hand: Hand) -> void:
-	if game:
+	if game and not _switcher_open:
 		game.on_button_released(hand, button)
 
 

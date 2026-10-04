@@ -165,8 +165,8 @@ func _pockets() -> Array:
 
 
 func _build_table() -> void:
-	var wood := BowlingArt.mat(Color(0.32, 0.17, 0.08), 0.5, 0.1)
-	var felt := BowlingArt.mat(Color(0.05, 0.42, 0.22), 0.95)
+	var wood := BowlingArt.surface_material("wood", Color(0.38, 0.22, 0.11), Vector2(3, 1))
+	var felt := BowlingArt.surface_material("fabric", Color(0.045, 0.43, 0.29), Vector2(6, 3))
 	var cushion := BowlingArt.mat(Color(0.04, 0.33, 0.17), 0.9)
 	var cx := 0.0
 	# Tapis

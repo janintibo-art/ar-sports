@@ -79,6 +79,16 @@ jobs:
           timeout 300 godot --headless --fixed-fps 90 -- --selftest 2>&1 | grep -vE "OpenXR-Loader" | tee selftest.log
           grep -q "SELFTEST score=" selftest.log
           if grep -qE "SCRIPT ERROR|Parse Error" selftest.log; then exit 1; fi
+          for game in darts pingpong petanque molkky palet billard babyfoot tir nav; do
+            grep -q "SELFTEST ${game}=OK" selftest.log || exit 1
+          done
+
+      - name: Vérifier interface et navigation
+        run: |
+          set -o pipefail
+          timeout 30 godot --headless -s tools/check_visual_ui.gd 2>&1 | tee visual_ui.log
+          grep -q "SELFTEST visual_ui=OK" visual_ui.log
+          if grep -qE "SCRIPT ERROR|Parse Error" visual_ui.log; then exit 1; fi
 
       - name: Exporter l'APK
         env:

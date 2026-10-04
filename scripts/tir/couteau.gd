@@ -210,8 +210,8 @@ func _build_range() -> void:
 	var table := Node3D.new()
 	table.position = HOLDER_POS
 	_scene.add_child(table)
-	table.add_child(BowlingArt.box(Vector3(0.6, 0.04, 0.3), BowlingArt.mat(Color(0.5, 0.32, 0.16), 0.6), Vector3(0, -0.04, 0)))
-	table.add_child(BowlingArt.box(Vector3(0.58, 0.003, 0.28), BowlingArt.mat(Color(0.6, 0.12, 0.12), 0.9), Vector3(0, -0.018, 0)))
+	table.add_child(BowlingArt.box(Vector3(0.6, 0.04, 0.3), BowlingArt.surface_material("wood", Color(0.5, 0.32, 0.16)), Vector3(0, -0.04, 0)))
+	table.add_child(BowlingArt.box(Vector3(0.58, 0.003, 0.28), BowlingArt.surface_material("fabric", Color(0.6, 0.12, 0.12)), Vector3(0, -0.018, 0)))
 	for sx in [-0.26, 0.26]:
 		for sz in [-0.12, 0.12]:
 			table.add_child(BowlingArt.box(Vector3(0.04, HOLDER_POS.y, 0.04), BowlingArt.mat(Color(0.4, 0.26, 0.14), 0.7), Vector3(sx, -HOLDER_POS.y / 2.0 - 0.02, sz)))

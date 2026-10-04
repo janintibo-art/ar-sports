@@ -217,3 +217,7 @@ et fléchettes, joués dans la vraie pièce grâce au passthrough.
 - Pétanque : réglage fin du roulement au casque, mode équipes 2 contre 2.
 - Ping-pong : mode à deux joueurs humains, effets (spin), détection d'une vraie table.
 - Détection des tables et murs (scène Meta) pour le ping-pong et les fléchettes.
+
+## v18 — analyse et matériaux
+
+Base v17 (82627ec), livraison différentielle ar_sports_v18.zip. Menu à coins arrondis, textes ajustés, matériaux partagés en cache et filet ajouré. Ombres de décor locales ; ancien jeu retiré avant création du suivant ; menu désactivé pendant les jeux. Version affichée 0.18.0. Régressions : tools/check_visual_ui.gd, lancé dans le CI. Voir ANALYSE_V18.md pour les constats, limites et priorités.

@@ -385,3 +385,89 @@ static func gradient_panel(size: Vector2, top: Color, bottom: Color) -> MeshInst
 	m.cull_mode = BaseMaterial3D.CULL_DISABLED
 	mi.material_override = m
 	return mi
+
+
+# Surfaces détaillées mises en cache : aucune texture externe ni lumière ajoutée.
+static var _surface_cache: Dictionary = {}
+static var _net_texture: ImageTexture
+
+static func surface_material(kind: String, base: Color, repeat: Vector2 = Vector2.ONE) -> StandardMaterial3D:
+	if not _surface_cache.has(kind):
+		var img := Image.create(128, 128, false, Image.FORMAT_RGB8)
+		var noise := FastNoiseLite.new()
+		noise.seed = 180
+		noise.frequency = 0.08
+		for y in 128:
+			for x in 128:
+				var v := 0.9
+				match kind:
+					"wood":
+						v += 0.09 * sin(x * 0.4 + noise.get_noise_2d(x, y * 0.18) * 4.0)
+					"grass":
+						v += 0.12 * noise.get_noise_2d(x * 3.0, y * 0.7)
+					"gravel":
+						v += 0.17 * noise.get_noise_2d(x * 5.0, y * 5.0)
+					_:
+						v += 0.045 * sin(x * PI) * cos(y * PI) + 0.025 * noise.get_noise_2d(x * 4.0, y * 4.0)
+				img.set_pixel(x, y, Color(v, v, v))
+		img.generate_mipmaps()
+		_surface_cache[kind] = ImageTexture.create_from_image(img)
+	var m := mat(base, 0.42 if kind == "wood" else 0.92)
+	m.albedo_texture = _surface_cache[kind]
+	m.uv1_scale = Vector3(repeat.x, repeat.y, 1)
+	m.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS_ANISOTROPIC
+	return m
+
+
+static func net_material() -> StandardMaterial3D:
+	if not _net_texture:
+		var img := Image.create(32, 32, false, Image.FORMAT_RGBA8)
+		for y in 32:
+			for x in 32:
+				img.set_pixel(x, y, Color(0.65, 0.72, 0.8, 1.0 if x < 3 or y < 3 else 0.0))
+		img.generate_mipmaps()
+		_net_texture = ImageTexture.create_from_image(img)
+	var m := mat(Color.WHITE)
+	m.albedo_texture = _net_texture
+	m.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA_SCISSOR
+	m.alpha_scissor_threshold = 0.35
+	m.cull_mode = BaseMaterial3D.CULL_DISABLED
+	m.uv1_scale = Vector3(64, 6, 1)
+	return m
+
+
+## Panneau aux coins arrondis, 28 triangles, dégradé lisible sans transparence.
+static func rounded_panel(size: Vector2, top: Color, bottom: Color, radius: float = 0.016) -> MeshInstance3D:
+	var st := SurfaceTool.new()
+	st.begin(Mesh.PRIMITIVE_TRIANGLES)
+	var hw := size.x * 0.5
+	var hh := size.y * 0.5
+	var rr := minf(radius, minf(hw, hh))
+	var points: Array[Vector3] = []
+	for corner in 4:
+		var a := float(corner) * PI * 0.5
+		var center := Vector3((hw - rr) * (1 if corner in [0, 3] else -1), (hh - rr) * (1 if corner in [0, 1] else -1), 0)
+		for j in 7:
+			var angle := a + float(j) / 6.0 * PI * 0.5
+			points.append(center + Vector3(cos(angle), sin(angle), 0) * rr)
+	for i in points.size():
+		for p in [Vector3.ZERO, points[i], points[(i + 1) % points.size()]]:
+			st.set_normal(Vector3.BACK)
+			st.set_color(bottom.lerp(top, clampf((p.y + hh) / size.y, 0, 1)))
+			st.add_vertex(p)
+	var mi := MeshInstance3D.new()
+	mi.mesh = st.commit()
+	var m := unshaded(Color.WHITE)
+	m.vertex_color_use_as_albedo = true
+	m.cull_mode = BaseMaterial3D.CULL_DISABLED
+	mi.material_override = m
+	mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	return mi
+
+
+static func fit_label(l: Label3D, width: float) -> void:
+	var font: Font = l.font if l.font else ThemeDB.fallback_font
+	var pixels := 1.0
+	for line in l.text.split("\n"):
+		pixels = maxf(pixels, font.get_string_size(line, HORIZONTAL_ALIGNMENT_LEFT, -1, l.font_size).x)
+	l.pixel_size = minf(l.pixel_size, width / pixels)

@@ -15,7 +15,7 @@ static func tree(height: float = 3.2, seed_value: int = 1) -> Node3D:
 		var r := (0.38 + rng.randf() * 0.2) * height / 3.0
 		var pos := Vector3(rng.randf_range(-0.35, 0.35), height * 0.68 + rng.randf_range(0.0, 0.45), rng.randf_range(-0.35, 0.35))
 		n.add_child(BowlingArt.sphere(r, BowlingArt.mat(c, 0.95), pos, 12))
-	n.add_child(BowlingArt.make_blob(1.6))
+	n.add_child(local_blob(1.6))
 	return n
 
 
@@ -24,7 +24,7 @@ static func bush(radius: float = 0.35) -> Node3D:
 	var g := BowlingArt.mat(Color(0.2, 0.45, 0.2), 0.95)
 	n.add_child(BowlingArt.sphere(radius, g, Vector3(0, radius * 0.7, 0), 10))
 	n.add_child(BowlingArt.sphere(radius * 0.7, BowlingArt.mat(Color(0.26, 0.52, 0.22), 0.95), Vector3(radius * 0.7, radius * 0.5, 0.1), 10))
-	n.add_child(BowlingArt.make_blob(radius * 3.0))
+	n.add_child(local_blob(radius * 3.0))
 	return n
 
 
@@ -36,7 +36,7 @@ static func bench() -> Node3D:
 	n.add_child(BowlingArt.box(Vector3(1.3, 0.3, 0.04), wood, Vector3(0, 0.72, -0.19)))
 	for sx in [-0.55, 0.55]:
 		n.add_child(BowlingArt.box(Vector3(0.05, 0.45, 0.4), metal, Vector3(sx, 0.225, 0)))
-	n.add_child(BowlingArt.make_blob(1.5))
+	n.add_child(local_blob(1.5))
 	return n
 
 
@@ -65,7 +65,7 @@ static func plant(height: float = 0.9) -> Node3D:
 		var l := BowlingArt.capsule(0.035, height * 0.7, leaf, Vector3(cos(a) * 0.07, 0.3 + height * 0.3, sin(a) * 0.07))
 		l.rotation = Vector3(sin(a) * 0.45, 0, -cos(a) * 0.45)
 		n.add_child(l)
-	n.add_child(BowlingArt.make_blob(0.6))
+	n.add_child(local_blob(0.6))
 	return n
 
 
@@ -94,5 +94,12 @@ static func neon_sign(text: String, color: Color, width: float = 1.4, height: fl
 
 ## Tapis / dalle de sol sombre sous une zone de jeu (ancre visuellement le décor).
 static func rug(size: Vector2, color: Color, pos: Vector3) -> MeshInstance3D:
-	var mi := BowlingArt.floor_quad(size.x, size.y, BowlingArt.mat(color, 0.95), pos)
+	var mi := BowlingArt.floor_quad(size.x, size.y, BowlingArt.surface_material("fabric", color, size * 3.0), pos)
 	return mi
+
+
+static func local_blob(diameter: float) -> MeshInstance3D:
+	var shadow := BowlingArt.make_blob(diameter)
+	shadow.top_level = false
+	shadow.position.y = 0.002
+	return shadow

@@ -519,7 +519,7 @@ func _new_arrow(team: int) -> ArcArrow:
 	a.team = team
 	var n := Node3D.new()
 	var col := CLR_PLAYER if team == PLAYER else CLR_AI
-	var shaft := BowlingArt.cylinder(0.004, 0.004, ARROW_LEN, BowlingArt.mat(Color(0.85, 0.7, 0.4), 0.5), Vector3(0, 0, ARROW_LEN / 2.0), 6)
+	var shaft := BowlingArt.cylinder(0.004, 0.004, ARROW_LEN, BowlingArt.surface_material("wood", Color(0.85, 0.7, 0.4)), Vector3(0, 0, ARROW_LEN / 2.0), 6)
 	shaft.rotation_degrees = Vector3(90, 0, 0)
 	n.add_child(shaft)
 	var tip := BowlingArt.cylinder(0.0, 0.007, 0.05, BowlingArt.mat(Color(0.7, 0.7, 0.75), 0.3, 0.8), Vector3(0, 0, -0.02), 6)

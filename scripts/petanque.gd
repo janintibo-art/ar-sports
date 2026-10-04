@@ -180,31 +180,12 @@ func _apply_layout() -> void:
 	_hint.position = STAND + Vector3(0, 0.28, 0)
 
 
-func _gravel_texture() -> ImageTexture:
-	var s := 128
-	var img := Image.create(s, s, false, Image.FORMAT_RGB8)
-	var rng := RandomNumberGenerator.new()
-	rng.seed = 7
-	for x in s:
-		for y in s:
-			var v := 0.60 + rng.randf_range(-0.07, 0.07)
-			if rng.randf() < 0.05:
-				v -= 0.18
-			elif rng.randf() < 0.03:
-				v += 0.12
-			img.set_pixel(x, y, Color(v * 1.0, v * 0.9, v * 0.74))
-	return ImageTexture.create_from_image(img)
-
-
 func _build_terrain() -> void:
 	for c in _terrain.get_children():
 		c.queue_free()
 	var zc := (Z_BACK - tlen) / 2.0
 	var len := tlen + Z_BACK
-	var gm := StandardMaterial3D.new()
-	gm.albedo_texture = _gravel_texture()
-	gm.uv1_scale = Vector3(tw * 2.5, len * 2.5, 1.0)
-	gm.roughness = 0.95
+	var gm := BowlingArt.surface_material("gravel", Color(0.68, 0.60, 0.46), Vector2(tw * 2.5, len * 2.5))
 	_terrain.add_child(BowlingArt.floor_quad(tw, len, gm, Vector3(0, 0.001, zc)))
 	# Zone où le cochonnet doit s'arrêter (légèrement plus claire)
 	var band_mat := BowlingArt.unshaded(Color(1, 1, 1, 0.10))

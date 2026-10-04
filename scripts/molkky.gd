@@ -124,20 +124,6 @@ func _exit_tree() -> void:
 	_set_lasers(true)
 
 
-func _grass_texture() -> ImageTexture:
-	var s := 128
-	var img := Image.create(s, s, false, Image.FORMAT_RGB8)
-	var rng := RandomNumberGenerator.new()
-	rng.seed = 11
-	for x in s:
-		for y in s:
-			var v := 0.5 + rng.randf_range(-0.09, 0.09)
-			if rng.randf() < 0.06:
-				v += 0.12
-			img.set_pixel(x, y, Color(v * 0.45, v * 0.8, v * 0.35))
-	return ImageTexture.create_from_image(img)
-
-
 func _build_ground() -> void:
 	# Dalle de collision : le dessus est à GROUND_TOP, juste au-dessus du sol du monde
 	var body := StaticBody3D.new()
@@ -167,7 +153,7 @@ func _build_stand() -> void:
 
 func _pin_mesh(num: int) -> Node3D:
 	var n := Node3D.new()
-	var wood := BowlingArt.mat(Color(0.88, 0.68, 0.38), 0.55)
+	var wood := BowlingArt.surface_material("wood", Color(0.88, 0.68, 0.38))
 	n.add_child(BowlingArt.cylinder(PIN_R, PIN_R, PIN_H, wood, Vector3.ZERO, 14))
 	# Dessus biseauté et numéro sur la face avant
 	var cap := BowlingArt.cylinder(PIN_R * 0.98, PIN_R * 0.98, 0.006, BowlingArt.mat(Color(0.98, 0.85, 0.55), 0.5), Vector3(0, PIN_H / 2.0 + 0.001, 0), 14)
@@ -246,10 +232,7 @@ func _apply_layout() -> void:
 	for c in _field.get_children():
 		c.queue_free()
 	var len := float(settings["dist"]) + 4.5
-	var gm := StandardMaterial3D.new()
-	gm.albedo_texture = _grass_texture()
-	gm.uv1_scale = Vector3(7.0, len * 2.0, 1.0)
-	gm.roughness = 0.95
+	var gm := BowlingArt.surface_material("grass", Color(0.30, 0.48, 0.22), Vector2(7, len * 2.0))
 	_field.add_child(BowlingArt.floor_quad(3.2, len, gm, Vector3(0, GROUND_TOP + 0.001, 1.0 - len / 2.0)))
 	# Ligne de lancer et repère du groupe de quilles
 	_field.add_child(BowlingArt.box(Vector3(1.8, 0.004, 0.05), BowlingArt.unshaded(Color(1, 1, 1)), Vector3(0, GROUND_TOP + 0.003, 0)))

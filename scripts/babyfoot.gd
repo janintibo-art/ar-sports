@@ -149,9 +149,9 @@ func _w(p: Vector2, h: float = 0.0) -> Vector3:
 
 
 func _build_table() -> void:
-	var wood := BowlingArt.mat(Color(0.5, 0.3, 0.15), 0.55)
+	var wood := BowlingArt.surface_material("wood", Color(0.56, 0.34, 0.17), Vector2(3, 1))
 	var dark := BowlingArt.mat(Color(0.25, 0.14, 0.07), 0.6)
-	var pitch := BowlingArt.mat(Color(0.12, 0.5, 0.2), 0.9)
+	var pitch := BowlingArt.surface_material("grass", Color(0.10, 0.45, 0.24), Vector2(4, 3))
 	_table.add_child(BowlingArt.box(Vector3(L + 0.04, 0.03, W + 0.04), pitch, Vector3(0, TABLE_Y - 0.015, TZ)))
 	# Lignes du terrain
 	var white := BowlingArt.unshaded(Color(1, 1, 1, 0.9))

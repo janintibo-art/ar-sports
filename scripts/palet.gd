@@ -222,31 +222,12 @@ func _ring_sum(team: int) -> int:
 	return total
 
 
-func _gravel_texture() -> ImageTexture:
-	var s := 128
-	var img := Image.create(s, s, false, Image.FORMAT_RGB8)
-	var rng := RandomNumberGenerator.new()
-	rng.seed = 7
-	for x in s:
-		for y in s:
-			var v := 0.60 + rng.randf_range(-0.07, 0.07)
-			if rng.randf() < 0.05:
-				v -= 0.18
-			elif rng.randf() < 0.03:
-				v += 0.12
-			img.set_pixel(x, y, Color(v * 1.0, v * 0.9, v * 0.74))
-	return ImageTexture.create_from_image(img)
-
-
 func _build_terrain() -> void:
 	for c in _terrain.get_children():
 		c.queue_free()
 	var zc := (Z_BACK - tlen) / 2.0
 	var len := tlen + Z_BACK
-	var gm := StandardMaterial3D.new()
-	gm.albedo_texture = _gravel_texture()
-	gm.uv1_scale = Vector3(tw * 2.5, len * 2.5, 1.0)
-	gm.roughness = 0.95
+	var gm := BowlingArt.surface_material("gravel", Color(0.68, 0.60, 0.46), Vector2(tw * 2.5, len * 2.5))
 	_terrain.add_child(BowlingArt.floor_quad(tw, len, gm, Vector3(0, 0.001, zc)))
 	var wood := BowlingArt.mat(Color(0.42, 0.27, 0.14), 0.7)
 	for sx in [-1.0, 1.0]:
@@ -271,7 +252,7 @@ func _build_board() -> void:
 	for i in n:
 		var base := Color(0.62, 0.43, 0.24) if v != "trous" else Color(0.14, 0.28, 0.42)
 		var shade := 1.0 + 0.07 * (((i * 5) % 7) - 3) / 3.0
-		_terrain.add_child(BowlingArt.box(Vector3(pw - 0.004, TOP, BL), BowlingArt.mat(base * Color(shade, shade, shade), 0.75), Vector3(-BW / 2.0 + pw * (i + 0.5), TOP / 2.0, bz)))
+		_terrain.add_child(BowlingArt.box(Vector3(pw - 0.004, TOP, BL), BowlingArt.surface_material("wood", base * Color(shade, shade, shade)), Vector3(-BW / 2.0 + pw * (i + 0.5), TOP / 2.0, bz)))
 	var frame := BowlingArt.mat(Color(0.3, 0.19, 0.1), 0.7)
 	for sx in [-1.0, 1.0]:
 		_terrain.add_child(BowlingArt.box(Vector3(0.05, TOP + 0.03, BL + 0.1), frame, Vector3(sx * (BW / 2.0 + 0.025), (TOP + 0.03) / 2.0, bz)))

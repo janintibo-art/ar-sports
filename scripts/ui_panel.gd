@@ -43,6 +43,7 @@ func add_row(caption: String, items: Array) -> void:
 ## Construit (ou reconstruit) le panneau.
 func build() -> void:
 	for c in _root.get_children():
+		_root.remove_child(c)
 		c.queue_free()
 	_buttons.clear()
 	_hovered = null
@@ -99,7 +100,7 @@ func build() -> void:
 	glow.position = Vector3(0, cy, -0.03)
 	_root.add_child(glow)
 	# Fond : dégradé nuit teinté de la couleur du jeu
-	_bg = BowlingArt.gradient_panel(Vector2(width, height), accent.darkened(0.82).lerp(Color(0.1, 0.07, 0.2), 0.5), Color(0.02, 0.02, 0.06))
+	_bg = BowlingArt.rounded_panel(Vector2(width, height), accent.darkened(0.82).lerp(Color(0.1, 0.07, 0.2), 0.5), Color(0.02, 0.02, 0.06))
 	_bg.position = Vector3(0, cy, -0.012)
 	_root.add_child(_bg)
 	# Bandeau de titre
@@ -122,6 +123,8 @@ func build() -> void:
 	marq.position = Vector3(0, cy, -0.002)
 	_root.add_child(marq)
 	for n in nodes:
+		if n is Label3D and n.horizontal_alignment == HORIZONTAL_ALIGNMENT_CENTER:
+			BowlingArt.fit_label(n, width - 0.08)
 		_root.add_child(n)
 	_root.position = Vector3(0, height / 2.0 - 0.07, 0)
 
@@ -193,9 +196,9 @@ func _make_button(it: Dictionary, w: float) -> StaticBody3D:
 	var selected: bool = it.get("selected", false)
 	var base: Color = it.get("color", Color(0.22, 0.25, 0.32))
 	if selected:
-		base = Color(0.98, 0.7, 0.18)
+		base = accent.lightened(0.15)
 	body.set_meta("base_color", base)
-	var face := BowlingArt.gradient_panel(Vector2(w, BTN_H), base.lightened(0.28), base.darkened(0.3))
+	var face := BowlingArt.rounded_panel(Vector2(w, BTN_H), base.lightened(0.16), base.darkened(0.35), 0.01)
 	face.name = "Fond"
 	face.position = Vector3(0, 0, 0.0)
 	body.add_child(face)
@@ -208,6 +211,7 @@ func _make_button(it: Dictionary, w: float) -> StaticBody3D:
 		body.add_child(h)
 	var l := BowlingArt.label(it["text"], 0.036, Color(0.08, 0.05, 0.0) if selected else Color.WHITE, 0 if selected else 12)
 	l.position = Vector3(0, 0, 0.006)
+	BowlingArt.fit_label(l, w - 0.018)
 	body.add_child(l)
 	return body
 
