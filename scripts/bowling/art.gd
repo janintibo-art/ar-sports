@@ -304,3 +304,84 @@ static func make_blob(diameter: float) -> MeshInstance3D:
 	var mi := floor_quad(diameter, diameter, m, Vector3.ZERO)
 	mi.top_level = true
 	return mi
+
+
+# ---------------------------------------------------------------- néons
+
+static var _bold: FontVariation
+static var _glow_tex: ImageTexture
+
+
+## Police grasse (la police par défaut, épaissie) pour les gros chiffres.
+static func bold_font() -> FontVariation:
+	if _bold:
+		return _bold
+	_bold = FontVariation.new()
+	_bold.base_font = ThemeDB.fallback_font
+	_bold.variation_embolden = 0.9
+	_bold.spacing_glyph = 2
+	return _bold
+
+
+## Texte façon tube néon : cœur presque blanc, épais contour coloré.
+static func neon_label(text: String, height: float, glow_color: Color, core := Color(1, 1, 1)) -> Label3D:
+	var l := label(text, height, core.lerp(glow_color, 0.2), 36)
+	l.font = bold_font()
+	l.outline_modulate = glow_color
+	return l
+
+
+static func glow_texture() -> ImageTexture:
+	if _glow_tex:
+		return _glow_tex
+	var s := 64
+	var img := Image.create(s, s, false, Image.FORMAT_RGBA8)
+	for x in s:
+		for y in s:
+			var d := Vector2(x - s / 2.0 + 0.5, y - s / 2.0 + 0.5).length() / (s / 2.0)
+			var a := clampf(1.0 - d, 0.0, 1.0)
+			img.set_pixel(x, y, Color(1, 1, 1, a * a))
+	_glow_tex = ImageTexture.create_from_image(img)
+	return _glow_tex
+
+
+## Halo lumineux (dégradé radial additif) à poser derrière un néon.
+static func halo(size: Vector2, color: Color) -> MeshInstance3D:
+	var mi := MeshInstance3D.new()
+	var q := QuadMesh.new()
+	q.size = size
+	mi.mesh = q
+	var m := StandardMaterial3D.new()
+	m.albedo_texture = glow_texture()
+	m.albedo_color = color
+	m.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	m.blend_mode = BaseMaterial3D.BLEND_MODE_ADD
+	m.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	m.no_depth_test = false
+	mi.material_override = m
+	mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	return mi
+
+
+## Panneau à dégradé vertical (couleurs par sommet), face vers +Z.
+static func gradient_panel(size: Vector2, top: Color, bottom: Color) -> MeshInstance3D:
+	var st := SurfaceTool.new()
+	st.begin(Mesh.PRIMITIVE_TRIANGLES)
+	var hw := size.x / 2.0
+	var hh := size.y / 2.0
+	var verts := [
+		[Vector3(-hw, hh, 0), top], [Vector3(hw, hh, 0), top], [Vector3(hw, -hh, 0), bottom],
+		[Vector3(-hw, hh, 0), top], [Vector3(hw, -hh, 0), bottom], [Vector3(-hw, -hh, 0), bottom],
+	]
+	for v in verts:
+		st.set_color(v[1])
+		st.set_normal(Vector3.BACK)
+		st.add_vertex(v[0])
+	var mi := MeshInstance3D.new()
+	mi.mesh = st.commit()
+	var m := StandardMaterial3D.new()
+	m.vertex_color_use_as_albedo = true
+	m.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	m.cull_mode = BaseMaterial3D.CULL_DISABLED
+	mi.material_override = m
+	return mi
