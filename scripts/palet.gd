@@ -200,7 +200,7 @@ func _board_rect() -> Rect2:
 
 ## Zone où un palet doit s'arrêter pour avoir atterri sur la planche (il glisse encore un peu).
 func _rest_zone() -> Rect2:
-	return Rect2(Vector2(-BW / 2.0 + 0.12, bz - BL / 2.0 + 0.10), Vector2(BW - 0.24, BL - 0.62))
+	return Rect2(Vector2(-BW / 2.0 + 0.12, bz - BL / 2.0 + 0.10), Vector2(BW - 0.24, BL - 0.66))
 
 
 func _hole_pos(i: int) -> Vector2:
@@ -790,7 +790,9 @@ func _assist(p: Vector3, v: Vector3, as_jack: bool) -> Vector3:
 	if as_jack:
 		zone = zone.grow_individual(-0.1, -0.05, -0.1, -0.05)
 	var rp := Vector2(rest.x, rest.z)
-	if zone.has_point(rp):
+	var tl := _flight_time(p, v, r)
+	var land := Vector2(p.x + v.x * tl, p.z + v.z * tl)
+	if zone.has_point(rp) and _board_rect().grow(-0.03).has_point(land):
 		return v
 	var goal := Vector2(clampf(rp.x, zone.position.x, zone.end.x), clampf(rp.y, zone.position.y, zone.end.y))
 	return _solve_point(p, Vector3(goal.x, GY, goal.y), r, m)
@@ -1553,7 +1555,7 @@ func _selftest_run() -> void:
 	# E. Parties complètes, les trois variantes : l'ordinateur contre un joueur virtuel
 	for vv in ["breton", "trous", "cible"]:
 		settings["variant"] = vv
-		settings["points"] = int(VARIANTS[vv]["default"])
+		settings["points"] = 3 if vv == "breton" else 11
 		_st_bot = true
 		start_match()
 		var guard := 0
