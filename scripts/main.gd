@@ -34,6 +34,7 @@ var _xr_ok := false
 var _comfort: UiPanel
 var _comfort_open := false
 var _comfort_tab := "menus"
+var _guide_page := 0
 var _comfort_message := "Taille et distance des menus"
 
 
@@ -497,6 +498,7 @@ func _build_comfort() -> void:
 	_comfort.add_row("", [
 		{"id": "tab_menus", "text": "Menus", "width": 0.25, "selected": _comfort_tab == "menus"},
 		{"id": "tab_gestures", "text": "Gestes", "width": 0.25, "selected": _comfort_tab == "gestures"},
+		{"id": "tab_guide", "text": "Guide", "width": 0.25, "selected": _comfort_tab == "guide"},
 	])
 	if _comfort_tab == "menus":
 		var sizes: Array = []
@@ -507,11 +509,22 @@ func _build_comfort() -> void:
 		for item in [[0.85, "Proche"], [1.0, "Normal"], [1.25, "Éloigné"]]:
 			distances.append({"id": "distance_" + str(item[0]), "text": item[1], "width": 0.19, "selected": is_equal_approx(VisualStyle.distance_factor, item[0])})
 		_comfort.add_row("Distance", distances)
-	else:
+	elif _comfort_tab == "gestures":
 		_add_gesture_row("Lancers", "throw", VisualStyle.throw_gain, [0.8, 1.0, 1.2], ["Doux", "Normal", "Fort"])
 		_add_gesture_row("Billard", "cue", VisualStyle.cue_gain, [0.75, 1.0, 1.25], ["Doux", "Normal", "Fort"])
 		_add_gesture_row("Barres", "rod", VisualStyle.rod_gain, [0.75, 1.0, 1.25], ["Calme", "Normal", "Vif"])
-	_comfort.add_row("", [{"id": "reset", "text": "Réinitialiser", "width": 0.27}, {"id": "close", "text": "Retour au menu", "width": 0.30, "color": Color(0.1, 0.4, 0.35)}])
+	else:
+		var page: Dictionary = QuickGuide.PAGES[_guide_page]
+		_comfort.set_title("Guide · " + String(page["title"]), "%d / %d" % [_guide_page + 1, QuickGuide.PAGES.size()])
+		_comfort.add_text(page["text"])
+		_comfort.add_row("", [
+			{"id": "guide_previous", "text": "Précédent", "width": 0.25},
+			{"id": "guide_next", "text": "Suivant", "width": 0.25},
+		])
+	if _comfort_tab == "guide":
+		_comfort.add_row("", [{"id": "close", "text": "Retour au menu", "width": 0.30, "color": Color(0.1, 0.4, 0.35)}])
+	else:
+		_comfort.add_row("", [{"id": "reset", "text": "Réinitialiser", "width": 0.27}, {"id": "close", "text": "Retour au menu", "width": 0.30, "color": Color(0.1, 0.4, 0.35)}])
 	_comfort.build()
 	_comfort.show_panel()
 	_comfort.place_in_front_of(camera.global_transform, 1.15)
@@ -526,9 +539,18 @@ func _on_comfort_pressed(id: String) -> void:
 	if id == "close":
 		close_comfort()
 		return
-	if id in ["tab_menus", "tab_gestures"]:
-		_comfort_tab = "menus" if id == "tab_menus" else "gestures"
+	if id in ["tab_menus", "tab_gestures", "tab_guide"]:
+		_comfort_tab = id.trim_prefix("tab_")
 		_comfort_message = "Taille et distance des menus" if _comfort_tab == "menus" else "Lancers · queue de billard · baby-foot"
+		_build_comfort()
+		return
+	if _comfort_tab == "guide":
+		if id == "guide_previous":
+			_guide_page = posmod(_guide_page - 1, QuickGuide.PAGES.size())
+		elif id == "guide_next":
+			_guide_page = (_guide_page + 1) % QuickGuide.PAGES.size()
+		else:
+			return
 		_build_comfort()
 		return
 	var result: Error = OK

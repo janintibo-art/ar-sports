@@ -237,3 +237,7 @@ Base v20 (08abce5). Bouton Confort à l’accueil : tailles 100/115/130 %, dista
 ## v22 — réglages des gestes
 
 Base v21 (46e6b39). Confort possède deux onglets Menus/Gestes. VisualStyle sauvegarde throw_gain, cue_gain et rod_gain ; valeurs par défaut 1.0. Hand.throw_velocity applique le facteur aux lancers humains. Billard ajuste la vitesse du coup humain ; baby-foot ajuste la rotation des barres tenues. Reset indépendant par onglet. Test tools/check_v22_gestures.gd dans le CI ; capture tools/shot_v22.gd. Voir NOTES_V22.md. Version 0.22.0.
+
+## v23 — guide des commandes
+
+Base v22 (6cf887a). Troisième onglet Guide dans Confort : 13 fiches (commandes communes et 12 disciplines) via QuickGuide.PAGES. Navigation circulaire, page gardée en session ; guide réservé au menu principal. UiPanel.add_text crée un texte informatif sans collision. Test tools/check_v23_guide.gd intégré au CI, captures tools/shot_v23.gd. Voir NOTES_V23.md. Version 0.23.0.

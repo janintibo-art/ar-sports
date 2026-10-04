@@ -40,6 +40,11 @@ func add_row(caption: String, items: Array) -> void:
 	_rows.append({"caption": caption, "items": items})
 
 
+## Texte informatif sans collision ni action au laser.
+func add_text(text: String) -> void:
+	_rows.append({"text": text})
+
+
 ## Construit (ou reconstruit) le panneau.
 func build() -> void:
 	for c in _root.get_children():
@@ -66,6 +71,13 @@ func build() -> void:
 	y -= 0.04
 	var rows_top := y
 	for row in _rows:
+		if row.has("text"):
+			var info := BowlingArt.label(row["text"], 0.036, Color(0.85, 0.9, 1.0))
+			info.vertical_alignment = VERTICAL_ALIGNMENT_TOP
+			info.position = Vector3(0, y, 0.012)
+			nodes.append(info)
+			y -= 0.052 * (String(row["text"]).count("\n") + 1) + ROW_GAP
+			continue
 		var items: Array = row["items"]
 		var gap := 0.02
 		var total := 0.0

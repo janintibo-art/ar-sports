@@ -118,6 +118,13 @@ jobs:
           grep -q "SELFTEST gestures_v22=OK" gestures.log
           if grep -qE "SCRIPT ERROR|Parse Error" gestures.log; then exit 1; fi
 
+      - name: Vérifier le guide des commandes
+        run: |
+          set -o pipefail
+          timeout 30 godot --headless -s tools/check_v23_guide.gd 2>&1 | tee guide.log
+          grep -q "SELFTEST guide_v23=OK" guide.log
+          if grep -qE "SCRIPT ERROR|Parse Error" guide.log; then exit 1; fi
+
       - name: Exporter l'APK
         env:
           GODOT_ANDROID_KEYSTORE_DEBUG_PATH: ${{ github.workspace }}/keys/debug.keystore
