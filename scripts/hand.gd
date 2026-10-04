@@ -100,7 +100,7 @@ func throw_velocity() -> Vector3:
 	var dt := float(last["t"]) - float(first["t"])
 	if dt <= 0.0001:
 		return Vector3.ZERO
-	return (Vector3(last["p"]) - Vector3(first["p"])) / dt
+	return (Vector3(last["p"]) - Vector3(first["p"])) / dt * VisualStyle.throw_gain
 
 
 func clear_history() -> void:

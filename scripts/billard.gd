@@ -1114,7 +1114,7 @@ func _check_strike(tip: Vector3, tip_vel: Vector3, fwd: Vector3) -> bool:
 	var along := tip_vel.dot(Vector3(hd.x, 0.0, hd.y))
 	if along < 0.45:
 		return false
-	_strike(hd, clampf(along * 1.5, 0.8, 7.5))
+	_strike(hd, clampf(along * 1.5 * VisualStyle.cue_gain, 0.8, 7.5))
 	return true
 
 

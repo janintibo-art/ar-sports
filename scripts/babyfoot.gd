@@ -507,7 +507,7 @@ func _update_rods(delta: float) -> void:
 func apply_hand(r: BfRod, hand_z: float, vx: float, delta: float) -> void:
 	var target := clampf(r.off0 + (hand_z - r.hand_z0), -r.lim, r.lim)
 	r.off = move_toward(r.off, target, 5.0 * delta)
-	r.omega = clampf(vx * r.dir * SPIN_GAIN - 7.0 * r.theta, -OMEGA_MAX, OMEGA_MAX)
+	r.omega = clampf(vx * r.dir * SPIN_GAIN * VisualStyle.rod_gain - 7.0 * r.theta, -OMEGA_MAX, OMEGA_MAX)
 
 
 func _freeze_rod(r: BfRod, delta: float) -> void:

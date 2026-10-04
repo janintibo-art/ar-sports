@@ -33,6 +33,7 @@ var _intro_done := false
 var _xr_ok := false
 var _comfort: UiPanel
 var _comfort_open := false
+var _comfort_tab := "menus"
 var _comfort_message := "Taille et distance des menus"
 
 
@@ -493,35 +494,74 @@ func open_comfort() -> void:
 func _build_comfort() -> void:
 	_comfort.clear()
 	_comfort.set_title("Confort", _comfort_message)
-	var sizes: Array = []
-	for value in [1.0, 1.15, 1.3]:
-		sizes.append({"id": "size_" + str(value), "text": "%d %%" % roundi(value * 100), "width": 0.19, "selected": is_equal_approx(VisualStyle.ui_scale, value)})
-	_comfort.add_row("Taille", sizes)
-	var distances: Array = []
-	for item in [[0.85, "Proche"], [1.0, "Normal"], [1.25, "Éloigné"]]:
-		distances.append({"id": "distance_" + str(item[0]), "text": item[1], "width": 0.19, "selected": is_equal_approx(VisualStyle.distance_factor, item[0])})
-	_comfort.add_row("Distance", distances)
+	_comfort.add_row("", [
+		{"id": "tab_menus", "text": "Menus", "width": 0.25, "selected": _comfort_tab == "menus"},
+		{"id": "tab_gestures", "text": "Gestes", "width": 0.25, "selected": _comfort_tab == "gestures"},
+	])
+	if _comfort_tab == "menus":
+		var sizes: Array = []
+		for value in [1.0, 1.15, 1.3]:
+			sizes.append({"id": "size_" + str(value), "text": "%d %%" % roundi(value * 100), "width": 0.19, "selected": is_equal_approx(VisualStyle.ui_scale, value)})
+		_comfort.add_row("Taille", sizes)
+		var distances: Array = []
+		for item in [[0.85, "Proche"], [1.0, "Normal"], [1.25, "Éloigné"]]:
+			distances.append({"id": "distance_" + str(item[0]), "text": item[1], "width": 0.19, "selected": is_equal_approx(VisualStyle.distance_factor, item[0])})
+		_comfort.add_row("Distance", distances)
+	else:
+		_add_gesture_row("Lancers", "throw", VisualStyle.throw_gain, [0.8, 1.0, 1.2], ["Doux", "Normal", "Fort"])
+		_add_gesture_row("Billard", "cue", VisualStyle.cue_gain, [0.75, 1.0, 1.25], ["Doux", "Normal", "Fort"])
+		_add_gesture_row("Barres", "rod", VisualStyle.rod_gain, [0.75, 1.0, 1.25], ["Calme", "Normal", "Vif"])
 	_comfort.add_row("", [{"id": "reset", "text": "Réinitialiser", "width": 0.27}, {"id": "close", "text": "Retour au menu", "width": 0.30, "color": Color(0.1, 0.4, 0.35)}])
 	_comfort.build()
 	_comfort.show_panel()
 	_comfort.place_in_front_of(camera.global_transform, 1.15)
 
+func _add_gesture_row(caption: String, prefix: String, current: float, values: Array, labels: Array) -> void:
+	var items: Array = []
+	for i in values.size():
+		items.append({"id": prefix + "_" + str(values[i]), "text": labels[i], "width": 0.19, "selected": is_equal_approx(current, float(values[i]))})
+	_comfort.add_row(caption, items)
+
 func _on_comfort_pressed(id: String) -> void:
 	if id == "close":
 		close_comfort()
 		return
-	var size := VisualStyle.ui_scale
-	var distance := VisualStyle.distance_factor
-	if id.begins_with("size_"):
-		size = id.substr(5).to_float()
-	elif id.begins_with("distance_"):
-		distance = id.substr(9).to_float()
-	elif id == "reset":
-		size = 1.0
-		distance = 1.0
-	else:
+	if id in ["tab_menus", "tab_gestures"]:
+		_comfort_tab = "menus" if id == "tab_menus" else "gestures"
+		_comfort_message = "Taille et distance des menus" if _comfort_tab == "menus" else "Lancers · queue de billard · baby-foot"
+		_build_comfort()
 		return
-	var result := VisualStyle.set_comfort(size, distance)
+	var result: Error = OK
+	if _comfort_tab == "gestures":
+		var throwing := VisualStyle.throw_gain
+		var cue := VisualStyle.cue_gain
+		var rod := VisualStyle.rod_gain
+		if id.begins_with("throw_"):
+			throwing = id.substr(6).to_float()
+		elif id.begins_with("cue_"):
+			cue = id.substr(4).to_float()
+		elif id.begins_with("rod_"):
+			rod = id.substr(4).to_float()
+		elif id == "reset":
+			throwing = 1.0
+			cue = 1.0
+			rod = 1.0
+		else:
+			return
+		result = VisualStyle.set_gestures(throwing, cue, rod)
+	else:
+		var size := VisualStyle.ui_scale
+		var distance := VisualStyle.distance_factor
+		if id.begins_with("size_"):
+			size = id.substr(5).to_float()
+		elif id.begins_with("distance_"):
+			distance = id.substr(9).to_float()
+		elif id == "reset":
+			size = 1.0
+			distance = 1.0
+		else:
+			return
+		result = VisualStyle.set_comfort(size, distance)
 	_comfort_message = "Réglage appliqué et mémorisé" if result == OK else "Appliqué, sauvegarde impossible"
 	_build_comfort()
 

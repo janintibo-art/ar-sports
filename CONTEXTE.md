@@ -233,3 +233,7 @@ Base v19 (fd64003). Aide gestuelle au survol des neuf jeux, menu placé à 1,15 
 ## v21 — confort commun
 
 Base v20 (08abce5). Bouton Confort à l’accueil : tailles 100/115/130 %, distance Proche/Normal/Éloigné. VisualStyle mémorise ces choix avec la qualité graphique sans les écraser. UiPanel applique les facteurs au placement ; menu également. Panneau géré dans main.gd ; Menu/BY ferme, AX recentre. Test tools/check_v21_comfort.gd ajouté au CI. Voir NOTES_V21.md. Version 0.21.0.
+
+## v22 — réglages des gestes
+
+Base v21 (46e6b39). Confort possède deux onglets Menus/Gestes. VisualStyle sauvegarde throw_gain, cue_gain et rod_gain ; valeurs par défaut 1.0. Hand.throw_velocity applique le facteur aux lancers humains. Billard ajuste la vitesse du coup humain ; baby-foot ajuste la rotation des barres tenues. Reset indépendant par onglet. Test tools/check_v22_gestures.gd dans le CI ; capture tools/shot_v22.gd. Voir NOTES_V22.md. Version 0.22.0.

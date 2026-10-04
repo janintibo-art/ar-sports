@@ -346,7 +346,7 @@ const HELP := {
 	"babyfoot": "Prends une poignée près de la barre.\nDéplace la main pour glisser et faire tourner.",
 	"tir": "Arc · carabine · ball-trap · couteau.\nChoisis ta discipline sur l'écran suivant.",
 	"quality": "Détaillé : accessoires et végétation enrichis.\nLéger : moins d'objets, au prochain jeu.",
-	"comfort": "Ajuste la taille des menus et leur distance.\nLes réglages sont mémorisés pour tous les jeux.",
+	"comfort": "Taille, distance et puissance de tes gestes.\nTes préférences sont mémorisées.",
 	"quit": "Ferme AR Sports et retourne au Quest.",
 }
 
