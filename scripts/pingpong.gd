@@ -123,7 +123,7 @@ func _ready() -> void:
 	_fx_root = Node3D.new()
 	add_child(_fx_root)
 
-	_ball = BowlingArt.sphere(BALL_R, BowlingArt.mat(Color(1.0, 0.55, 0.1), 0.4), Vector3.ZERO, 14)
+	_ball = BowlingArt.sphere(BALL_R, PingArt.ball_material(), Vector3.ZERO, 20 if VisualStyle.detailed else 14)
 	add_child(_ball)
 	_shadow = BowlingArt.make_blob(0.09)
 	add_child(_shadow)

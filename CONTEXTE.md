@@ -258,4 +258,8 @@ Base v25 (206d8ea). RangedArt génère les habillages statiques : arc profilé, 
 
 Base v26 (8ea0ad8). DartArt : corps métallique groupé et partagé par profil, ailettes profilées partagées, texture grain 128 × 128 en cache. Couleurs conservées par objet. Dart utilise ces habillages sans changement de pointe ni logique de vol ; Dartboard ajoute texture et UV sans changement de score. Test tools/check_v27_darts_art.gd dans le CI, captures tools/shot_v27.gd. Voir NOTES_V27.md. Version 0.27.0.
 
-Livraison utilisateur : un seul ZIP différentiel ar_sports_vN.zip. Présenter le lien Markdown seul sur sa ligne après « Voici le ZIP : », comme le renvoi v26 qui permettait le téléchargement (capture du 4 octobre, 12:13). Éviter le lien au milieu de « Télécharge ..., puis lance ». Deux commandes Termux séparées ensuite. Le rendu du lien dépend de l’application.
+Livraison utilisateur : un seul ZIP différentiel ar_sports_vN.zip et deux commandes Termux séparées. L’application affiche souvent le nouveau ZIP sous forme de petit bouton qui ne télécharge pas ; le même lien renvoyé dans une réponse suivante apparaît souligné et fonctionne (confirmé le 4 octobre). La mise sur une ligne seule n’a pas corrigé le problème en v27. Reprendre la forme « Voici de nouveau le ZIP : [nom du ZIP](sandbox:/chemin/absolu) », sans promettre de contrôler le rendu de l’application.
+
+## v28 — équipements de ping-pong
+
+Base v27 (f0db98c). PingArt : raquette au manche arrondi, bois et revêtements texturés, détails selon profil. Mesh partagé par couleur et qualité ; émission AI conservée. Balle orange mate avec couture, tessellation selon qualité. Seules constructions visuelles modifiées ; rayons de collision, services et rebonds inchangés. Test tools/check_v28_ping_art.gd dans le CI, capture tools/shot_v28.gd. Voir NOTES_V28.md. Version 0.28.0.
