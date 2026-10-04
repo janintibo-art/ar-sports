@@ -357,17 +357,7 @@ func _on_panel_pressed(id: String) -> void:
 func _build_gun() -> void:
 	_gun = Node3D.new()
 	add_child(_gun)
-	var metal := BowlingArt.mat(Color(0.14, 0.15, 0.17), 0.35, 0.7)
-	var wood := BowlingArt.mat(Color(0.42, 0.24, 0.1), 0.5)
-	_gun.add_child(BowlingArt.box(Vector3(0.045, 0.09, 0.4), wood, Vector3(0, -0.03, 0.26)))
-	_gun.add_child(BowlingArt.box(Vector3(0.05, 0.06, 0.34), wood, Vector3(0, -0.035, -0.3)))
-	_gun.add_child(BowlingArt.box(Vector3(0.05, 0.065, 0.2), metal, Vector3(0, 0.0, -0.02)))
-	for sx in [-0.014, 0.014]:
-		var b := BowlingArt.cylinder(0.014, 0.014, 0.62, metal, Vector3(sx, 0.012, -0.5), 10)
-		b.rotation_degrees = Vector3(90, 0, 0)
-		_gun.add_child(b)
-	_gun.add_child(BowlingArt.box(Vector3(0.008, 0.012, 0.64), metal, Vector3(0, 0.03, -0.5)))
-	_gun.add_child(BowlingArt.sphere(0.008, BowlingArt.unshaded(Color(1, 0.8, 0.2)), Vector3(0, 0.035, -0.8), 6))
+	_gun.add_child(GunArt.build(true, VisualStyle.detailed))
 	_gun.visible = false
 	_flash = BowlingArt.sphere(0.08, BowlingArt.unshaded(Color(1.0, 0.85, 0.4, 0.9)), Vector3(0, 0.012, -MUZZLE), 8)
 	_flash.visible = false

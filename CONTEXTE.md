@@ -245,3 +245,7 @@ Base v22 (6cf887a). Troisième onglet Guide dans Confort : 13 fiches (commandes 
 ## v24 — réglages audio
 
 Base v23 (ac0d936). Confort > Audio : général, musique, effets (muet/50/100 %) et test sonore. VisualStyle stocke les trois volumes, défaut 1. Sound crée des bus dédiés et route tous les lecteurs ; main applique au démarrage et au changement. Reset audio indépendant. Test tools/check_v24_audio.gd intégré au CI, test du guide adapté aux quatre onglets. Capture tools/shot_v24.gd. Voir NOTES_V24.md. Version 0.24.0.
+
+## v25 — modèles de carabine et ball-trap
+
+Base v24 (bf94a52). GunArt génère un habillage statique regroupé : crosse profilée, bois texturé, garde-main, métal, pontet, détente, détails selon qualité. Un mesh, 4/5 surfaces ; 1012/1264 triangles détaillés, 688/868 légers. _build_gun des deux disciplines remplacé sans modifier la visée ni les tirs. Test tools/check_v25_models.gd intégré au CI ; captures tools/shot_v25.gd. Voir NOTES_V25.md. Version 0.25.0.

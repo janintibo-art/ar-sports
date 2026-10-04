@@ -132,6 +132,13 @@ jobs:
           grep -q "SELFTEST audio_v24=OK" audio.log
           if grep -qE "SCRIPT ERROR|Parse Error" audio.log; then exit 1; fi
 
+      - name: Vérifier les modèles de tir
+        run: |
+          set -o pipefail
+          timeout 30 godot --headless -s tools/check_v25_models.gd 2>&1 | tee models.log
+          grep -q "SELFTEST models_v25=OK" models.log
+          if grep -qE "SCRIPT ERROR|Parse Error" models.log; then exit 1; fi
+
       - name: Exporter l'APK
         env:
           GODOT_ANDROID_KEYSTORE_DEBUG_PATH: ${{ github.workspace }}/keys/debug.keystore

@@ -497,17 +497,7 @@ func _on_panel_pressed(id: String) -> void:
 func _build_gun() -> void:
 	_gun = Node3D.new()
 	add_child(_gun)
-	var metal := BowlingArt.mat(Color(0.15, 0.16, 0.18), 0.35, 0.7)
-	var wood := BowlingArt.mat(Color(0.45, 0.27, 0.12), 0.5)
-	_gun.add_child(BowlingArt.box(Vector3(0.04, 0.075, 0.38), wood, Vector3(0, -0.02, 0.24)))
-	_gun.add_child(BowlingArt.box(Vector3(0.04, 0.055, 0.42), wood, Vector3(0, -0.03, -0.3)))
-	_gun.add_child(BowlingArt.box(Vector3(0.036, 0.05, 0.4), metal, Vector3(0, 0.0, -0.05)))
-	var barrel := BowlingArt.cylinder(0.011, 0.011, 0.5, metal, Vector3(0, 0.008, -0.45), 10)
-	barrel.rotation_degrees = Vector3(90, 0, 0)
-	_gun.add_child(barrel)
-	_gun.add_child(BowlingArt.box(Vector3(0.012, 0.03, 0.012), metal, Vector3(0, 0.04, -0.66)))
-	_gun.add_child(BowlingArt.box(Vector3(0.03, 0.02, 0.012), metal, Vector3(0, 0.04, 0.0)))
-	_gun.add_child(BowlingArt.box(Vector3(0.012, 0.05, 0.012), metal, Vector3(0, -0.06, 0.0)))
+	_gun.add_child(GunArt.build(false, VisualStyle.detailed))
 	_gun.visible = false
 	_dot = BowlingArt.sphere(0.014, BowlingArt.unshaded(Color(1, 0.1, 0.1)), Vector3.ZERO, 8)
 	_dot.visible = false
