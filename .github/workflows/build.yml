@@ -65,12 +65,7 @@ jobs:
           "$SDK/cmdline-tools/latest/bin/sdkmanager" "platform-tools" "platforms;android-36" "build-tools;36.1.0" "ndk;29.0.14206865" > /dev/null
           SETTINGS_MINOR="${GODOT_VERSION%.*}"
           mkdir -p ~/.config/godot
-          printf '[gd_resource type="EditorSettings" format=3]
-
-[resource]
-export/android/android_sdk_path = "%s"
-export/android/java_sdk_path = "%s"
-' "$SDK" "$JAVA_HOME" > "$HOME/.config/godot/editor_settings-${SETTINGS_MINOR}.tres"
+          printf '[gd_resource type="EditorSettings" format=3]\n\n[resource]\nexport/android/android_sdk_path = "%s"\nexport/android/java_sdk_path = "%s"\n' "$SDK" "$JAVA_HOME" > "$HOME/.config/godot/editor_settings-${SETTINGS_MINOR}.tres"
           godot --version
 
       - name: Importer le projet
