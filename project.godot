@@ -8,7 +8,7 @@ config_version=5
 
 config/name="AR Sports"
 config/description="Bowling, pétanque, ping-pong et fléchettes en réalité augmentée sur Quest 3."
-config/version="0.46.0"
+config/version="0.47.0"
 run/main_scene="res://main.tscn"
 config/features=PackedStringArray("4.7", "GL Compatibility")
 config/icon="res://icon.svg"
@@ -21,6 +21,7 @@ TablePolish="*res://scripts/billard/table_polish.gd"
 BabyfootPolish="*res://scripts/babyfoot/art_polish.gd"
 PlayerDetailPolish="*res://scripts/babyfoot/player_detail_v43.gd"
 FieldPolish="*res://scripts/babyfoot/field_polish_v45.gd"
+PetanquePolish="*res://scripts/petanque/art_polish_v47.gd"
 
 [display]
 
