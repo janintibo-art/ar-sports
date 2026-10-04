@@ -1,0 +1,88 @@
+extends SceneTree
+func _init() -> void:
+	_run.call_deferred()
+
+func _run() -> void:
+	var path := ProjectSettings.globalize_path(VisualStyle.SAVE_PATH)
+	var existed := FileAccess.file_exists(path)
+	var saved := FileAccess.get_file_as_bytes(path) if existed else PackedByteArray()
+	var main = load("res://main.tscn").instantiate()
+	root.add_child(main)
+	await process_frame
+	var sound = root.get_node("Sound")
+	var original := [VisualStyle.master_volume, VisualStyle.music_volume, VisualStyle.effects_volume]
+	var others := [VisualStyle.ui_scale, VisualStyle.distance_factor, VisualStyle.throw_gain, VisualStyle.cue_gain, VisualStyle.rod_gain, VisualStyle.detailed]
+	var bus_count := AudioServer.bus_count
+	sound._ensure_bus(sound.GENERAL_BUS, "Master")
+	sound._ensure_bus(sound.MUSIC_BUS, sound.GENERAL_BUS)
+	sound._ensure_bus(sound.EFFECTS_BUS, sound.GENERAL_BUS)
+	assert(AudioServer.bus_count == bus_count)
+	var general := AudioServer.get_bus_index(sound.GENERAL_BUS)
+	var music := AudioServer.get_bus_index(sound.MUSIC_BUS)
+	var effects := AudioServer.get_bus_index(sound.EFFECTS_BUS)
+	assert(general > 0 and music > general and effects > general)
+	assert(AudioServer.get_bus_send(music) == sound.GENERAL_BUS)
+	assert(AudioServer.get_bus_send(effects) == sound.GENERAL_BUS)
+	assert(sound._music.bus == sound.MUSIC_BUS and sound._ambience.bus == sound.EFFECTS_BUS)
+	for player in sound._pool:
+		assert(player.bus == sound.EFFECTS_BUS)
+	var holder := Node3D.new()
+	main.add_child(holder)
+	var loop = sound.make_loop_player("roll_loop", holder)
+	assert(loop.bus == sound.EFFECTS_BUS)
+	loop.play()
+	sound.start_music()
+	sound.play("ui_click")
+	var routed := false
+	for child in sound.get_children():
+		if child is AudioStreamPlayer and child.stream == sound.SFX["ui_click"]:
+			assert(child.bus == sound.EFFECTS_BUS)
+			routed = true
+	assert(routed)
+	main.open_comfort()
+	main._on_comfort_pressed("tab_audio")
+	main._on_comfort_pressed("music_0")
+	assert(AudioServer.is_bus_mute(music))
+	assert(not AudioServer.is_bus_mute(effects))
+	assert(sound._music.playing and loop.playing)
+	main._on_comfort_pressed("effects_0.5")
+	assert(is_equal_approx(db_to_linear(AudioServer.get_bus_volume_db(effects)), 0.5))
+	main._on_comfort_pressed("master_0")
+	assert(AudioServer.is_bus_mute(general))
+	assert(not AudioServer.is_bus_mute(effects))
+	main._on_comfort_pressed("master_0.5")
+	assert(not AudioServer.is_bus_mute(general))
+	assert(is_equal_approx(db_to_linear(AudioServer.get_bus_volume_db(general)), 0.5))
+	VisualStyle.set_comfort(others[0], others[1])
+	VisualStyle.set_detailed(others[5])
+	VisualStyle.set_gestures(others[2], others[3], others[4])
+	VisualStyle.set_audio(1.0, 1.0, 1.0, false)
+	VisualStyle.load_preferences()
+	assert(VisualStyle.master_volume == 0.5 and VisualStyle.music_volume == 0.0 and VisualStyle.effects_volume == 0.5)
+	main._on_comfort_pressed("tab_menus")
+	main._on_comfort_pressed("tab_guide")
+	main._on_comfort_pressed("tab_audio")
+	assert(VisualStyle.music_volume == 0.0)
+	main._on_comfort_pressed("audio_test")
+	assert(VisualStyle.music_volume == 0.0)
+	main._on_comfort_pressed("reset")
+	assert(not AudioServer.is_bus_mute(music))
+	assert(is_equal_approx(AudioServer.get_bus_volume_db(general), 0.0))
+	assert(is_equal_approx(AudioServer.get_bus_volume_db(music), 0.0))
+	assert(is_equal_approx(AudioServer.get_bus_volume_db(effects), 0.0))
+	assert(others == [VisualStyle.ui_scale, VisualStyle.distance_factor, VisualStyle.throw_gain, VisualStyle.cue_gain, VisualStyle.rod_gain, VisualStyle.detailed])
+	VisualStyle.set_audio(-1.0, 2.0, -0.2, false)
+	assert(VisualStyle.master_volume == 0.0 and VisualStyle.music_volume == 1.0 and VisualStyle.effects_volume == 0.0)
+	VisualStyle.set_audio(original[0], original[1], original[2], false)
+	sound.apply_preferences()
+	sound.stop_music()
+	if existed:
+		var file := FileAccess.open(path, FileAccess.WRITE)
+		file.store_buffer(saved)
+		file.close()
+	else:
+		DirAccess.remove_absolute(path)
+	main.queue_free()
+	await process_frame
+	print("SELFTEST audio_v24=OK")
+	quit()

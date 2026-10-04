@@ -241,3 +241,7 @@ Base v21 (46e6b39). Confort possède deux onglets Menus/Gestes. VisualStyle sauv
 ## v23 — guide des commandes
 
 Base v22 (6cf887a). Troisième onglet Guide dans Confort : 13 fiches (commandes communes et 12 disciplines) via QuickGuide.PAGES. Navigation circulaire, page gardée en session ; guide réservé au menu principal. UiPanel.add_text crée un texte informatif sans collision. Test tools/check_v23_guide.gd intégré au CI, captures tools/shot_v23.gd. Voir NOTES_V23.md. Version 0.23.0.
+
+## v24 — réglages audio
+
+Base v23 (ac0d936). Confort > Audio : général, musique, effets (muet/50/100 %) et test sonore. VisualStyle stocke les trois volumes, défaut 1. Sound crée des bus dédiés et route tous les lecteurs ; main applique au démarrage et au changement. Reset audio indépendant. Test tools/check_v24_audio.gd intégré au CI, test du guide adapté aux quatre onglets. Capture tools/shot_v24.gd. Voir NOTES_V24.md. Version 0.24.0.

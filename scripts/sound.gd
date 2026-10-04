@@ -39,6 +39,9 @@ const LOOPS := {
 }
 
 const POOL_SIZE := 14
+const GENERAL_BUS := "ARGeneral"
+const MUSIC_BUS := "ARMusic"
+const EFFECTS_BUS := "AREffects"
 
 var music_enabled := true:
 	set(value):
@@ -53,10 +56,15 @@ var _next := 0
 
 
 func _ready() -> void:
+	_ensure_bus(GENERAL_BUS, "Master")
+	_ensure_bus(MUSIC_BUS, GENERAL_BUS)
+	_ensure_bus(EFFECTS_BUS, GENERAL_BUS)
+	apply_preferences()
 	for stream in LOOPS.values():
 		(stream as AudioStreamOggVorbis).loop = true
 	for i in POOL_SIZE:
 		var p := AudioStreamPlayer3D.new()
+		p.bus = EFFECTS_BUS
 		p.unit_size = 3.0
 		p.max_db = 3.0
 		p.attenuation_filter_cutoff_hz = 12000.0
@@ -64,10 +72,12 @@ func _ready() -> void:
 		add_child(p)
 		_pool.append(p)
 	_music = AudioStreamPlayer.new()
+	_music.bus = MUSIC_BUS
 	_music.stream = LOOPS["music_lounge"]
 	_music.volume_db = -13.0
 	add_child(_music)
 	_ambience = AudioStreamPlayer.new()
+	_ambience.bus = EFFECTS_BUS
 	_ambience.stream = LOOPS["ambience_loop"]
 	_ambience.volume_db = -20.0
 	add_child(_ambience)
@@ -93,6 +103,7 @@ func play(sound: String, volume_db: float = 0.0) -> void:
 	if not SFX.has(sound):
 		return
 	var p := AudioStreamPlayer.new()
+	p.bus = EFFECTS_BUS
 	p.stream = SFX[sound]
 	p.volume_db = volume_db
 	add_child(p)
@@ -103,6 +114,7 @@ func play(sound: String, volume_db: float = 0.0) -> void:
 ## Crée un lecteur en boucle attaché à un noeud (roulement de boule, glouglou…).
 func make_loop_player(sound: String, parent: Node3D, volume_db: float = 0.0) -> AudioStreamPlayer3D:
 	var p := AudioStreamPlayer3D.new()
+	p.bus = EFFECTS_BUS
 	p.stream = LOOPS[sound]
 	p.volume_db = volume_db
 	p.unit_size = 3.0
@@ -132,3 +144,27 @@ func _apply_music() -> void:
 		_ambience.play()
 	elif not _music_wanted and _ambience.playing:
 		_ambience.stop()
+
+
+func _ensure_bus(bus_name: String, send: String) -> void:
+	var index := AudioServer.get_bus_index(bus_name)
+	if index < 0:
+		AudioServer.add_bus()
+		index = AudioServer.bus_count - 1
+		AudioServer.set_bus_name(index, bus_name)
+	AudioServer.set_bus_send(index, send)
+
+
+## Les bus ajustent immédiatement les lecteurs, même les boucles déjà en cours.
+func apply_preferences() -> void:
+	_set_bus_volume(GENERAL_BUS, VisualStyle.master_volume)
+	_set_bus_volume(MUSIC_BUS, VisualStyle.music_volume)
+	_set_bus_volume(EFFECTS_BUS, VisualStyle.effects_volume)
+
+
+func _set_bus_volume(bus_name: String, value: float) -> void:
+	var index := AudioServer.get_bus_index(bus_name)
+	if index < 0:
+		return
+	AudioServer.set_bus_mute(index, value <= 0.0)
+	AudioServer.set_bus_volume_db(index, linear_to_db(value) if value > 0.0 else -80.0)

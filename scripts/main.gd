@@ -43,6 +43,7 @@ func _ready() -> void:
 	_selftest = args.has("--selftest") or args.has("--selftest-darts") or args.has("--selftest-pingpong") or args.has("--selftest-petanque") or args.has("--selftest-molkky") or args.has("--selftest-palet") or args.has("--selftest-billard") or args.has("--selftest-babyfoot") or args.has("--selftest-tir")
 	if not _selftest:
 		VisualStyle.load_preferences()
+	Sound.apply_preferences()
 	_build_world()
 	_start_xr()
 	menu = GameMenu.new()
@@ -496,9 +497,10 @@ func _build_comfort() -> void:
 	_comfort.clear()
 	_comfort.set_title("Confort", _comfort_message)
 	_comfort.add_row("", [
-		{"id": "tab_menus", "text": "Menus", "width": 0.25, "selected": _comfort_tab == "menus"},
-		{"id": "tab_gestures", "text": "Gestes", "width": 0.25, "selected": _comfort_tab == "gestures"},
-		{"id": "tab_guide", "text": "Guide", "width": 0.25, "selected": _comfort_tab == "guide"},
+		{"id": "tab_menus", "text": "Menus", "width": 0.17, "selected": _comfort_tab == "menus"},
+		{"id": "tab_gestures", "text": "Gestes", "width": 0.17, "selected": _comfort_tab == "gestures"},
+		{"id": "tab_audio", "text": "Audio", "width": 0.17, "selected": _comfort_tab == "audio"},
+		{"id": "tab_guide", "text": "Guide", "width": 0.17, "selected": _comfort_tab == "guide"},
 	])
 	if _comfort_tab == "menus":
 		var sizes: Array = []
@@ -513,6 +515,11 @@ func _build_comfort() -> void:
 		_add_gesture_row("Lancers", "throw", VisualStyle.throw_gain, [0.8, 1.0, 1.2], ["Doux", "Normal", "Fort"])
 		_add_gesture_row("Billard", "cue", VisualStyle.cue_gain, [0.75, 1.0, 1.25], ["Doux", "Normal", "Fort"])
 		_add_gesture_row("Barres", "rod", VisualStyle.rod_gain, [0.75, 1.0, 1.25], ["Calme", "Normal", "Vif"])
+	elif _comfort_tab == "audio":
+		_add_gesture_row("Général", "master", VisualStyle.master_volume, [0.0, 0.5, 1.0], ["Muet", "50 %", "100 %"])
+		_add_gesture_row("Musique", "music", VisualStyle.music_volume, [0.0, 0.5, 1.0], ["Muet", "50 %", "100 %"])
+		_add_gesture_row("Effets", "effects", VisualStyle.effects_volume, [0.0, 0.5, 1.0], ["Muet", "50 %", "100 %"])
+		_comfort.add_row("", [{"id": "audio_test", "text": "Tester un son", "width": 0.28}])
 	else:
 		var page: Dictionary = QuickGuide.PAGES[_guide_page]
 		_comfort.set_title("Guide · " + String(page["title"]), "%d / %d" % [_guide_page + 1, QuickGuide.PAGES.size()])
@@ -539,9 +546,9 @@ func _on_comfort_pressed(id: String) -> void:
 	if id == "close":
 		close_comfort()
 		return
-	if id in ["tab_menus", "tab_gestures", "tab_guide"]:
+	if id in ["tab_menus", "tab_gestures", "tab_audio", "tab_guide"]:
 		_comfort_tab = id.trim_prefix("tab_")
-		_comfort_message = "Taille et distance des menus" if _comfort_tab == "menus" else "Lancers · queue de billard · baby-foot"
+		_comfort_message = {"menus": "Taille et distance des menus", "gestures": "Lancers · queue de billard · baby-foot", "audio": "Effets : bruitages et ambiance"}.get(_comfort_tab, "Commandes des jeux")
 		_build_comfort()
 		return
 	if _comfort_tab == "guide":
@@ -552,6 +559,9 @@ func _on_comfort_pressed(id: String) -> void:
 		else:
 			return
 		_build_comfort()
+		return
+	if _comfort_tab == "audio" and id == "audio_test":
+		Sound.play("bull_ding", -8.0)
 		return
 	var result: Error = OK
 	if _comfort_tab == "gestures":
@@ -571,6 +581,24 @@ func _on_comfort_pressed(id: String) -> void:
 		else:
 			return
 		result = VisualStyle.set_gestures(throwing, cue, rod)
+	elif _comfort_tab == "audio":
+		var master := VisualStyle.master_volume
+		var music := VisualStyle.music_volume
+		var effects := VisualStyle.effects_volume
+		if id.begins_with("master_"):
+			master = id.substr(7).to_float()
+		elif id.begins_with("music_"):
+			music = id.substr(6).to_float()
+		elif id.begins_with("effects_"):
+			effects = id.substr(8).to_float()
+		elif id == "reset":
+			master = 1.0
+			music = 1.0
+			effects = 1.0
+		else:
+			return
+		result = VisualStyle.set_audio(master, music, effects)
+		Sound.apply_preferences()
 	else:
 		var size := VisualStyle.ui_scale
 		var distance := VisualStyle.distance_factor

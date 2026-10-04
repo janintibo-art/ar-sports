@@ -20,7 +20,7 @@ func _run() -> void:
 		seen[page["title"]] = true
 		assert(main._guide_page == i)
 		assert(main._comfort._title.contains(page["title"]))
-		assert(main._comfort._buttons.size() == 6)
+		assert(main._comfort._buttons.size() == 7)
 		var labels := 0
 		for child in main._comfort._root.get_children():
 			if child is Label3D and child.text == page["text"]:
@@ -30,7 +30,7 @@ func _run() -> void:
 				for line in String(page["text"]).split("\n"):
 					assert(font.get_string_size(line, HORIZONTAL_ALIGNMENT_LEFT, -1, child.font_size).x * child.pixel_size <= 0.83)
 				assert(child.position.y < main._comfort._buttons[0].position.y - 0.04)
-				assert(child.position.y - 0.26 > main._comfort._buttons[3].position.y + 0.04)
+				assert(child.position.y - 0.26 > main._comfort._buttons[4].position.y + 0.04)
 		assert(labels == 1)
 		for button in main._comfort._buttons:
 			assert(button.collision_layer == 2)

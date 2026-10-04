@@ -2,7 +2,7 @@ class_name QuickGuide
 extends RefCounted
 ## Fiches courtes consultables depuis Confort, sans interrompre une partie.
 const PAGES := [
-	{"title": "Commandes communes", "text": "Vise un bouton au laser, puis appuie sur la gâchette.\nA / X : replace le panneau devant toi.\nB / Y : pause dans un jeu.\nMenu gauche en jeu : choisir un autre jeu.\nConfort : taille, distance et puissance des gestes."},
+	{"title": "Commandes communes", "text": "Vise un bouton au laser, puis appuie sur la gâchette.\nA / X : replace le panneau devant toi.\nB / Y : pause dans un jeu.\nMenu gauche en jeu : choisir un autre jeu.\nConfort : menus, gestes et volumes audio."},
 	{"title": "Bowling", "text": "Approche la main de la boule.\nGâchette ou poignée : prends-la.\nBalance le bras, puis relâche pour lancer.\nUn lancer doux limite les gestes brusques.\nConfort > Gestes ajuste la puissance des lancers."},
 	{"title": "Fléchettes", "text": "Approche la main d'une fléchette.\nGâchette ou poignée : prends-la.\nVise, fais ton geste et relâche.\nEn 301 / 501, vérifie la règle de sortie choisie.\nConfort > Gestes ajuste la puissance des lancers."},
 	{"title": "Ping-pong", "text": "Place-toi devant la table, raquette prête.\nAu service, la gâchette lance la balle en l'air.\nFrappe-la ensuite avec ta raquette.\nChoisis Entraînement pour pratiquer les renvois.\nCommence par le niveau Facile."},

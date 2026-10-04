@@ -125,6 +125,13 @@ jobs:
           grep -q "SELFTEST guide_v23=OK" guide.log
           if grep -qE "SCRIPT ERROR|Parse Error" guide.log; then exit 1; fi
 
+      - name: Vérifier les réglages audio
+        run: |
+          set -o pipefail
+          timeout 30 godot --headless -s tools/check_v24_audio.gd 2>&1 | tee audio.log
+          grep -q "SELFTEST audio_v24=OK" audio.log
+          if grep -qE "SCRIPT ERROR|Parse Error" audio.log; then exit 1; fi
+
       - name: Exporter l'APK
         env:
           GODOT_ANDROID_KEYSTORE_DEBUG_PATH: ${{ github.workspace }}/keys/debug.keystore
