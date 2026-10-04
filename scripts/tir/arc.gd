@@ -408,19 +408,7 @@ func _on_panel_pressed(id: String) -> void:
 func _build_bow() -> void:
 	_bow = Node3D.new()
 	add_child(_bow)
-	var wood := BowlingArt.mat(Color(0.5, 0.3, 0.12), 0.45)
-	var pts: Array[Vector3] = []
-	for i in 13:
-		var t := (i - 6) / 6.0
-		pts.append(Vector3(0, t * 0.62, 0.14 * t * t - 0.0))
-	for i in 12:
-		var a := pts[i]
-		var b := pts[i + 1]
-		var seg := BowlingArt.box(Vector3(0.016, 0.016, a.distance_to(b)), wood, (a + b) / 2.0)
-		seg.basis = Basis.looking_at((b - a).normalized(), Vector3.RIGHT).scaled(Vector3(1, 1, 1))
-		_bow.add_child(seg)
-		seg.position = (a + b) / 2.0
-	_bow.add_child(BowlingArt.box(Vector3(0.026, 0.12, 0.03), BowlingArt.mat(Color(0.1, 0.07, 0.05), 0.6), Vector3(0, 0, 0)))
+	_bow.add_child(RangedArt.bow(VisualStyle.detailed))
 	for i in 2:
 		var s := BowlingArt.box(Vector3(0.003, 0.003, 1.0), BowlingArt.unshaded(Color(0.95, 0.95, 0.85)), Vector3.ZERO)
 		_bow.add_child(s)
@@ -517,18 +505,8 @@ func _speed_for(draw: float) -> float:
 func _new_arrow(team: int) -> ArcArrow:
 	var a := ArcArrow.new()
 	a.team = team
-	var n := Node3D.new()
 	var col := CLR_PLAYER if team == PLAYER else CLR_AI
-	var shaft := BowlingArt.cylinder(0.004, 0.004, ARROW_LEN, BowlingArt.surface_material("wood", Color(0.85, 0.7, 0.4)), Vector3(0, 0, ARROW_LEN / 2.0), 6)
-	shaft.rotation_degrees = Vector3(90, 0, 0)
-	n.add_child(shaft)
-	var tip := BowlingArt.cylinder(0.0, 0.007, 0.05, BowlingArt.mat(Color(0.7, 0.7, 0.75), 0.3, 0.8), Vector3(0, 0, -0.02), 6)
-	tip.rotation_degrees = Vector3(-90, 0, 0)
-	n.add_child(tip)
-	for k in 3:
-		var f := BowlingArt.box(Vector3(0.002, 0.03, 0.09), BowlingArt.mat(col, 0.6), Vector3(0, 0, ARROW_LEN - 0.07))
-		f.rotation_degrees = Vector3(0, 0, k * 60.0)
-		n.add_child(f)
+	var n := RangedArt.arrow(ARROW_LEN, col, VisualStyle.detailed)
 	_arrow_root.add_child(n)
 	a.node = n
 	_arrows.append(a)

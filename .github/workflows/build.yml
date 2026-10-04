@@ -139,6 +139,13 @@ jobs:
           grep -q "SELFTEST models_v25=OK" models.log
           if grep -qE "SCRIPT ERROR|Parse Error" models.log; then exit 1; fi
 
+      - name: Vérifier arc, flèches et couteaux
+        run: |
+          set -o pipefail
+          timeout 30 godot --headless -s tools/check_v26_ranged.gd 2>&1 | tee ranged.log
+          grep -q "SELFTEST ranged_v26=OK" ranged.log
+          if grep -qE "SCRIPT ERROR|Parse Error" ranged.log; then exit 1; fi
+
       - name: Exporter l'APK
         env:
           GODOT_ANDROID_KEYSTORE_DEBUG_PATH: ${{ github.workspace }}/keys/debug.keystore

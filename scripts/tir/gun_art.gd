@@ -54,7 +54,10 @@ static func build(shotgun: bool, detailed: bool) -> Node3D:
 		for i in 6:
 			parts.append(BowlingArt.box(Vector3(thickness + 0.004, 0.004, 0.006), _dark, Vector3(0, -0.049, -0.2 - i * 0.022)))
 		parts.append(BowlingArt.box(Vector3(0.008, 0.006, 0.08), _steel, Vector3(0, 0.029, -0.01)))
-	return _batch(parts, shotgun, detailed)
+	var result := batch(parts)
+	result.set_meta("shotgun", shotgun)
+	result.set_meta("detailed", detailed)
+	return result
 
 static func _stock(thickness: float) -> MeshInstance3D:
 	var profile := PackedVector2Array([Vector2(0.065, 0.012), Vector2(0.24, 0.012), Vector2(0.445, 0.025), Vector2(0.445, -0.105), Vector2(0.30, -0.09), Vector2(0.145, -0.038), Vector2(0.095, -0.091), Vector2(0.06, -0.078)])
@@ -82,7 +85,7 @@ static func _stock(thickness: float) -> MeshInstance3D:
 	result.material_override = _wood
 	return result
 
-static func _batch(parts: Array[MeshInstance3D], shotgun: bool, detailed: bool) -> Node3D:
+static func batch(parts: Array[MeshInstance3D]) -> Node3D:
 	var groups := {}
 	for part in parts:
 		var material: Material = part.material_override
@@ -97,8 +100,6 @@ static func _batch(parts: Array[MeshInstance3D], shotgun: bool, detailed: bool) 
 		groups[material].commit(combined)
 	var root := Node3D.new()
 	root.name = "Habillage"
-	root.set_meta("shotgun", shotgun)
-	root.set_meta("detailed", detailed)
 	var visual := MeshInstance3D.new()
 	visual.mesh = combined
 	visual.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF

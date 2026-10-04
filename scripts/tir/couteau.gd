@@ -248,17 +248,7 @@ func _build_target_face() -> void:
 
 
 func _make_knife_node() -> Node3D:
-	var n := Node3D.new()
-	var steel := BowlingArt.mat(Color(0.8, 0.82, 0.86), 0.25, 0.9)
-	var grip := BowlingArt.mat(Color(0.2, 0.12, 0.07), 0.6)
-	n.add_child(BowlingArt.box(Vector3(0.022, 0.024, 0.12), grip, Vector3(0, 0, 0.1)))
-	n.add_child(BowlingArt.box(Vector3(0.004, 0.032, 0.13), steel, Vector3(0, 0, -0.025)))
-	var tip := BowlingArt.cylinder(0.0, 0.016, 0.05, steel, Vector3(0, 0, -0.115), 4)
-	tip.rotation_degrees = Vector3(-90, 45, 0)
-	tip.scale = Vector3(0.28, 1.0, 1.0)
-	n.add_child(tip)
-	n.add_child(BowlingArt.box(Vector3(0.03, 0.036, 0.012), BowlingArt.mat(Color(0.85, 0.7, 0.2), 0.4, 0.7), Vector3(0, 0, 0.04)))
-	return n
+	return RangedArt.knife(VisualStyle.detailed)
 
 
 func _build_knives() -> void:

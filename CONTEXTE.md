@@ -249,3 +249,7 @@ Base v23 (ac0d936). Confort > Audio : général, musique, effets (muet/50/100 %)
 ## v25 — modèles de carabine et ball-trap
 
 Base v24 (bf94a52). GunArt génère un habillage statique regroupé : crosse profilée, bois texturé, garde-main, métal, pontet, détente, détails selon qualité. Un mesh, 4/5 surfaces ; 1012/1264 triangles détaillés, 688/868 légers. _build_gun des deux disciplines remplacé sans modifier la visée ni les tirs. Test tools/check_v25_models.gd intégré au CI ; captures tools/shot_v25.gd. Voir NOTES_V25.md. Version 0.25.0.
+
+## v26 — arc, flèches et couteaux
+
+Base v25 (206d8ea). RangedArt génère les habillages statiques : arc profilé, empennages de flèche, lame et manche de couteau. Meshes partagés en cache, un nœud de rendu par modèle. GunArt.batch réutilisable ; métadonnées des fusils préservées. Remplacement des seules constructions visuelles dans arc.gd et couteau.gd ; corde et trajectoires inchangées. Test tools/check_v26_ranged.gd intégré au CI, captures tools/shot_v26.gd. Voir NOTES_V26.md. Version 0.26.0.
