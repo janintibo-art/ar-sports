@@ -90,6 +90,13 @@ jobs:
           grep -q "SELFTEST visual_ui=OK" visual_ui.log
           if grep -qE "SCRIPT ERROR|Parse Error" visual_ui.log; then exit 1; fi
 
+      - name: Vérifier les deux profils graphiques
+        run: |
+          set -o pipefail
+          timeout 60 godot --headless -s tools/check_v19_style.gd 2>&1 | tee style.log
+          grep -q "SELFTEST style_v19=OK" style.log
+          if grep -qE "SCRIPT ERROR|Parse Error" style.log; then exit 1; fi
+
       - name: Exporter l'APK
         env:
           GODOT_ANDROID_KEYSTORE_DEBUG_PATH: ${{ github.workspace }}/keys/debug.keystore

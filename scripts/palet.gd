@@ -1589,6 +1589,7 @@ func _selftest_run() -> void:
 
 ## Cour de ferme bretonne : arbres, bancs, lampadaires, muret et enseigne au fond.
 func _build_decor() -> void:
+	_terrain.add_child(Decor.sport_corner("garden", Vector3(tw / 2.0 + 0.5, 0, -2.0)))
 	var side := tw / 2.0
 	var zs := [-2.5, -4.5, -6.5, -8.5]
 	for i in zs.size():

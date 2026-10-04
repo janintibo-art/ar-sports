@@ -213,6 +213,7 @@ func _build_decor() -> void:
 		add_child(_decor)
 	for c in _decor.get_children():
 		c.queue_free()
+	_decor.add_child(Decor.sport_corner("garden", Vector3(tw / 2.0 + 1.0, 0, z_net)))
 	_decor.add_child(Decor.rug(Vector2(tw + 2.4, tl + 2.6), Color(0.1, 0.16, 0.3), Vector3(0, 0.002, z_net)))
 	_decor.add_child(Decor.rug(Vector2(tw + 2.6, tl + 2.8), Color(0.22, 0.27, 0.4), Vector3(0, 0.0015, z_net)))
 	var sign_node := Decor.neon_sign("PING-PONG", Color(0.2, 0.8, 0.45), 1.7, 0.48)

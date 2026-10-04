@@ -255,6 +255,7 @@ func _apply_layout() -> void:
 
 
 func _build_decor(len: float) -> void:
+	_field.add_child(Decor.sport_corner("garden", Vector3(2.0, 0, -2.0)))
 	var zf := 1.0 - len
 	for i in 4:
 		for sx in [-1.0, 1.0]:

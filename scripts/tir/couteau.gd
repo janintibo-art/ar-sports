@@ -189,6 +189,7 @@ func _build_range() -> void:
 		c.queue_free()
 	_clear_knives()
 	var d := _dist()
+	_scene.add_child(Decor.sport_corner("fair", Vector3(0, 2.3, -d - 0.5)))
 	var len := d + 5.0
 	var fm := StandardMaterial3D.new()
 	fm.albedo_texture = _wood_texture()

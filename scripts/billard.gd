@@ -201,6 +201,7 @@ func _build_table() -> void:
 
 
 func _build_decor() -> void:
+	_table.add_child(Decor.sport_corner("pub", Vector3(-1.45, 0, TZ - 1.28)))
 	# Tapis de sol, lampe suspendue, enseigne au mur du fond, plantes
 	_table.add_child(Decor.rug(Vector2(4.2, 3.2), Color(0.35, 0.08, 0.1), Vector3(0, 0.003, TZ)))
 	var shade := BowlingArt.mat(Color(0.05, 0.35, 0.2), 0.4, 0.3)

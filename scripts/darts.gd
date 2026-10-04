@@ -112,6 +112,7 @@ func _exit_tree() -> void:
 func _build_decor() -> void:
 	_decor = Node3D.new()
 	add_child(_decor)
+	_decor.add_child(Decor.sport_corner("retro", Vector3(1.35, 0, -1.8)))
 	# Ligne de lancer lumineuse au sol
 	_decor.add_child(BowlingArt.box(Vector3(0.9, 0.004, 0.035), BowlingArt.unshaded(Color(1.0, 0.8, 0.2)), Vector3(0, 0.002, 0)))
 	# Porte-fléchettes : pied, plateau, bloc de mousse

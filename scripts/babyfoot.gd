@@ -230,6 +230,7 @@ func _make_rod_nodes(r: BfRod) -> void:
 
 
 func _build_decor() -> void:
+	_table.add_child(Decor.sport_corner("pub", Vector3(-1.55, 0, TZ - 1.25)))
 	_table.add_child(Decor.rug(Vector2(4.2, 3.0), Color(0.12, 0.25, 0.4), Vector3(0, 0.003, TZ)))
 	var wall := BowlingArt.box(Vector3(4.8, 2.3, 0.1), BowlingArt.mat(Color(0.2, 0.18, 0.28), 0.9), Vector3(0, 1.15, TZ - 1.6))
 	_table.add_child(wall)

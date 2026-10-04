@@ -36,6 +36,8 @@ var _xr_ok := false
 func _ready() -> void:
 	var args := OS.get_cmdline_user_args()
 	_selftest = args.has("--selftest") or args.has("--selftest-darts") or args.has("--selftest-pingpong") or args.has("--selftest-petanque") or args.has("--selftest-molkky") or args.has("--selftest-palet") or args.has("--selftest-billard") or args.has("--selftest-babyfoot") or args.has("--selftest-tir")
+	if not _selftest:
+		VisualStyle.load_preferences()
 	_build_world()
 	_start_xr()
 	menu = GameMenu.new()

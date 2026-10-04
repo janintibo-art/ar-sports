@@ -21,6 +21,11 @@ const LINES := {
 var display_name := ""
 var mug: Node3D = null      # chope tenue dans la main droite (décor)
 
+var _eyes: Array[Node3D] = []
+var _brows: Array[MeshInstance3D] = []
+var _mouth: MeshInstance3D
+var _teeth: MeshInstance3D
+
 var _style: Dictionary
 var _hips: Node3D
 var _torso: Node3D
@@ -47,8 +52,8 @@ func _init(style: Dictionary) -> void:
 
 func _ready() -> void:
 	var skin := BowlingArt.mat(_style.get("skin", Color(0.93, 0.76, 0.62)), 0.7)
-	var shirt := BowlingArt.mat(_style.get("shirt", Color(0.2, 0.4, 0.8)), 0.85)
-	var pants := BowlingArt.mat(_style.get("pants", Color(0.15, 0.17, 0.25)), 0.9)
+	var shirt := BowlingArt.surface_material("fabric", _style.get("shirt", Color(0.2, 0.4, 0.8)), Vector2(2, 2))
+	var pants := BowlingArt.surface_material("fabric", _style.get("pants", Color(0.15, 0.17, 0.25)), Vector2(2, 3))
 	var hair := BowlingArt.mat(_style.get("hair", Color(0.25, 0.15, 0.08)), 0.9)
 	var shoe := BowlingArt.mat(Color(0.1, 0.1, 0.1), 0.5)
 	var dark := BowlingArt.mat(Color(0.05, 0.05, 0.06), 0.3)
@@ -80,6 +85,8 @@ func _ready() -> void:
 	logo.scale = Vector3(1, 1, 0.3)
 	_torso.add_child(logo)
 
+	if VisualStyle.detailed:
+		_add_clothes(shirt, dark)
 	_arm_l = _make_arm(-1.0, shirt, skin)
 	_arm_r = _make_arm(1.0, shirt, skin)
 
@@ -91,14 +98,31 @@ func _ready() -> void:
 	face.scale = Vector3(0.95, 1.08, 1.0)
 	_head.add_child(face)
 	for side in [-1.0, 1.0]:
-		_head.add_child(BowlingArt.sphere(0.016, dark, Vector3(side * 0.04, 0.17, 0.1), 8))
+		var eye := Node3D.new()
+		eye.position = Vector3(side * 0.04, 0.17, 0.1)
+		_head.add_child(eye)
+		var white := BowlingArt.sphere(0.021, BowlingArt.mat(Color(0.95, 0.96, 0.94)), Vector3.ZERO, 10)
+		white.scale = Vector3(1, 0.75, 0.45)
+		eye.add_child(white)
+		eye.add_child(BowlingArt.sphere(0.010, dark, Vector3(0, 0, 0.012), 8))
+		_eyes.append(eye)
+		if VisualStyle.detailed:
+			eye.add_child(BowlingArt.sphere(0.0035, BowlingArt.unshaded(Color.WHITE), Vector3(-0.003, 0.004, 0.021), 6))
+		var brow := BowlingArt.box(Vector3(0.037, 0.006, 0.008), hair, Vector3(side * 0.04, 0.199, 0.102))
+		_head.add_child(brow)
+		_brows.append(brow)
 		_head.add_child(BowlingArt.sphere(0.022, skin, Vector3(side * 0.112, 0.15, 0.0), 8))
 	_head.add_child(BowlingArt.sphere(0.02, skin, Vector3(0, 0.135, 0.115), 8))
-	var mouth := BowlingArt.box(Vector3(0.05, 0.008, 0.01), BowlingArt.mat(Color(0.5, 0.15, 0.15)), Vector3(0, 0.09, 0.105))
+	var mouth := BowlingArt.rounded_panel(Vector2(0.055, 0.012), Color(0.24, 0.045, 0.035), Color(0.38, 0.08, 0.07), 0.006)
+	mouth.position = Vector3(0, 0.09, 0.119)
 	_head.add_child(mouth)
+	_mouth = mouth
+	_teeth = BowlingArt.box(Vector3(0.036, 0.0025, 0.002), BowlingArt.mat(Color(0.94, 0.94, 0.89)), Vector3(0, 0.002, 0.002))
+	_teeth.visible = false
+	_mouth.add_child(_teeth)
 	# Cheveux
-	var top := BowlingArt.sphere(0.12, hair, Vector3(0, 0.19, -0.012), 16)
-	top.scale = Vector3(1.0, 0.75, 1.02)
+	var top := BowlingArt.sphere(0.12, hair, Vector3(0, 0.24, -0.018), 16)
+	top.scale = Vector3(1.0, 0.50, 1.02)
 	_head.add_child(top)
 	if _style.get("ponytail", false):
 		var tail := BowlingArt.capsule(0.04, 0.2, hair, Vector3(0, 0.13, -0.13))
@@ -108,7 +132,7 @@ func _ready() -> void:
 		var beard := BowlingArt.sphere(0.09, hair, Vector3(0, 0.08, 0.05), 12)
 		beard.scale = Vector3(1.05, 0.7, 0.8)
 		_head.add_child(beard)
-		_head.add_child(BowlingArt.box(Vector3(0.05, 0.008, 0.01), BowlingArt.mat(Color(0.5, 0.15, 0.15)), Vector3(0, 0.095, 0.112)))
+		mouth.position = Vector3(0, 0.095, 0.127)
 	if _style.get("hat", false):
 		var cap_mat := BowlingArt.mat(_style.get("hat_color", Color(0.85, 0.15, 0.15)), 0.8)
 		_head.add_child(BowlingArt.cylinder(0.118, 0.122, 0.07, cap_mat, Vector3(0, 0.255, 0), 18))
@@ -181,6 +205,7 @@ func _play(anim: String, duration: float) -> void:
 
 func _process(delta: float) -> void:
 	_t += delta
+	_update_face(delta)
 	var t := _t + _phase_offset
 	if _bubble_time > 0.0:
 		_bubble_time -= delta
@@ -252,3 +277,35 @@ func _process(delta: float) -> void:
 		yaw = clampf(rad_to_deg(atan2(local.x, local.z)), -70.0, 70.0)
 	var target := Vector3(head_pitch, yaw, 0)
 	_head.rotation_degrees = _head.rotation_degrees.lerp(target, minf(1.0, delta * 5.0))
+
+
+func _add_clothes(shirt: Material, dark: Material) -> void:
+	# Col, poche et boutons : détails fixes sans animation ou collisions.
+	for side in [-1.0, 1.0]:
+		var collar := BowlingArt.box(Vector3(0.075, 0.028, 0.014), BowlingArt.mat(Color(0.9, 0.9, 0.83)), Vector3(side * 0.038, 0.57, 0.102))
+		collar.rotation.z = side * 0.35
+		_torso.add_child(collar)
+	var pocket := BowlingArt.box(Vector3(0.075, 0.082, 0.012), shirt, Vector3(-0.082, 0.41, 0.137))
+	_torso.add_child(pocket)
+	_torso.add_child(BowlingArt.box(Vector3(0.077, 0.006, 0.015), dark, Vector3(-0.082, 0.452, 0.146)))
+	for i in 3:
+		_torso.add_child(BowlingArt.sphere(0.007, dark, Vector3(0, 0.38 + i * 0.055, 0.145), 6))
+	_hips.add_child(BowlingArt.box(Vector3(0.27, 0.025, 0.023), dark, Vector3(0, 0.015, 0.138)))
+	_hips.add_child(BowlingArt.box(Vector3(0.038, 0.032, 0.012), BowlingArt.mat(Color(0.7, 0.65, 0.4), 0.35, 0.6), Vector3(0, 0.015, 0.154)))
+
+
+func _update_face(delta: float) -> void:
+	# Clignement déterministe avec un décalage propre à chaque personnage.
+	var phase := fposmod(_t + _phase_offset, 4.7)
+	var blink := 1.0 - 0.92 * sin(PI * phase / 0.16) if phase < 0.16 else 1.0
+	for eye in _eyes:
+		eye.scale.y = blink
+	var happy := _anim in ["cheer", "clap"]
+	var sad := _anim == "sad"
+	_teeth.visible = happy
+	var target := Vector3(1.15, 3.0, 1) if happy else (Vector3(0.75, 0.8, 1) if sad else Vector3.ONE)
+	_mouth.scale = _mouth.scale.lerp(target, minf(1.0, delta * 8))
+	_mouth.rotation.z = lerpf(_mouth.rotation.z, 0.15 if sad else 0.0, minf(1.0, delta * 8))
+	for i in _brows.size():
+		var side := -1.0 if i == 0 else 1.0
+		_brows[i].rotation.z = side * (-0.22 if happy else (0.28 if sad else 0.0))

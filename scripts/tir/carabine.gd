@@ -196,6 +196,7 @@ func _build_range() -> void:
 	_gitems.clear()
 	_marks.clear()
 	var d := -_plane_z()
+	_scene.add_child(Decor.sport_corner("fair", Vector3(0, 2.3, -d - 0.5)))
 	var len := d + 6.0
 	var gm := StandardMaterial3D.new()
 	gm.albedo_texture = _grass_texture()

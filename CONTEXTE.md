@@ -221,3 +221,7 @@ et fléchettes, joués dans la vraie pièce grâce au passthrough.
 ## v18 — analyse et matériaux
 
 Base v17 (82627ec), livraison différentielle ar_sports_v18.zip. Menu à coins arrondis, textes ajustés, matériaux partagés en cache et filet ajouré. Ombres de décor locales ; ancien jeu retiré avant création du suivant ; menu désactivé pendant les jeux. Version affichée 0.18.0. Régressions : tools/check_visual_ui.gd, lancé dans le CI. Voir ANALYSE_V18.md pour les constats, limites et priorités.
+
+## v19 — personnages et ambiances
+
+Base v18 (4a0b211). Personnages expressifs et vêtements détaillés dans Spectator. Accessoires par sport via Decor.sport_corner. VisualStyle (classe à préférence statique) mémorise Décor détaillé/léger ; bouton du menu, appliqué au prochain jeu. Test tools/check_v19_style.gd dans le CI, captures tools/shot_v19.gd. Voir NOTES_V19.md. Version affichée 0.19.0.

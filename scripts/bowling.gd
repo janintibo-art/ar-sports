@@ -1044,6 +1044,7 @@ func _build_ball() -> void:
 func _build_decor() -> void:
 	_decor = Node3D.new()
 	_decor.name = "Decor"
+	_decor.add_child(Decor.sport_corner("retro", Vector3(1.65, 0, -2.5)))
 	add_child(_decor)
 
 	# Mange-debout avec trois bières et un bol de chips

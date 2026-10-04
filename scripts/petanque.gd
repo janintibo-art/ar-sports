@@ -1378,6 +1378,7 @@ func _selftest_run() -> void:
 
 ## Place de village : platanes, bancs, lampadaires, muret et enseigne au fond.
 func _build_decor() -> void:
+	_terrain.add_child(Decor.sport_corner("village", Vector3(0, 0.35, -tlen - 0.65)))
 	var side := tw / 2.0
 	var zs := [-3.5, -6.0, -8.5, -11.0]
 	for i in zs.size():
