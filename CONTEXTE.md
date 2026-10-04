@@ -40,7 +40,7 @@ et fléchettes, joués dans la vraie pièce grâce au passthrough.
 - `scripts/main.gd` : démarrage XR, passthrough, sol, mains, menu, jeux, panneau
   « Changer de jeu » (bouton Menu de la manette gauche), auto-tests enchaînés.
 - `scripts/hand.gd` : manette (laser, vibration, vitesse de lancer).
-- `scripts/menu.gd` : menu d'accueil (logo animé, 9 cartes en grille 3×3 ; tir est « bientôt ») ; intro au tout premier affichage.
+- `scripts/menu.gd` : menu d'accueil (logo animé, 9 cartes en grille 3×3 ) ; intro au tout premier affichage.
 - `scripts/logo.gd` : logo néon « AR SPORTS » (médaillons, ampoules, teinte animée).
 - `scripts/game_icons.gd` : pictogrammes 3D des jeux (quille, cible, boules, raquette).
 - `scripts/ui_panel.gd` : panneaux flottants à boutons (réglages, pause, fin).
@@ -167,7 +167,15 @@ et fléchettes, joués dans la vraie pièce grâce au passthrough.
 - L'ordi : suit la balle (vitesse/latence par niveau), frappe quand un joueur est aligné et que la balle est devant.
 - Balle immobile 2,5 s = remise en jeu.
 - Auto-test : `--selftest-babyfoot` ; captures : `tools/shot_babyfoot.gd`.
-- Reste à faire : groupe Tir (ball-trap, carabine à plomb, pistolet, lancer de couteau).
+
+
+## Tir (groupe) et Tir à l'arc
+- `scripts/tir.gd` (TirGame) : écran de choix de discipline ; chaque discipline = un script dans `scripts/tir/` listé dans `TirGame.DISCIPLINES` ({id, title, script}). Il relaie boutons, pause et selftest. Pour ajouter une discipline : nouveau script avec l'interface habituelle + une entrée dans DISCIPLINES.
+- `scripts/tir/arc.gd` (ArcGame) + `arc_arrow.gd` : arc dans une main (réglage gauche/droite), l'autre main saisit la corde (gâchette/prise), on tire en arrière, relâcher = tir dans l'axe (arc − corde). Puissance selon l'allonge (0,25 à 0,7 m), tir à vide ignoré.
+- Cible à 10/20/30 m, centre à 1,3 m ; points 10 − floor(10·r/R), botte de paille ; flèches plantées. Gravité, traînée 2 %, vent latéral.
+- Modes : Concours vs Robin (3 ou 5 volées de 3 flèches), Entraînement (record de volée), Cible mobile (10 flèches, record). Niveaux : facile (pas de vent, trajectoire affichée), normal (vent 2), expert (vent 5).
+- Sauvegarde `user://arc.cfg`. Selftest `--selftest-arc` / `--selftest-tir` (barème, visée balistique, chute, vent, tirs réels, concours ×3, mobile, entraînement).
+- Reste à faire : carabine à plomb, pistolet (« arracher » jamais précisé), ball-trap, lancer de couteau.
 
 ## Commandes en jeu
 

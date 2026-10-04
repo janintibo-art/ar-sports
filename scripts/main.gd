@@ -11,6 +11,7 @@ const GAMES := {
 	"palet": preload("res://scripts/palet.gd"),
 	"billard": preload("res://scripts/billard.gd"),
 	"babyfoot": preload("res://scripts/babyfoot.gd"),
+	"tir": preload("res://scripts/tir.gd"),
 }
 
 var xr_interface: XRInterface
@@ -34,7 +35,7 @@ var _xr_ok := false
 
 func _ready() -> void:
 	var args := OS.get_cmdline_user_args()
-	_selftest = args.has("--selftest") or args.has("--selftest-darts") or args.has("--selftest-pingpong") or args.has("--selftest-petanque") or args.has("--selftest-molkky") or args.has("--selftest-palet") or args.has("--selftest-billard") or args.has("--selftest-babyfoot")
+	_selftest = args.has("--selftest") or args.has("--selftest-darts") or args.has("--selftest-pingpong") or args.has("--selftest-petanque") or args.has("--selftest-molkky") or args.has("--selftest-palet") or args.has("--selftest-billard") or args.has("--selftest-babyfoot") or args.has("--selftest-tir")
 	_build_world()
 	_start_xr()
 	menu = GameMenu.new()
@@ -46,7 +47,7 @@ func _ready() -> void:
 	_switcher.visible = false
 	if _selftest:
 		print("SELFTEST démarrage")
-		_run_selftests("darts" if args.has("--selftest-darts") else ("pingpong" if args.has("--selftest-pingpong") else ("petanque" if args.has("--selftest-petanque") else ("molkky" if args.has("--selftest-molkky") else ("palet" if args.has("--selftest-palet") else ("billard" if args.has("--selftest-billard") else ("babyfoot" if args.has("--selftest-babyfoot") else "")))))))
+		_run_selftests("darts" if args.has("--selftest-darts") else ("pingpong" if args.has("--selftest-pingpong") else ("petanque" if args.has("--selftest-petanque") else ("molkky" if args.has("--selftest-molkky") else ("palet" if args.has("--selftest-palet") else ("billard" if args.has("--selftest-billard") else ("babyfoot" if args.has("--selftest-babyfoot") else ("tir" if args.has("--selftest-tir") else ""))))))))
 	else:
 		show_menu()
 
@@ -104,6 +105,13 @@ func _run_selftests(only: String) -> void:
 		game.enable_selftest()
 		var bf_ok: bool = await game.selftest_finished
 		if not bf_ok:
+			get_tree().quit(1)
+			return
+	if only in ["", "tir"]:
+		start_game("tir")
+		game.enable_selftest()
+		var tir_ok: bool = await game.selftest_finished
+		if not tir_ok:
 			get_tree().quit(1)
 			return
 	if only != "":

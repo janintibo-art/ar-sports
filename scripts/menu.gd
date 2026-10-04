@@ -15,7 +15,7 @@ const GAMES := [
 	{"id": "palet", "title": "Palet", "sub": "3 variantes", "color": Color(0.3, 0.7, 0.85), "ready": true},
 	{"id": "billard", "title": "Billard", "sub": "américain · 8 · 9", "color": Color(0.1, 0.5, 0.45), "ready": true},
 	{"id": "babyfoot", "title": "Baby-foot", "sub": "contre l'ordinateur", "color": Color(0.85, 0.35, 0.15), "ready": true},
-	{"id": "tir", "title": "Tir", "sub": "ball-trap · carabine · couteaux", "color": Color(0.65, 0.2, 0.3), "ready": false},
+	{"id": "tir", "title": "Tir", "sub": "tir à l'arc · bientôt d'autres", "color": Color(0.65, 0.2, 0.3), "ready": true},
 ]
 
 const QUIT := {"id": "quit", "title": "Quitter", "sub": "", "color": Color(0.35, 0.35, 0.42), "ready": true}
