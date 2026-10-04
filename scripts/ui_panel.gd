@@ -17,6 +17,8 @@ var _rows: Array = []   # chaque ligne : {caption, items:[{id,text,selected,colo
 var _title := ""
 var _subtitle := ""
 var accent := Color(1.0, 0.72, 0.2)   # couleur du jeu (cadre, titre, ampoules)
+var floor_clearance := 0.0            # hauteur sous laquelle le bas du panneau ne doit pas descendre (table du jeu)
+var _height := 0.0
 
 
 func _ready() -> void:
@@ -104,6 +106,7 @@ func build() -> void:
 			x += w + gap
 		y -= BTN_H + ROW_GAP
 	var height := -y + 0.1
+	_height = height
 	var cy := -height / 2.0 + 0.07
 	var top := 0.07
 	var bot := -height + 0.07
@@ -167,6 +170,10 @@ func place_in_front_of(head: Transform3D, distance: float = 0.85) -> void:
 	forward = forward.normalized()
 	var pos := head.origin + forward * (distance * VisualStyle.distance_factor)
 	pos.y = maxf(head.origin.y - 0.2, 0.8)
+	# Le panneau ne doit jamais entrer dans la table du jeu : on remonte son bas au-dessus d'elle.
+	var half := _height * 0.5 * VisualStyle.ui_scale
+	if floor_clearance > 0.0 and pos.y - half < floor_clearance:
+		pos.y = minf(floor_clearance + half, head.origin.y + 0.5)
 	global_position = pos
 	global_basis = Basis.looking_at(forward, Vector3.UP)
 	scale = Vector3.ONE * VisualStyle.ui_scale

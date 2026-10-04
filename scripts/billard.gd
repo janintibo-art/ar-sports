@@ -128,6 +128,7 @@ func _ready() -> void:
 	_hint.no_depth_test = true
 	add_child(_hint)
 	_panel = UiPanel.new()
+	_panel.floor_clearance = TABLE_Y + 0.35
 	_panel.accent = Color(0.2, 0.85, 0.55)
 	_panel.pressed.connect(_on_panel_pressed)
 	add_child(_panel)

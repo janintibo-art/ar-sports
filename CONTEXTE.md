@@ -263,3 +263,7 @@ Livraison utilisateur : un seul ZIP différentiel ar_sports_vN.zip et deux comma
 ## v28 — équipements de ping-pong
 
 Base v27 (f0db98c). PingArt : raquette au manche arrondi, bois et revêtements texturés, détails selon profil. Mesh partagé par couleur et qualité ; émission AI conservée. Balle orange mate avec couture, tessellation selon qualité. Seules constructions visuelles modifiées ; rayons de collision, services et rebonds inchangés. Test tools/check_v28_ping_art.gd dans le CI, capture tools/shot_v28.gd. Voir NOTES_V28.md. Version 0.28.0.
+
+## v50 — menus et tables
+
+Base v49. `UiPanel.floor_clearance` empêche le panneau de descendre dans la table (ping-pong, baby-foot, billard) selon la hauteur de tête et la taille de menu. Test tools/check_v50_menu_clearance.gd intégré au CI. Voir NOTES_V50.md. Version 0.50.0.

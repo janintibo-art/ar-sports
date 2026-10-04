@@ -209,6 +209,13 @@ jobs:
           grep -q "SELFTEST babyfoot_field_v45=OK" babyfoot_field.log
           if grep -qE "SCRIPT ERROR|Parse Error" babyfoot_field.log; then exit 1; fi
 
+      - name: Vérifier que les menus n'entrent pas dans les tables v50
+        run: |
+          set -o pipefail
+          timeout 60 godot --headless -s tools/check_v50_menu_clearance.gd 2>&1 | tee menu_clearance.log
+          grep -q "SELFTEST menu_clearance_v50=OK" menu_clearance.log
+          if grep -qE "SCRIPT ERROR|Parse Error" menu_clearance.log; then exit 1; fi
+
       - name: Exporter l'APK
         env:
           GODOT_ANDROID_KEYSTORE_DEBUG_PATH: ${{ github.workspace }}/keys/debug.keystore
