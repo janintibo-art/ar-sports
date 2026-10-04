@@ -65,6 +65,25 @@ func _ready() -> void:
 		show_menu()
 
 
+## Termine un auto-test après avoir laissé Godot vider les suppressions différées.
+## Cela évite que `quit()` interrompe la libération du dernier jeu encore affiché.
+func _finish_selftest(code: int) -> void:
+	close_comfort()
+	close_switcher()
+	if game:
+		if game.get_parent() == self:
+			remove_child(game)
+		game.queue_free()
+		game = null
+	_current_id = ""
+
+	# `queue_free()` est traité en fin de frame. Deux frames garantissent aussi
+	# la destruction des enfants et de leurs ressources graphiques.
+	await get_tree().process_frame
+	await get_tree().process_frame
+	get_tree().quit(code)
+
+
 ## Auto-test : bowling, fléchettes, puis navigation entre les jeux. Quitte avec 1 en cas d'échec.
 func _run_selftests(only: String) -> void:
 	if only == "":
@@ -76,63 +95,63 @@ func _run_selftests(only: String) -> void:
 		game.enable_selftest()
 		var darts_ok: bool = await game.selftest_finished
 		if not darts_ok:
-			get_tree().quit(1)
+			await _finish_selftest(1)
 			return
 	if only in ["", "pingpong"]:
 		start_game("pingpong")
 		game.enable_selftest()
 		var pp_ok: bool = await game.selftest_finished
 		if not pp_ok:
-			get_tree().quit(1)
+			await _finish_selftest(1)
 			return
 	if only in ["", "petanque"]:
 		start_game("petanque")
 		game.enable_selftest()
 		var pet_ok: bool = await game.selftest_finished
 		if not pet_ok:
-			get_tree().quit(1)
+			await _finish_selftest(1)
 			return
 	if only in ["", "molkky"]:
 		start_game("molkky")
 		game.enable_selftest()
 		var mol_ok: bool = await game.selftest_finished
 		if not mol_ok:
-			get_tree().quit(1)
+			await _finish_selftest(1)
 			return
 	if only in ["", "palet"]:
 		start_game("palet")
 		game.enable_selftest()
 		var pal_ok: bool = await game.selftest_finished
 		if not pal_ok:
-			get_tree().quit(1)
+			await _finish_selftest(1)
 			return
 	if only in ["", "billard"]:
 		start_game("billard")
 		game.enable_selftest()
 		var bil_ok: bool = await game.selftest_finished
 		if not bil_ok:
-			get_tree().quit(1)
+			await _finish_selftest(1)
 			return
 	if only in ["", "babyfoot"]:
 		start_game("babyfoot")
 		game.enable_selftest()
 		var bf_ok: bool = await game.selftest_finished
 		if not bf_ok:
-			get_tree().quit(1)
+			await _finish_selftest(1)
 			return
 	if only in ["", "tir"]:
 		start_game("tir")
 		game.enable_selftest()
 		var tir_ok: bool = await game.selftest_finished
 		if not tir_ok:
-			get_tree().quit(1)
+			await _finish_selftest(1)
 			return
 	if only != "":
-		get_tree().quit(0)
+		await _finish_selftest(0)
 		return
 	var nav_ok := await _selftest_nav()
 	print("SELFTEST nav=", "OK" if nav_ok else "ECHEC")
-	get_tree().quit(0 if nav_ok else 1)
+	await _finish_selftest(0 if nav_ok else 1)
 
 
 func _selftest_nav() -> bool:
@@ -170,7 +189,6 @@ func _build_world() -> void:
 	environment.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
 	environment.ambient_light_color = Color(0.8, 0.8, 0.85)
 	environment.ambient_light_energy = 0.6
-	# Ciel invisible (passthrough) mais utilisé pour les reflets : boule et quilles brillent.
 	var sky_mat := ProceduralSkyMaterial.new()
 	sky_mat.sky_top_color = Color(0.55, 0.6, 0.75)
 	sky_mat.sky_horizon_color = Color(0.9, 0.85, 0.8)
@@ -190,7 +208,6 @@ func _build_world() -> void:
 	sun.shadow_enabled = false
 	add_child(sun)
 
-	# Sol réel : un plan infini à y = 0 (référence « stage » du Quest).
 	var floor_body := StaticBody3D.new()
 	floor_body.name = "Sol"
 	var floor_shape := CollisionShape3D.new()
@@ -236,14 +253,12 @@ func _start_xr() -> void:
 
 func _on_session_begun() -> void:
 	_set_passthrough(true)
-	# Fréquence d'affichage : 90 Hz si possible, physique calée dessus.
 	var rates: Array = xr_interface.get_available_display_refresh_rates()
 	if rates.has(90.0):
 		xr_interface.display_refresh_rate = 90.0
 	var rate: float = xr_interface.display_refresh_rate
 	if rate > 0.0:
 		Engine.physics_ticks_per_second = int(roundf(rate))
-	# La tête n'est connue qu'une fois la session lancée.
 	await get_tree().create_timer(0.3).timeout
 	_place_current()
 	if game == null:
@@ -268,8 +283,6 @@ func _set_passthrough(enable: bool) -> void:
 		passthrough = false
 
 
-# ---------------------------------------------------------------- navigation
-
 func show_menu() -> void:
 	close_comfort()
 	close_switcher()
@@ -290,7 +303,6 @@ func show_menu() -> void:
 	_place_current()
 
 
-## Le logo n'apparaît en grand qu'au tout premier affichage du menu.
 func _start_intro_if_needed() -> void:
 	if _intro_done:
 		return
@@ -343,9 +355,6 @@ func _place_current() -> void:
 		menu.place_in_front_of(head)
 
 
-# ---------------------------------------------------------------- changer de jeu
-
-## Panneau « Changer de jeu » : bouton Menu de la manette gauche, ou depuis une pause.
 func open_switcher(message: String = "") -> void:
 	if game == null:
 		return
@@ -422,8 +431,6 @@ func _on_switcher_pressed(id: String) -> void:
 					open_switcher("%s arrive bientôt !" % title)
 
 
-# ---------------------------------------------------------------- entrées
-
 func _process(_delta: float) -> void:
 	if _comfort_open:
 		_comfort.update_hover([right_hand.pointed_object(), left_hand.pointed_object()])
@@ -443,7 +450,6 @@ func _on_button_pressed(button: String, hand: Hand) -> void:
 		elif button == "trigger_click":
 			_comfort.click(hand.pointed_object())
 		return
-	# Bouton Menu de la manette gauche : panneau « Changer de jeu », ou quitter depuis le menu.
 	if button == "menu_button":
 		if _switcher_open:
 			close_switcher()
@@ -482,7 +488,6 @@ func quit_app() -> void:
 	get_tree().quit()
 
 
-# ---------------------------------------------------------------- confort
 func open_comfort() -> void:
 	if game != null:
 		return
@@ -492,6 +497,7 @@ func open_comfort() -> void:
 	menu.visible = false
 	menu.process_mode = Node.PROCESS_MODE_DISABLED
 	_build_comfort()
+
 
 func _build_comfort() -> void:
 	_comfort.clear()
@@ -536,11 +542,13 @@ func _build_comfort() -> void:
 	_comfort.show_panel()
 	_comfort.place_in_front_of(camera.global_transform, 1.15)
 
+
 func _add_gesture_row(caption: String, prefix: String, current: float, values: Array, labels: Array) -> void:
 	var items: Array = []
 	for i in values.size():
 		items.append({"id": prefix + "_" + str(values[i]), "text": labels[i], "width": 0.19, "selected": is_equal_approx(current, float(values[i]))})
 	_comfort.add_row(caption, items)
+
 
 func _on_comfort_pressed(id: String) -> void:
 	if id == "close":
@@ -614,6 +622,7 @@ func _on_comfort_pressed(id: String) -> void:
 		result = VisualStyle.set_comfort(size, distance)
 	_comfort_message = "Réglage appliqué et mémorisé" if result == OK else "Appliqué, sauvegarde impossible"
 	_build_comfort()
+
 
 func close_comfort() -> void:
 	if not _comfort_open:
