@@ -41,6 +41,16 @@ func _build_world() -> void:
 	environment.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
 	environment.ambient_light_color = Color(0.8, 0.8, 0.85)
 	environment.ambient_light_energy = 0.6
+	# Ciel invisible (passthrough) mais utilisé pour les reflets : boule et quilles brillent.
+	var sky_mat := ProceduralSkyMaterial.new()
+	sky_mat.sky_top_color = Color(0.55, 0.6, 0.75)
+	sky_mat.sky_horizon_color = Color(0.9, 0.85, 0.8)
+	sky_mat.ground_bottom_color = Color(0.25, 0.2, 0.18)
+	sky_mat.ground_horizon_color = Color(0.6, 0.55, 0.5)
+	var sky := Sky.new()
+	sky.sky_material = sky_mat
+	environment.sky = sky
+	environment.reflected_light_source = Environment.REFLECTION_SOURCE_SKY
 	var world_env := WorldEnvironment.new()
 	world_env.environment = environment
 	add_child(world_env)
@@ -154,6 +164,8 @@ func start_game(game_id: String) -> void:
 	if game:
 		game.queue_free()
 	game = GAMES[game_id].new()
+	if game.has_method("set_hands"):
+		game.set_hands(left_hand, right_hand)
 	game.exit_requested.connect(show_menu)
 	add_child(game)
 	_place_current()

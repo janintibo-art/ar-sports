@@ -12,10 +12,14 @@ config_version=5
 
 config/name="AR Sports"
 config/description="Bowling, pétanque, ping-pong et fléchettes en réalité augmentée sur Quest 3."
-config/version="0.1.0"
+config/version="0.2.0"
 run/main_scene="res://main.tscn"
 config/features=PackedStringArray("4.7", "GL Compatibility")
 config/icon="res://icon.svg"
+
+[autoload]
+
+Sound="*res://scripts/sound.gd"
 
 [display]
 
@@ -25,6 +29,8 @@ window/vsync/vsync_mode=0
 
 3d_physics/layer_1="Monde"
 3d_physics/layer_2="Interface"
+3d_physics/layer_3="Quilles"
+3d_physics/layer_4="Boule"
 
 [physics]
 
