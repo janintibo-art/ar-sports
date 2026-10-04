@@ -167,6 +167,13 @@ jobs:
           grep -q "SELFTEST billard_art_v29=OK" billard_art.log
           if grep -qE "SCRIPT ERROR|Parse Error" billard_art.log; then exit 1; fi
 
+      - name: Vérifier la queue de billard v30
+        run: |
+          set -o pipefail
+          timeout 30 godot --headless -s tools/check_v30_billard_cue.gd 2>&1 | tee billard_cue.log
+          grep -q "SELFTEST billard_cue_v30=OK" billard_cue.log
+          if grep -qE "SCRIPT ERROR|Parse Error" billard_cue.log; then exit 1; fi
+
       - name: Exporter l'APK
         env:
           GODOT_ANDROID_KEYSTORE_DEBUG_PATH: ${{ github.workspace }}/keys/debug.keystore
