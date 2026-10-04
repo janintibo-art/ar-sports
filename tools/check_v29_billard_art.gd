@@ -4,6 +4,10 @@ func _init() -> void:
 	_run.call_deferred()
 
 
+func _color_distance(a: Color, b: Color) -> float:
+	return Vector3(a.r - b.r, a.g - b.g, a.b - b.b).length()
+
+
 func _run() -> void:
 	for i in range(16):
 		var a := BillBall.texture_of(i)
@@ -26,7 +30,14 @@ func _run() -> void:
 	var solid_edge := solid.get_pixel(64, 10)
 	var stripe_edge := stripe.get_pixel(64, 10)
 	var stripe_mid := stripe.get_pixel(64, 64)
-	assert(stripe_edge.r > stripe_mid.r)
+	var white := Color(0.965, 0.96, 0.92)
+	var yellow := BillBall.color_of(9)
+
+	# Sur une rayée, le bord doit être plus proche du blanc et le centre plus
+	# proche de la couleur de la bille. On compare la couleur complète plutôt
+	# qu'un seul canal (le rouge du jaune peut être supérieur à celui du blanc).
+	assert(_color_distance(stripe_edge, white) < _color_distance(stripe_edge, yellow))
+	assert(_color_distance(stripe_mid, yellow) < _color_distance(stripe_mid, white))
 	assert(solid_edge.b < 0.5)
 
 	var main = load("res://main.tscn").instantiate()
