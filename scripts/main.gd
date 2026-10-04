@@ -8,6 +8,7 @@ const GAMES := {
 	"pingpong": preload("res://scripts/pingpong.gd"),
 	"petanque": preload("res://scripts/petanque.gd"),
 	"molkky": preload("res://scripts/molkky.gd"),
+	"palet": preload("res://scripts/palet.gd"),
 }
 
 var xr_interface: XRInterface
@@ -31,7 +32,7 @@ var _xr_ok := false
 
 func _ready() -> void:
 	var args := OS.get_cmdline_user_args()
-	_selftest = args.has("--selftest") or args.has("--selftest-darts") or args.has("--selftest-pingpong") or args.has("--selftest-petanque") or args.has("--selftest-molkky")
+	_selftest = args.has("--selftest") or args.has("--selftest-darts") or args.has("--selftest-pingpong") or args.has("--selftest-petanque") or args.has("--selftest-molkky") or args.has("--selftest-palet")
 	_build_world()
 	_start_xr()
 	menu = GameMenu.new()
@@ -43,7 +44,7 @@ func _ready() -> void:
 	_switcher.visible = false
 	if _selftest:
 		print("SELFTEST démarrage")
-		_run_selftests("darts" if args.has("--selftest-darts") else ("pingpong" if args.has("--selftest-pingpong") else ("petanque" if args.has("--selftest-petanque") else ("molkky" if args.has("--selftest-molkky") else ""))))
+		_run_selftests("darts" if args.has("--selftest-darts") else ("pingpong" if args.has("--selftest-pingpong") else ("petanque" if args.has("--selftest-petanque") else ("molkky" if args.has("--selftest-molkky") else ("palet" if args.has("--selftest-palet") else "")))))
 	else:
 		show_menu()
 
@@ -80,6 +81,13 @@ func _run_selftests(only: String) -> void:
 		game.enable_selftest()
 		var mol_ok: bool = await game.selftest_finished
 		if not mol_ok:
+			get_tree().quit(1)
+			return
+	if only in ["", "palet"]:
+		start_game("palet")
+		game.enable_selftest()
+		var pal_ok: bool = await game.selftest_finished
+		if not pal_ok:
 			get_tree().quit(1)
 			return
 	if only != "":

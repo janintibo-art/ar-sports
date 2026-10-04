@@ -40,7 +40,7 @@ et fléchettes, joués dans la vraie pièce grâce au passthrough.
 - `scripts/main.gd` : démarrage XR, passthrough, sol, mains, menu, jeux, panneau
   « Changer de jeu » (bouton Menu de la manette gauche), auto-tests enchaînés.
 - `scripts/hand.gd` : manette (laser, vibration, vitesse de lancer).
-- `scripts/menu.gd` : menu d'accueil (logo animé, 9 cartes en grille 3×3 ; palet, billard, baby-foot et tir sont « bientôt ») ; intro au tout premier affichage.
+- `scripts/menu.gd` : menu d'accueil (logo animé, 9 cartes en grille 3×3 ; billard, baby-foot et tir sont « bientôt ») ; intro au tout premier affichage.
 - `scripts/logo.gd` : logo néon « AR SPORTS » (médaillons, ampoules, teinte animée).
 - `scripts/game_icons.gd` : pictogrammes 3D des jeux (quille, cible, boules, raquette).
 - `scripts/ui_panel.gd` : panneaux flottants à boutons (réglages, pause, fin).
@@ -73,6 +73,7 @@ et fléchettes, joués dans la vraie pièce grâce au passthrough.
 - `scripts/ui_panel.gd` : panneaux de menu (cadre à ampoules, bandeau de titre, boutons bombés, couleur d'accent par jeu via `accent`).
 - `scripts/molkky.gd` : Mölkky (quilles et bâton en corps rigides Jolt, règle des 50 / dépassement = retour à la moitié / 3 ratés = éliminé, modes Ordi / 2-4 joueurs / entraînement, records dans `user://molkky.cfg`).
 - `scripts/molkky/mol_board.gd` : tableau des scores du Mölkky.
+- `scripts/palet.gd` : Palet (planche de bois, 3 variantes : Breton = rapprocher du maître, Planche à trous = 5 trous à 5/10/20 points, Cible = anneaux 1/2/3/5 comptés en fin de manche ; modes ordi / 2 joueurs / entraînement ; records `user://palet.cfg`). Dérivé de la pétanque, utilise PetBall.
 - `scripts/petanque/pet_ball.gd` : boule / cochonnet (gravité, rebond amorti,
   roulement, chocs). Constantes de réglage : `LAND_KEEP` (0,45) et
   `ROLL_DECEL` (3,2 m/s²).
@@ -138,6 +139,14 @@ et fléchettes, joués dans la vraie pièce grâce au passthrough.
 - IA : vise la quille qui donne les points manquants, atterrit 0,3 m avant ; amortissement du bâton au sol 0,5 / 2,0. Réglage au casque à faire.
 - Auto-test : `--selftest-molkky` (règles, parties complètes, entraînement, lancer humain simulé).
 - Ordre prévu des ajouts : Palet (plusieurs variantes), Billard, Baby-foot, groupe Tir (ball-trap, carabine à plomb, pistolet, lancer de couteau).
+
+## Palet
+
+- Planche 1,6 × 1,2 m à 3,5 ou 5 m. Un palet doit **atterrir sur la planche** (premier contact hors planche = mort ; un palet qui glisse hors de la planche est mort aussi).
+- PetBall réglé pour un disque : `land_keep` 0,35, `roll_decel` 5,0, `ground_y`, `spin=false`. L'aide au lancer ramène l'arrêt dans `_rest_zone()` (le palet glisse ~0,4 m après l'atterrissage).
+- Trous : capture si le centre passe à moins de 0,075 m (même en glissant). Cible : points selon la distance du centre.
+- Auto-test : `--selftest-palet` ; captures : `tools/shot_palet.gd`.
+- Reste à faire : Billard, Baby-foot, groupe Tir.
 
 ## Commandes en jeu
 

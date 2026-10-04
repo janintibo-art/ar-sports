@@ -12,7 +12,7 @@ const GAMES := [
 	{"id": "petanque", "title": "Pétanque", "sub": "contre l'ordinateur", "color": Color(0.75, 0.6, 0.2), "ready": true},
 	{"id": "pingpong", "title": "Ping-pong", "sub": "contre l'ordinateur", "color": Color(0.2, 0.6, 0.35), "ready": true},
 	{"id": "molkky", "title": "Mölkky", "sub": "50 points · 2 à 4 joueurs", "color": Color(0.8, 0.5, 0.2), "ready": true},
-	{"id": "palet", "title": "Palet", "sub": "plusieurs variantes", "color": Color(0.5, 0.35, 0.7), "ready": false},
+	{"id": "palet", "title": "Palet", "sub": "3 variantes", "color": Color(0.3, 0.7, 0.85), "ready": true},
 	{"id": "billard", "title": "Billard", "sub": "américain · 8 · 9", "color": Color(0.1, 0.5, 0.45), "ready": false},
 	{"id": "babyfoot", "title": "Baby-foot", "sub": "contre l'ordinateur", "color": Color(0.85, 0.35, 0.15), "ready": false},
 	{"id": "tir", "title": "Tir", "sub": "ball-trap · carabine · couteaux", "color": Color(0.65, 0.2, 0.3), "ready": false},

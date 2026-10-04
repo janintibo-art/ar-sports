@@ -15,6 +15,10 @@ var team := 0                # 1 = vous, -1 = adversaire, 0 = cochonnet
 var moving := true
 var dead := false            # boule sortie du terrain
 var touched := false         # a déjà touché le sol
+var land_keep := LAND_KEEP   # réglable par jeu (palet : planche)
+var roll_decel := ROLL_DECEL
+var ground_y := -1.0         # hauteur du centre au repos (-1 : le rayon)
+var spin := true             # false : disque, il ne roule pas
 var land_speed := 0.0        # vitesse d'impact du dernier atterrissage (le jeu la lit puis la remet à 0)
 var node: MeshInstance3D
 var shadow: MeshInstance3D
@@ -25,23 +29,24 @@ func move(dt: float) -> void:
 		return
 	vel.y -= G * dt
 	pos += vel * dt
-	if pos.y > r:
+	var gy := r if ground_y < 0.0 else ground_y
+	if pos.y > gy:
 		return
-	pos.y = r
+	pos.y = gy
 	touched = true
 	if vel.y < -0.8:
 		land_speed = -vel.y
 		vel.y = -vel.y * 0.08
-		vel.x *= LAND_KEEP
-		vel.z *= LAND_KEEP
+		vel.x *= land_keep
+		vel.z *= land_keep
 		return
 	vel.y = 0.0
 	var sp := Vector2(vel.x, vel.z).length()
-	if sp <= ROLL_DECEL * dt + 0.03:
+	if sp <= roll_decel * dt + 0.03:
 		vel = Vector3.ZERO
 		moving = false
 	else:
-		var k := (sp - ROLL_DECEL * dt) / sp
+		var k := (sp - roll_decel * dt) / sp
 		vel.x *= k
 		vel.z *= k
 
