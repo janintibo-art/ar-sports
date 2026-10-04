@@ -40,7 +40,7 @@ et fléchettes, joués dans la vraie pièce grâce au passthrough.
 - `scripts/main.gd` : démarrage XR, passthrough, sol, mains, menu, jeux, panneau
   « Changer de jeu » (bouton Menu de la manette gauche), auto-tests enchaînés.
 - `scripts/hand.gd` : manette (laser, vibration, vitesse de lancer).
-- `scripts/menu.gd` : menu d'accueil (logo animé, 9 cartes en grille 3×3 ; billard, baby-foot et tir sont « bientôt ») ; intro au tout premier affichage.
+- `scripts/menu.gd` : menu d'accueil (logo animé, 9 cartes en grille 3×3 ; baby-foot et tir sont « bientôt ») ; intro au tout premier affichage.
 - `scripts/logo.gd` : logo néon « AR SPORTS » (médaillons, ampoules, teinte animée).
 - `scripts/game_icons.gd` : pictogrammes 3D des jeux (quille, cible, boules, raquette).
 - `scripts/ui_panel.gd` : panneaux flottants à boutons (réglages, pause, fin).
@@ -74,6 +74,8 @@ et fléchettes, joués dans la vraie pièce grâce au passthrough.
 - `scripts/molkky.gd` : Mölkky (quilles et bâton en corps rigides Jolt, règle des 50 / dépassement = retour à la moitié / 3 ratés = éliminé, modes Ordi / 2-4 joueurs / entraînement, records dans `user://molkky.cfg`).
 - `scripts/molkky/mol_board.gd` : tableau des scores du Mölkky.
 - `scripts/palet.gd` : Palet (planche de bois, 3 variantes : Breton = rapprocher du maître, Planche à trous = 5 trous à 5/10/20 points, Cible = anneaux 1/2/3/5 comptés en fin de manche ; modes ordi / 2 joueurs / entraînement ; records `user://palet.cfg`). Dérivé de la pétanque, utilise PetBall.
+- `scripts/billard.gd` : Billard (tapis 1,9 × 0,95 m, 8 boules et 9 boules, ordi Bob / 2 joueurs / entraînement ; physique maison des billes à plat ; queue tenue en main ; records `user://billard.cfg`).
+- `scripts/billard/bill_ball.gd` : bille (position/vitesse 2D, texture pleines/rayées).
 - `scripts/petanque/pet_ball.gd` : boule / cochonnet (gravité, rebond amorti,
   roulement, chocs). Constantes de réglage : `LAND_KEEP` (0,45) et
   `ROLL_DECEL` (3,2 m/s²).
@@ -147,6 +149,14 @@ et fléchettes, joués dans la vraie pièce grâce au passthrough.
 - Trous : capture si le centre passe à moins de 0,075 m (même en glissant). Cible : points selon la distance du centre.
 - Auto-test : `--selftest-palet` ; captures : `tools/shot_palet.gd`.
 - Reste à faire : Billard, Baby-foot, groupe Tir.
+
+## Billard
+
+- Billes en 2D (Vector2) : 8 sous-pas par image, décélération 0,32 m/s², bandes 0,74, chocs 0,95, poches par distance (coin 0,075 / milieu 0,062).
+- Queue : on l'attrape (gâchette/grip) près du support ; la pointe est à 0,6 m devant la main ; frappe détectée quand la pointe touche la blanche à plus de 0,45 m/s, tir dans l'axe horizontal de la queue (vitesse ×1,5). Guide de visée (ligne, bille fantôme, trajectoire de la bille touchée) sauf niveau Expert.
+- Règles dans `resolve_shot()` (testables) : 8 boules (groupes, faute, noire), 9 boules (plus petite d'abord, le 9 gagne). Après faute, la blanche se replace à la main. Arbitre après 70 coups (pour que les parties finissent).
+- Auto-test : `--selftest-billard` ; captures : `tools/shot_billard.gd`.
+- Reste à faire : Baby-foot, groupe Tir.
 
 ## Commandes en jeu
 
