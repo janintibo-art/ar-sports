@@ -16,15 +16,20 @@ func _on_node_added(node: Node) -> void:
 	if script == null:
 		return
 	if script.resource_path == "res://scripts/babyfoot.gd":
-		_apply_later.call_deferred(node)
+		# Ne jamais transmettre directement le Node à un appel différé :
+		# certains tests créent puis détruisent très vite le baby-foot.
+		_apply_later.call_deferred(node.get_instance_id())
 
 
-func _apply_later(game: Node) -> void:
+func _apply_later(game_id: int) -> void:
 	await get_tree().process_frame
+	var game = instance_from_id(game_id)
+	if not is_instance_valid(game):
+		return
 	_apply(game)
 
 
-func _apply(game: Node) -> void:
+func _apply(game) -> void:
 	if not is_instance_valid(game):
 		return
 	if game.has_meta(META_KEY):
@@ -51,7 +56,6 @@ func _apply(game: Node) -> void:
 
 	var y: float = table_y + 0.003
 
-	# Contour complet du terrain, placé juste au-dessus du tapis.
 	art.add_child(BowlingArt.box(
 		Vector3(l, 0.0015, 0.005),
 		white,
@@ -73,7 +77,6 @@ func _apply(game: Node) -> void:
 		Vector3(l / 2.0 - 0.003, y, tz)
 	))
 
-	# Point central.
 	var center = BowlingArt.cylinder(
 		0.012, 0.012, 0.0018, white,
 		Vector3(0, y + 0.0004, tz), 16
@@ -81,7 +84,6 @@ func _apply(game: Node) -> void:
 	center.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	art.add_child(center)
 
-	# Repères discrets dans les quatre coins.
 	for sx_value in [-1.0, 1.0]:
 		var sx: float = float(sx_value)
 		for sz_value in [-1.0, 1.0]:
@@ -97,7 +99,6 @@ func _apply(game: Node) -> void:
 				Vector3(sx * (l / 2.0 - 0.018), y + 0.0002, tz + sz * (w / 2.0 - 0.025))
 			))
 
-	# Accent coloré à l'entrée de chaque but, hors collision.
 	for sx_value in [-1.0, 1.0]:
 		var sx: float = float(sx_value)
 		var goal_mat = blue if sx < 0.0 else red
