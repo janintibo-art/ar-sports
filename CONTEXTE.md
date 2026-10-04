@@ -272,3 +272,8 @@ Base v49. `UiPanel.floor_clearance` empêche le panneau de descendre dans la tab
 - Fusion des maillages fixes du baby-foot (MeshMerge + autoload BabyfootMerge) : ~584 → ~270 appels de rendu.
 - Test CI check_v51_babyfoot_merge ; lampe baby-foot remontée ; gardes `is_inside_tree()` après les attentes de fin de partie ; icônes du lanceur ajoutées (icons/).
 - Reste à faire (check-up) : export release signé, publication de release sans suppression, vérifier les retours de ConfigFile.save().
+
+## v52 (0.52.0) — La Grenouille
+- Nouveau jeu `grenouille` (scripts/grenouille.gd) : meuble à 8 trous, grenouille à 500 points, palet physique, ordi/2–4 joueurs/entraînement, distances Bar 1,5 m et Classique 3 m, 1/3/5 manches de 5 palets.
+- Menu en 4 colonnes (10 cartes), sélecteur de jeux sur 4 colonnes.
+- Auto-test `--selftest-grenouille` ajouté à la CI ; contrôle check_v52_grenouille.

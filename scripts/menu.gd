@@ -16,15 +16,16 @@ const GAMES := [
 	{"id": "billard", "title": "Billard", "sub": "américain · 8 · 9", "color": Color(0.1, 0.5, 0.45), "ready": true},
 	{"id": "babyfoot", "title": "Baby-foot", "sub": "contre l'ordinateur", "color": Color(0.85, 0.35, 0.15), "ready": true},
 	{"id": "tir", "title": "Tir", "sub": "4 disciplines", "color": Color(0.65, 0.2, 0.3), "ready": true},
+	{"id": "grenouille", "title": "Grenouille", "sub": "palets · 500 points", "color": Color(0.3, 0.7, 0.3), "ready": true},
 ]
 
 const QUIT := {"id": "quit", "title": "Quitter", "sub": "", "color": Color(0.35, 0.35, 0.42), "ready": true}
 
-const CARD_SIZE := Vector3(0.29, 0.22, 0.02)
+const CARD_SIZE := Vector3(0.25, 0.22, 0.02)
 const QUIT_SIZE := Vector3(0.3, 0.09, 0.02)
 const LOGO_Y := 0.53
-const COLS := 3
-const CARD_DX := 0.305
+const COLS := 4
+const CARD_DX := 0.262
 const CARD_Y0 := 0.15
 const CARD_DY := 0.235
 const QUIT_Y := -0.52
@@ -63,7 +64,8 @@ func _ready() -> void:
 
 	for i in GAMES.size():
 		var panel := _make_card(GAMES[i], CARD_SIZE)
-		panel.position = Vector3((i % COLS - (COLS - 1) / 2.0) * CARD_DX, CARD_Y0 - CARD_DY * (i / COLS), 0)
+		var in_row := mini(COLS, GAMES.size() - (i / COLS) * COLS)
+		panel.position = Vector3((i % COLS - (in_row - 1) / 2.0) * CARD_DX, CARD_Y0 - CARD_DY * (i / COLS), 0)
 		add_child(panel)
 		_panels.append(panel)
 	var quality := {"id": "quality", "title": _quality_title(), "sub": "", "color": Color(0.17, 0.42, 0.48), "ready": true}
@@ -344,6 +346,7 @@ const HELP := {
 	"palet": "Prends un palet, puis relâche pour lancer.\nFais-le atterrir sur la planche.",
 	"billard": "Prends la queue sur son support.\nFrappe la boule blanche avec la pointe.",
 	"babyfoot": "Prends une poignée près de la barre.\nDéplace la main pour glisser et faire tourner.",
+	"grenouille": "Prends le palet, puis lance-le en cloche.\nVise la bouche de la grenouille : 500 points !",
 	"tir": "Arc · carabine · ball-trap · couteau.\nChoisis ta discipline sur l'écran suivant.",
 	"quality": "Détaillé : accessoires et végétation enrichis.\nLéger : moins d'objets, au prochain jeu.",
 	"comfort": "Réglages des menus, gestes et volumes.\nGuide des commandes de chaque jeu.",
