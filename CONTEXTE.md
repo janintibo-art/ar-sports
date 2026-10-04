@@ -267,3 +267,8 @@ Base v27 (f0db98c). PingArt : raquette au manche arrondi, bois et revêtements t
 ## v50 — menus et tables
 
 Base v49. `UiPanel.floor_clearance` empêche le panneau de descendre dans la table (ping-pong, baby-foot, billard) selon la hauteur de tête et la taille de menu. Test tools/check_v50_menu_clearance.gd intégré au CI. Voir NOTES_V50.md. Version 0.50.0.
+
+## v51 (0.51.0) — optimisations
+- Fusion des maillages fixes du baby-foot (MeshMerge + autoload BabyfootMerge) : ~584 → ~270 appels de rendu.
+- Test CI check_v51_babyfoot_merge ; lampe baby-foot remontée ; gardes `is_inside_tree()` après les attentes de fin de partie ; icônes du lanceur ajoutées (icons/).
+- Reste à faire (check-up) : export release signé, publication de release sans suppression, vérifier les retours de ConfigFile.save().

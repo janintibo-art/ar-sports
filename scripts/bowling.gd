@@ -1206,9 +1206,13 @@ func _selftest_drink() -> void:
 	hand.global_position = cam.global_position - cam.global_basis.y * 0.02 - cam.global_basis.z * 0.12
 	hand.global_basis = Basis.from_euler(Vector3(deg_to_rad(60), 0, 0))
 	await get_tree().create_timer(BeerMug.DRINK_SECONDS + 1.0).timeout
+	if not is_inside_tree():
+		return
 	_selftest_log.append("niveau de bière après avoir bu : %.2f" % mug.level)
 	on_button_released(hand, "grip_click")
 	await get_tree().create_timer(5.0).timeout
+	if not is_inside_tree():
+		return
 	_selftest_log.append("niveau après remplissage : %.2f (état %s)" % [mug.level, BeerMug.State.keys()[mug.state]])
 	_selftest_finish()
 

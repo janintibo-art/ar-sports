@@ -905,6 +905,8 @@ func _end_contest() -> void:
 	if _selftest:
 		return
 	await get_tree().create_timer(2.0).timeout
+	if not is_inside_tree():
+		return
 	if state == State.GAME_OVER and not _panel.visible:
 		show_game_over(summary)
 
@@ -920,6 +922,8 @@ func _end_mobile() -> void:
 	if _selftest:
 		return
 	await get_tree().create_timer(2.0).timeout
+	if not is_inside_tree():
+		return
 	if state == State.GAME_OVER and not _panel.visible:
 		show_game_over("%d points sur %d flèches" % [pts, MOBILE_ARROWS])
 

@@ -1168,6 +1168,8 @@ func _game_over() -> void:
 	if _selftest:
 		return
 	await get_tree().create_timer(1.2).timeout
+	if not is_inside_tree():
+		return
 	if state == State.GAME_OVER and not _panel.visible:
 		show_game_over(summary)
 

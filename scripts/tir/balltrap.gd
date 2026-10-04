@@ -677,6 +677,8 @@ func _end_match() -> void:
 	if _selftest:
 		return
 	await get_tree().create_timer(2.0).timeout
+	if not is_inside_tree():
+		return
 	if state == State.GAME_OVER and not _panel.visible:
 		show_game_over(summary + ("  ·  nouveau record !" if rec else ""))
 

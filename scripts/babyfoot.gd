@@ -243,10 +243,10 @@ func _build_decor() -> void:
 		pl.position = Vector3(sx * 2.0, 0, TZ - 1.3)
 		_table.add_child(pl)
 	var shade := BowlingArt.mat(Color(0.5, 0.1, 0.1), 0.4, 0.3)
-	_table.add_child(BowlingArt.box(Vector3(1.4, 0.1, 0.4), shade, Vector3(0, 1.95, TZ)))
-	_table.add_child(BowlingArt.box(Vector3(1.3, 0.02, 0.3), BowlingArt.unshaded(Color(1.0, 0.95, 0.75)), Vector3(0, 1.89, TZ)))
+	_table.add_child(BowlingArt.box(Vector3(1.4, 0.1, 0.4), shade, Vector3(0, 2.1, TZ)))
+	_table.add_child(BowlingArt.box(Vector3(1.3, 0.02, 0.3), BowlingArt.unshaded(Color(1.0, 0.95, 0.75)), Vector3(0, 2.04, TZ)))
 	for sx in [-0.6, 0.6]:
-		_table.add_child(BowlingArt.cylinder(0.006, 0.006, 1.2, BowlingArt.mat(Color(0.1, 0.1, 0.1), 0.5), Vector3(sx, 2.55, TZ), 8))
+		_table.add_child(BowlingArt.cylinder(0.006, 0.006, 1.2, BowlingArt.mat(Color(0.1, 0.1, 0.1), 0.5), Vector3(sx, 2.7, TZ), 8))
 
 
 func place_in_front_of(head: Transform3D) -> void:
@@ -688,6 +688,8 @@ func _end_game() -> void:
 	if _selftest:
 		return
 	await get_tree().create_timer(2.0).timeout
+	if not is_inside_tree():
+		return
 	if state == State.GAME_OVER and not _panel.visible:
 		show_game_over(summary)
 
@@ -704,6 +706,8 @@ func _end_training() -> void:
 	if _selftest:
 		return
 	await get_tree().create_timer(2.0).timeout
+	if not is_inside_tree():
+		return
 	if state == State.GAME_OVER and not _panel.visible:
 		show_game_over("%d but%s en 60 secondes" % [g, "s" if g > 1 else ""])
 

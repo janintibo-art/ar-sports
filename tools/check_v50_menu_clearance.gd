@@ -8,7 +8,15 @@ func _init() -> void:
 
 func _meshes(n: Node, acc: Array) -> void:
 	if n is MeshInstance3D and n.mesh and n.is_visible_in_tree():
-		acc.append(n.global_transform * n.mesh.get_aabb())
+		if String(n.name).begins_with("Fusion"):
+			# maillage fusionné (v51) : son AABB global est trop large, on teste les sommets
+			var faces: PackedVector3Array = n.mesh.get_faces()
+			for i in range(0, faces.size(), 3):
+				var tri := AABB(n.global_transform * faces[i], Vector3.ZERO)
+				tri = tri.expand(n.global_transform * faces[i + 1]).expand(n.global_transform * faces[i + 2])
+				acc.append(tri)
+		else:
+			acc.append(n.global_transform * n.mesh.get_aabb())
 	for c in n.get_children():
 		_meshes(c, acc)
 

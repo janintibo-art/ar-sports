@@ -260,6 +260,8 @@ func _on_session_begun() -> void:
 	if rate > 0.0:
 		Engine.physics_ticks_per_second = int(roundf(rate))
 	await get_tree().create_timer(0.3).timeout
+	if not is_inside_tree():
+		return
 	_place_current()
 	if game == null:
 		_start_intro_if_needed()

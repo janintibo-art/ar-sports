@@ -216,6 +216,13 @@ jobs:
           grep -q "SELFTEST menu_clearance_v50=OK" menu_clearance.log
           if grep -qE "SCRIPT ERROR|Parse Error" menu_clearance.log; then exit 1; fi
 
+      - name: Vérifier la fusion des maillages du baby-foot
+        run: |
+          set -o pipefail
+          timeout 60 godot --headless -s tools/check_v51_babyfoot_merge.gd 2>&1 | tee babyfoot_merge.log
+          grep -q "SELFTEST babyfoot_merge_v51=OK" babyfoot_merge.log
+          if grep -qE "SCRIPT ERROR|Parse Error" babyfoot_merge.log; then exit 1; fi
+
       - name: Exporter l'APK
         env:
           GODOT_ANDROID_KEYSTORE_DEBUG_PATH: ${{ github.workspace }}/keys/debug.keystore
