@@ -1,7 +1,7 @@
 class_name TirGame
 extends Node3D
 ## Groupe « Tir » : un écran de choix de discipline, puis la discipline choisie (une partie
-## complète comme les autres jeux). Disciplines : tir à l'arc, carabine à plomb, ball-trap. Les prochaines s'ajoutent ici.
+## complète comme les autres jeux). Disciplines : tir à l'arc, carabine à plomb, ball-trap, lancer de couteau. Les prochaines s'ajoutent ici.
 
 signal exit_requested
 signal switch_requested
@@ -11,6 +11,7 @@ const DISCIPLINES := [
 	{"id": "arc", "title": "Tir à l'arc", "script": "res://scripts/tir/arc.gd"},
 	{"id": "carabine", "title": "Carabine à plomb", "script": "res://scripts/tir/carabine.gd"},
 	{"id": "balltrap", "title": "Ball-trap", "script": "res://scripts/tir/balltrap.gd"},
+	{"id": "couteau", "title": "Lancer de couteau", "script": "res://scripts/tir/couteau.gd"},
 ]
 
 var _hands: Array = []
@@ -64,7 +65,6 @@ func show_choice() -> void:
 	_panel.set_title("Tir", "Choisis ta discipline")
 	for d in DISCIPLINES:
 		_panel.add_row("", [{"id": "disc_" + String(d["id"]), "text": d["title"], "width": 0.42, "color": Color(0.7, 0.2, 0.15)}])
-	_panel.add_row("", [{"id": "soon", "text": "Bientôt : lancer de couteau", "width": 0.8, "color": Color(0.25, 0.25, 0.3)}])
 	_panel.add_row("", [{"id": "menu", "text": "Menu", "width": 0.2, "color": Color(0.35, 0.35, 0.4)}])
 	_panel.build()
 	_panel.show_panel()

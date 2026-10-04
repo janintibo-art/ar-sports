@@ -188,7 +188,14 @@ et fléchettes, joués dans la vraie pièce grâce au passthrough.
 - Gerbe de plomb : tir « balayé » à 350 m/s ; touché si la distance plateau–trajectoire ≤ rayon du plateau + angle de gerbe × distance. `lead_point()` calcule l'anticipation (utilisé par le bot de test).
 - Sons ajoutés : `shotgun`, `clay_break`. Sauvegarde `user://balltrap.cfg` (records par parcours).
 - Selftest : touché 1er coup, anticipation, tir derrière, 2e cartouche et points, pas de tir sans plateau / 3e cartouche, 3 parties complètes.
-- Reste à faire : lancer de couteau.
+
+## Lancer de couteau
+- `scripts/tir/couteau.gd` (CouteauGame) : trois couteaux sur une table devant le joueur (`HOLDER_POS`) ; gâchette ou grip près d'un couteau = on le prend (il suit la main), on relâche pour lancer (vitesse de la main × 1,3, minimum 2,5 m/s, sinon le couteau revient).
+- Le couteau tourne : un tour complet exactement jusqu'au plan de la cible (`omega = 2π / temps de vol`), plus une erreur d'angle aléatoire selon le niveau (12°/22°/34°). Il se plante si l'erreur ≤ 45°, sinon il rebondit (0 pt, « Pas planté ! »). Trop court = tombe au sol.
+- Aide à la visée comme aux fléchettes (`_apply_assist`, 0,75/0,45/0,15 : rapproche la trajectoire du centre sans changer le temps de vol).
+- Cible : rondin à 3, 4,5 ou 6 m, 10 zones de largeur égale. Jeux : Concours contre Robin (3 ou 5 manches de 3 couteaux), Entraînement (record de manche), Rondin mobile (9 couteaux, record).
+- Sauvegarde `user://couteau.cfg`. Selftest : barème, planté à 3 et 6 m, rebond, lancer faible/court, aide, concours ×3, rondin mobile, entraînement.
+- Groupe Tir terminé : arc, carabine à plomb, ball-trap, lancer de couteau.
 
 ## Commandes en jeu
 

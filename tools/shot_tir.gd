@@ -46,26 +46,27 @@ func _run() -> void:
 	var tir = main.game
 	tir.place_in_front_of(Transform3D(Basis(), Vector3(0, 1.6, 0)))
 	_cam(main, Vector3(0, 1.6, 0), Vector3(0, 1.4, -1))
-	await _snap("120_tir_choix")
-	tir.start_discipline("balltrap")
+	await _snap("130_tir_choix")
+	tir.start_discipline("couteau")
 	await process_frame
 	var game = tir._child
 	game.place_in_front_of(Transform3D(Basis(), Vector3(0, 1.6, 0)))
 	_cam(main, Vector3(0, 1.6, 0), Vector3(0, 1.4, -1))
 	game.show_setup()
-	await _snap("121_balltrap_reglages")
+	await _snap("131_couteau_reglages")
 	game._close_panel()
-	game.settings["mode"] = "skeet"
+	game._st_bot = false
+	game.settings["mode"] = "training"
 	game._apply_layout()
 	game.start_match()
+	await physics_frame
+	_cam(main, Vector3(0, 1.6, 0.2), Vector3(0, 1.1, -1.5))
+	await _snap("132_couteau_table")
 	game._st_bot = true
-	var got := false
-	for i in 90 * 8:
+	for i in 90 * 6:
 		await physics_frame
-		if game._clay_alive and game._clay_age > 0.12 and not got:
-			got = true
-			_cam(main, Vector3(0, 1.6, 0.3), Vector3(0, 2.6, -8))
-			await _snap("122_balltrap_plateau")
-	_cam(main, Vector3(0, 1.6, 0.3), Vector3(0, 1.8, -8))
-	await _snap("123_balltrap_vue")
+	_cam(main, Vector3(0, 1.6, 0.2), Vector3(0, 1.4, -4.5))
+	await _snap("133_couteau_vue")
+	_cam(main, Vector3(0.3, 1.5, -2.0), Vector3(0, 1.45, -4.5))
+	await _snap("134_couteau_cible")
 	quit()
