@@ -150,7 +150,6 @@ et fléchettes, joués dans la vraie pièce grâce au passthrough.
 - PetBall réglé pour un disque : `land_keep` 0,35, `roll_decel` 5,0, `ground_y`, `spin=false`. L'aide au lancer ramène l'arrêt dans `_rest_zone()` (le palet glisse ~0,4 m après l'atterrissage).
 - Trous : capture si le centre passe à moins de 0,075 m (même en glissant). Cible : points selon la distance du centre.
 - Auto-test : `--selftest-palet` ; captures : `tools/shot_palet.gd`.
-- Reste à faire : Billard, Baby-foot, groupe Tir.
 
 ## Billard
 
@@ -158,7 +157,6 @@ et fléchettes, joués dans la vraie pièce grâce au passthrough.
 - Queue : on l'attrape (gâchette/grip) près du support ; la pointe est à 0,6 m devant la main ; frappe détectée quand la pointe touche la blanche à plus de 0,45 m/s, tir dans l'axe horizontal de la queue (vitesse ×1,5). Guide de visée (ligne, bille fantôme, trajectoire de la bille touchée) sauf niveau Expert.
 - Règles dans `resolve_shot()` (testables) : 8 boules (groupes, faute, noire), 9 boules (plus petite d'abord, le 9 gagne). Après faute, la blanche se replace à la main. Arbitre après 70 coups (pour que les parties finissent).
 - Auto-test : `--selftest-billard` ; captures : `tools/shot_billard.gd`.
-- Reste à faire : Baby-foot, groupe Tir.
 
 ## Baby-foot
 
@@ -175,7 +173,15 @@ et fléchettes, joués dans la vraie pièce grâce au passthrough.
 - Cible à 10/20/30 m, centre à 1,3 m ; points 10 − floor(10·r/R), botte de paille ; flèches plantées. Gravité, traînée 2 %, vent latéral.
 - Modes : Concours vs Robin (3 ou 5 volées de 3 flèches), Entraînement (record de volée), Cible mobile (10 flèches, record). Niveaux : facile (pas de vent, trajectoire affichée), normal (vent 2), expert (vent 5).
 - Sauvegarde `user://arc.cfg`. Selftest `--selftest-arc` / `--selftest-tir` (barème, visée balistique, chute, vent, tirs réels, concours ×3, mobile, entraînement).
-- Reste à faire : carabine à plomb, pistolet (« arracher » jamais précisé), ball-trap, lancer de couteau.
+
+## Carabine à plomb
+- `scripts/tir/carabine.gd` (CarabineGame) : carabine dans la main de tir (réglage gauche/droite). Si l'autre main est devant (0,2–0,8 m, dans l'axe), on vise le long de la ligne main -> main (stable), sinon dans l'axe de la main. Gâchette de la main de tir = un plomb (cadence 0,3 s).
+- Plomb : 150 m/s, gravité, canon relevé automatiquement pour toucher à la distance réglée (`zero_pitch`). Détection par franchissement du plan de la cible.
+- Jeux : Concours contre Robin (3 ou 5 séries de 5 plombs, cible papier 10 zones, 10 ou 25 m), Entraînement (record de série), Stand de foire (60 s : boîtes 5 pts, canards mobiles 10 pts, étoile bonus 25 pts, record).
+- Niveaux : facile (point rouge d'aide, cibles plus grandes/lentes), normal, expert (cibles petites/rapides, Robin plus précis).
+- Sons ajoutés : `air_shot`, `can_ping` (générés par `tools/make_sounds.py`). Sauvegarde `user://carabine.cfg`.
+- Selftest : barème, tir au centre à 10 et 25 m, cadence, hors cible, mi-rayon, boîte/canard, concours ×3, stand, entraînement.
+- Reste à faire : ball-trap, lancer de couteau.
 
 ## Commandes en jeu
 

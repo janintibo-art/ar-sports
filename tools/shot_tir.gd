@@ -41,32 +41,38 @@ func _run() -> void:
 	room_floor.position.y = -0.002
 	main.add_child(room_floor)
 	await process_frame
-	var game = null
 	main.start_game("tir")
 	await process_frame
 	var tir = main.game
 	tir.place_in_front_of(Transform3D(Basis(), Vector3(0, 1.6, 0)))
 	_cam(main, Vector3(0, 1.6, 0), Vector3(0, 1.4, -1))
-	await _snap("100_tir_choix")
-	tir.start_discipline("arc")
+	await _snap("110_tir_choix")
+	tir.start_discipline("carabine")
 	await process_frame
-	game = tir._child
+	var game = tir._child
 	game.place_in_front_of(Transform3D(Basis(), Vector3(0, 1.6, 0)))
 	_cam(main, Vector3(0, 1.6, 0), Vector3(0, 1.4, -1))
 	game.show_setup()
-	await _snap("101_arc_reglages")
+	await _snap("111_carabine_reglages")
 	game._close_panel()
 	game._st_bot = true
 	game.settings["mode"] = "ordi"
+	game._apply_layout()
 	game.start_match()
-	for i in 90 * 3:
+	for i in 90 * 12:
 		await physics_frame
-	for k in 6:
-		game._bot_shoot()
-		for i in 90 * 2:
-			await physics_frame
 	_cam(main, Vector3(0, 1.6, 0.3), Vector3(0, 1.3, -10))
-	await _snap("102_arc_vue")
-	_cam(main, Vector3(0.5, 1.5, -6), Vector3(0, 1.3, -10))
-	await _snap("103_arc_cible")
+	await _snap("112_carabine_vue")
+	_cam(main, Vector3(0.3, 1.45, -4), Vector3(0, 1.3, -10))
+	await _snap("113_carabine_cible")
+	game.settings["mode"] = "gallery"
+	game._apply_layout()
+	game._gallery_time = 30.0
+	game.start_match()
+	for i in 90 * 6:
+		await physics_frame
+	_cam(main, Vector3(0, 1.6, 0.3), Vector3(0, 1.4, -8))
+	await _snap("114_stand_vue")
+	_cam(main, Vector3(0.3, 1.5, -3), Vector3(0, 1.4, -8))
+	await _snap("115_stand_proche")
 	quit()

@@ -393,6 +393,27 @@ def pet_land():
     return norm(fade(x), 0.6)
 
 
+def air_shot():
+    """Carabine à plomb : claquement sec du piston + souffle d'air."""
+    n = int(0.45 * SR)
+    t = np.arange(n) / SR
+    x = bp(noise(n), 1500, 9000) * np.exp(-t / 0.012) * 1.0
+    x += lp(noise(n), 900) * np.exp(-t / 0.06) * 0.5
+    x += np.sin(2 * np.pi * (140 * np.exp(-t * 30) + 70) * t) * np.exp(-t / 0.05) * 0.6
+    return norm(fade(x), 0.85)
+
+
+def can_ping():
+    """Plomb dans une boîte de conserve : ping métallique."""
+    n = int(0.5 * SR)
+    t = np.arange(n) / SR
+    x = np.sin(2 * np.pi * 1850 * t) * np.exp(-t / 0.08)
+    x += np.sin(2 * np.pi * 2990 * t) * np.exp(-t / 0.05) * 0.6
+    x += np.sin(2 * np.pi * 4410 * t) * np.exp(-t / 0.03) * 0.3
+    x += bp(noise(n), 2500, 9000) * np.exp(-t / 0.004) * 0.7
+    return norm(fade(x), 0.75)
+
+
 def pinsetter():
     """Machine qui replace les quilles : moteur + clac."""
     n = int(1.1 * SR)
@@ -570,5 +591,7 @@ if __name__ == "__main__":
     save("pp_net", pp_net())
     save("pet_clack", pet_clack())
     save("pet_land", pet_land())
+    save("air_shot", air_shot())
+    save("can_ping", can_ping())
     save("ambience_loop", alley_ambience(), 2)
     save("music_lounge", music(), 3)
