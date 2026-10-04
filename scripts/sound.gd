@@ -18,6 +18,8 @@ const SFX := {
 	"clink": preload("res://sounds/clink.ogg"),
 	"pour": preload("res://sounds/pour.ogg"),
 	"pinsetter": preload("res://sounds/pinsetter.ogg"),
+	"dart_thud": preload("res://sounds/dart_thud.ogg"),
+	"bull_ding": preload("res://sounds/bull_ding.ogg"),
 }
 
 const LOOPS := {

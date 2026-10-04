@@ -1,49 +1,166 @@
 class_name GameMenu
 extends Node3D
-## Menu flottant : quatre panneaux, on vise avec le laser et on appuie sur la gâchette.
+## Menu d'accueil : logo animé, quatre cartes de jeux avec pictogramme, bouton Quitter.
+## On vise avec le laser et on appuie sur la gâchette. Au tout premier affichage,
+## une intro fait apparaître le logo puis les cartes une à une.
 
 signal game_chosen(game_id: String)
 
 const GAMES := [
-	{"id": "bowling", "title": "Bowling", "color": Color(0.85, 0.25, 0.25), "ready": true},
-	{"id": "petanque", "title": "Pétanque", "color": Color(0.75, 0.6, 0.2), "ready": false},
-	{"id": "pingpong", "title": "Ping-pong", "color": Color(0.2, 0.6, 0.35), "ready": false},
-	{"id": "flechettes", "title": "Fléchettes", "color": Color(0.25, 0.4, 0.85), "ready": false},
+	{"id": "bowling", "title": "Bowling", "sub": "1 à 4 joueurs", "color": Color(0.85, 0.25, 0.25), "ready": true},
+	{"id": "flechettes", "title": "Fléchettes", "sub": "301 · 501 · horloge", "color": Color(0.25, 0.4, 0.85), "ready": true},
+	{"id": "petanque", "title": "Pétanque", "sub": "arrive bientôt", "color": Color(0.75, 0.6, 0.2), "ready": false},
+	{"id": "pingpong", "title": "Ping-pong", "sub": "arrive bientôt", "color": Color(0.2, 0.6, 0.35), "ready": false},
 ]
 
-const QUIT := {"id": "quit", "title": "Quitter", "color": Color(0.35, 0.35, 0.4), "ready": true}
+const QUIT := {"id": "quit", "title": "Quitter", "sub": "", "color": Color(0.35, 0.35, 0.42), "ready": true}
 
-const PANEL_SIZE := Vector3(0.36, 0.24, 0.02)
-const QUIT_SIZE := Vector3(0.3, 0.1, 0.02)
-const SPACING := 0.42
+const CARD_SIZE := Vector3(0.44, 0.24, 0.02)
+const QUIT_SIZE := Vector3(0.3, 0.09, 0.02)
+const LOGO_Y := 0.51
+const CARD_X := 0.235
+const CARD_Y := [0.12, -0.17]
+const QUIT_Y := -0.37
+
+const INTRO_HOLD := 1.9
+const INTRO_MOVE := 0.8
+const INTRO_CARD0 := 2.1
+const INTRO_CARD_STEP := 0.14
+const INTRO_END := 3.2
 
 var _panels: Array[StaticBody3D] = []
 var _hovered: StaticBody3D = null
 var _info: Label3D
+var _logo: Logo
+var _active := false
+var _intro_t := -1.0          # -1 : en attente ; INTRO_END et plus : terminée
+var _icons: Array[Node3D] = []
+var _t := 0.0
 
 
 func _ready() -> void:
-	var title := _make_label("AR Sports", 0.09)
-	title.position = Vector3(0, 0.36, 0)
-	add_child(title)
+	_logo = Logo.new()
+	add_child(_logo)
 
-	_info = _make_label("Vise un jeu et appuie sur la gâchette\nBouton Menu (manette gauche) : quitter", 0.035)
+	_info = _make_label("Vise un jeu avec le laser et appuie sur la gâchette", 0.032)
 	_info.position = Vector3(0, -0.5, 0)
 	add_child(_info)
 
 	for i in GAMES.size():
-		var game: Dictionary = GAMES[i]
-		var col := i % 2
-		var row := i / 2
-		var panel := _make_panel(game)
-		panel.position = Vector3((col - 0.5) * SPACING, (0.5 - row) * 0.3 + 0.02, 0)
+		var panel := _make_card(GAMES[i], CARD_SIZE)
+		panel.position = Vector3((i % 2 - 0.5) * 2.0 * CARD_X, CARD_Y[i / 2], 0)
 		add_child(panel)
 		_panels.append(panel)
-
-	var quit_panel := _make_panel(QUIT, QUIT_SIZE)
-	quit_panel.position = Vector3(0, -0.38, 0)
+	var quit_panel := _make_card(QUIT, QUIT_SIZE)
+	quit_panel.position = Vector3(0, QUIT_Y, 0)
 	add_child(quit_panel)
 	_panels.append(quit_panel)
+	_apply_intro()
+
+
+# ---------------------------------------------------------------- intro
+
+## Lance l'intro : le logo apparaît au centre, puis monte et laisse place aux cartes.
+func play_intro() -> void:
+	_intro_t = 0.0
+	_logo.celebrate(2.2)
+	Sound.play("next_player", -3.0)
+	_apply_intro()
+
+
+func skip_intro() -> void:
+	_intro_t = INTRO_END + 1.0
+	_apply_intro()
+
+
+func intro_running() -> bool:
+	return _intro_t >= 0.0 and _intro_t < INTRO_END
+
+
+## Image fixe de l'intro à l'instant t (captures d'écran).
+func show_intro_at(t: float) -> void:
+	_intro_t = t
+	_apply_intro()
+
+
+static func _back_out(x: float) -> float:
+	var c1 := 1.70158
+	var c3 := c1 + 1.0
+	var p := clampf(x, 0.0, 1.0) - 1.0
+	return 1.0 + c3 * p * p * p + c1 * p * p
+
+
+static func _smooth(x: float) -> float:
+	var s := clampf(x, 0.0, 1.0)
+	return s * s * (3.0 - 2.0 * s)
+
+
+func _apply_intro() -> void:
+	if _logo == null:
+		return
+	var t := _intro_t
+	var done := t >= INTRO_END
+	var logo_scale := 1.0
+	var logo_y := LOGO_Y
+	var logo_rot := 0.0
+	var card_progress := 1.0
+	if t < 0.0:
+		logo_scale = 1.4
+		logo_y = 0.0
+		card_progress = -1.0
+	elif not done:
+		if t < 0.8:
+			var k := _back_out(t / 0.8)
+			logo_scale = lerpf(0.2, 1.4, k)
+			logo_rot = lerpf(-1.2, 0.0, _smooth(t / 0.8))
+			logo_y = 0.0
+		elif t < INTRO_HOLD:
+			logo_scale = 1.4
+			logo_y = 0.0
+		else:
+			var m := _smooth((t - INTRO_HOLD) / INTRO_MOVE)
+			logo_scale = lerpf(1.4, 1.0, m)
+			logo_y = lerpf(0.0, LOGO_Y, m)
+		card_progress = t
+	_logo.scale = Vector3.ONE * logo_scale
+	_logo.position = Vector3(0, logo_y, 0)
+	_logo.rotation = Vector3(0, logo_rot, 0)
+	for i in _panels.size():
+		var s := 1.0
+		if card_progress < 0.0:
+			s = 0.0
+		elif not done:
+			s = _back_out((card_progress - INTRO_CARD0 - INTRO_CARD_STEP * i) / 0.4)
+			if card_progress < INTRO_CARD0 + INTRO_CARD_STEP * i:
+				s = 0.0
+		var hover := 1.06 if _panels[i] == _hovered else 1.0
+		_panels[i].scale = Vector3.ONE * maxf(s * hover, 0.001)
+		_panels[i].visible = s > 0.001
+	_info.visible = done
+	_apply_collisions()
+
+
+func _apply_collisions() -> void:
+	var on := _active and (_intro_t < 0.0 or _intro_t >= INTRO_END)
+	if _intro_t < 0.0:
+		on = false
+	for p in _panels:
+		p.collision_layer = 2 if on else 0
+
+
+## Active ou coupe la visée des cartes (coupée quand un jeu est lancé).
+func set_active(on: bool) -> void:
+	_active = on
+	_apply_collisions()
+
+
+func _process(delta: float) -> void:
+	_t += delta
+	if _intro_t >= 0.0 and _intro_t < INTRO_END:
+		_intro_t += delta
+		_apply_intro()
+	for i in _icons.size():
+		_icons[i].rotation = Vector3(0.0, sin(_t * 1.2 + i * 1.7) * 0.35, 0.0)
 
 
 ## Place le menu à environ un mètre devant le regard.
@@ -82,56 +199,75 @@ func click(obj: Object) -> bool:
 		return false
 	var game: Dictionary = obj.get_meta("game")
 	if game["ready"]:
+		Sound.play("ui_click", -4.0)
 		game_chosen.emit(game["id"])
 		return true
 	_info.text = "%s arrive bientôt !" % game["title"]
 	return false
 
 
-func _make_panel(game: Dictionary, size: Vector3 = PANEL_SIZE) -> StaticBody3D:
+func _make_card(game: Dictionary, size: Vector3) -> StaticBody3D:
+	var compact := size == QUIT_SIZE
 	var body := StaticBody3D.new()
-	body.collision_layer = 2
+	body.collision_layer = 0
 	body.collision_mask = 0
 	body.set_meta("game", game)
 
 	var shape := CollisionShape3D.new()
 	var box := BoxShape3D.new()
-	box.size = size
+	box.size = Vector3(size.x, size.y, 0.03)
 	shape.shape = box
 	body.add_child(shape)
 
-	var mesh := MeshInstance3D.new()
-	mesh.name = "Fond"
-	var bm := BoxMesh.new()
-	bm.size = size
-	mesh.mesh = bm
-	var mat := StandardMaterial3D.new()
-	var base_color: Color = game["color"]
+	var base: Color = game["color"]
 	if not game["ready"]:
-		base_color = base_color.darkened(0.55)
-	mat.albedo_color = base_color
-	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	mesh.material_override = mat
-	body.add_child(mesh)
-	body.set_meta("base_color", base_color)
+		base = base.darkened(0.5)
+	var frame := BowlingArt.box(Vector3(size.x + 0.014, size.y + 0.014, 0.012), BowlingArt.unshaded(Color(0.9, 0.9, 0.95) if game["ready"] else Color(0.45, 0.45, 0.5)), Vector3(0, 0, -0.008))
+	frame.name = "Cadre"
+	body.add_child(frame)
+	var face := BowlingArt.gradient_panel(Vector2(size.x, size.y), base.lightened(0.18), base.darkened(0.5))
+	face.name = "Fond"
+	face.position = Vector3(0, 0, 0.0)
+	body.add_child(face)
+	body.set_meta("base_color", base)
 
-	var label := _make_label(game["title"], 0.055 if size == PANEL_SIZE else 0.045)
-	label.position = Vector3(0, 0.02 if size == PANEL_SIZE else 0.0, size.z / 2.0 + 0.002)
-	body.add_child(label)
+	if compact:
+		var l := _make_label(game["title"], 0.045)
+		l.position = Vector3(0, 0, 0.004)
+		body.add_child(l)
+		return body
 
+	# Pictogramme à gauche, titre et sous-titre à droite
+	var icon := GameIcons.build(game["id"])
+	icon.position = Vector3(-size.x / 2.0 + 0.09, 0.0, 0.05)
+	icon.scale = Vector3.ONE * 1.05
+	body.add_child(icon)
+	if game["ready"]:
+		_icons.append(icon)
+	var title := BowlingArt.label(game["title"], 0.046, Color.WHITE, 12)
+	title.font = BowlingArt.bold_font()
+	title.position = Vector3(0.085, 0.03, 0.006)
+	body.add_child(title)
+	var sub := BowlingArt.label(game["sub"], 0.024, Color(1, 0.95, 0.75) if game["ready"] else Color(1, 1, 1, 0.65), 8)
+	sub.position = Vector3(0.085, -0.03, 0.006)
+	body.add_child(sub)
 	if not game["ready"]:
-		var soon := _make_label("bientôt", 0.03)
-		soon.modulate = Color(1, 1, 1, 0.7)
-		soon.position = Vector3(0, -0.06, size.z / 2.0 + 0.002)
-		body.add_child(soon)
+		var ribbon := BowlingArt.box(Vector3(0.2, 0.04, 0.004), BowlingArt.unshaded(Color(0.85, 0.2, 0.2)), Vector3(size.x / 2.0 - 0.1, size.y / 2.0 - 0.03, 0.004))
+		body.add_child(ribbon)
+		var rl := BowlingArt.label("BIENTÔT", 0.026, Color.WHITE, 6)
+		rl.position = Vector3(size.x / 2.0 - 0.1, size.y / 2.0 - 0.03, 0.008)
+		body.add_child(rl)
 	return body
 
 
 func _set_highlight(panel: StaticBody3D, on: bool) -> void:
-	var mesh := panel.get_node("Fond") as MeshInstance3D
-	var mat := mesh.material_override as StandardMaterial3D
-	var base: Color = panel.get_meta("base_color")
-	mat.albedo_color = base.lightened(0.35) if on else base
+	var frame := panel.get_node("Cadre") as MeshInstance3D
+	var mat := frame.material_override as StandardMaterial3D
+	var game: Dictionary = panel.get_meta("game")
+	if on:
+		mat.albedo_color = Color(1.0, 0.85, 0.3)
+	else:
+		mat.albedo_color = Color(0.9, 0.9, 0.95) if game["ready"] else Color(0.45, 0.45, 0.5)
 	panel.scale = Vector3.ONE * (1.06 if on else 1.0)
 
 

@@ -6,6 +6,8 @@ extends Node3D
 ## Le noeud est placé aux pieds du joueur ; la piste part vers -Z (devant lui).
 
 signal exit_requested
+signal switch_requested
+signal selftest_finished
 
 const LANE_W := 1.05
 const GUTTER_W := 0.13
@@ -66,7 +68,9 @@ var _hit_cooldown := {}
 
 var _panel: UiPanel
 var _panel_page := ""
+var _panel_was_visible := false
 var _scoreboard: Scoreboard
+var _sign: NeonSign
 var _hud: Label3D
 var _message: Label3D
 var _message_time := 0.0
@@ -175,6 +179,7 @@ func show_pause() -> void:
 	_panel.add_row("", [{"id": "resume", "text": "Reprendre", "width": 0.32, "color": Color(0.15, 0.6, 0.25)}])
 	_panel.add_row("", [{"id": "restart", "text": "Recommencer", "width": 0.32}])
 	_panel.add_row("", [{"id": "settings", "text": "Réglages", "width": 0.32}])
+	_panel.add_row("", [{"id": "switch", "text": "Changer de jeu", "width": 0.32, "color": Color(0.2, 0.4, 0.75)}])
 	_panel.add_row("", [{"id": "menu", "text": "Menu principal", "width": 0.32, "color": Color(0.35, 0.35, 0.4)}])
 	_open_panel()
 
@@ -198,6 +203,19 @@ func _open_panel() -> void:
 	if cam:
 		_panel.place_in_front_of(cam.global_transform)
 	_set_lasers(true)
+
+
+## Masque le panneau du jeu pendant que « Changer de jeu » est ouvert.
+func suspend_panel() -> void:
+	_panel_was_visible = _panel.visible
+	if _panel_was_visible:
+		_panel.hide_panel()
+
+
+func resume_panel() -> void:
+	if _panel_was_visible:
+		_panel.show_panel()
+	_panel_was_visible = false
 
 
 func _close_panel() -> void:
@@ -227,6 +245,9 @@ func _on_panel_pressed(id: String) -> void:
 			return
 		"menu":
 			exit_requested.emit()
+			return
+		"switch":
+			switch_requested.emit()
 			return
 	_apply_settings()
 	_save_settings()
@@ -270,8 +291,14 @@ func start_match() -> void:
 	current = 0
 	frame_index = 0
 	_apply_settings()
-	var title := "AR BOWLING · " + String(MODES[settings["mode"]]["title"])
-	_scoreboard.build(players.size(), n_frames(), is_training(), title)
+	for p in players:
+		p["streak"] = 0
+	var mode: String = settings["mode"]
+	var title := "AR BOWLING · " + String(MODES[mode]["title"]).to_upper()
+	var record := "" if is_training() else "RECORD  %d" % _record(mode)
+	_scoreboard.build(players.size(), n_frames(), is_training(), title, record)
+	# Le tableau monte avec le nombre de joueurs pour rester au-dessus de l'enseigne
+	_scoreboard.position.y = 1.47 + Scoreboard.HEAD_H / 2.0 + Scoreboard.ROW_H * players.size() + 0.05
 	_begin_turn(false)
 
 
@@ -536,20 +563,40 @@ func _classify(knocked: int, cleared: bool) -> String:
 func _celebrate(event: String, knocked: int) -> void:
 	if _selftest:
 		_selftest_events[event] = int(_selftest_events.get(event, 0)) + 1
+	var pl: Dictionary = players[current]
+	if event == "strike":
+		pl["streak"] = int(pl.get("streak", 0)) + 1
+	elif _rack_first:
+		pl["streak"] = 0
 	match event:
 		"strike":
-			show_message("STRIKE !", 2.5)
+			var n := int(pl["streak"])
+			var txt := "STRIKE !"
+			if n == 2:
+				txt = "DOUBLE !"
+			elif n == 3:
+				txt = "TURKEY !"
+			elif n > 3:
+				txt = "%d STRIKES !" % n
+			_scoreboard.announce(txt, Color(1, 0.8, 0.1), 3.0, true)
+			show_message("", 0.0)
 			Sound.play("cheer_big", -3.0)
 			if _thrower:
 				_thrower.buzz(1.0, 0.3)
 		"spare":
-			show_message("SPARE !", 2.0)
+			_scoreboard.announce("SPARE !", Color(0.2, 0.85, 1.0), 2.2)
+			show_message("", 0.0)
 			Sound.play("cheer_small", -4.0)
 		"gutter":
-			show_message("Dans la rigole…", 2.0)
+			_scoreboard.announce("RIGOLE…", Color(0.55, 0.55, 0.6), 2.0)
+			show_message("", 0.0)
 			Sound.play("gutter", -5.0)
 		_:
+			if knocked == 9:
+				_scoreboard.announce("9 !", Color(1.0, 0.5, 0.2), 1.6)
 			show_message(_count_text(knocked), 2.0)
+	if event in ["strike", "spare", "gutter"]:
+		_sign.celebrate(event)
 	if event != "" and settings["decor"]:
 		for s in _spectators:
 			s.react(event)
@@ -654,6 +701,8 @@ func _game_over() -> void:
 		summary += "\nNouveau record !"
 	Sound.play("cheer_big", -2.0)
 	show_message("", 0.0)
+	_scoreboard.announce("BRAVO !" if players.size() == 1 else "%s GAGNE !" % String(players[winner]["name"]).to_upper(), players[winner]["color"], 6.0, true)
+	_sign.celebrate("win")
 	if settings["decor"]:
 		for s in _spectators:
 			s.react("win")
@@ -926,15 +975,10 @@ func _build_lane() -> void:
 	# Fosse et fond de piste
 	_add_static_box(Vector3(LANE_W + 2.0 * GUTTER_W + 0.2, 0.8, 0.12), Vector3(0, 0.4, DECK_END - 0.55), BowlingArt.mat(Color(0.05, 0.05, 0.06), 0.9))
 	add_child(BowlingArt.floor_quad(LANE_W + 2.0 * GUTTER_W, 0.5, BowlingArt.unshaded(Color(0.02, 0.02, 0.02)), Vector3(0, 0.003, DECK_END - 0.25)))
-	# Habillage (« masking unit ») avec enseigne lumineuse
-	var masking := BowlingArt.box(Vector3(LANE_W + 2.0 * GUTTER_W + 0.2, 0.42, 0.06), BowlingArt.mat(Color(0.1, 0.08, 0.25), 0.6), Vector3(0, 1.0, DECK_END - 0.05))
-	add_child(masking)
-	for k in 3:
-		var stripe_col: Color = [Color(1, 0.3, 0.5), Color(1, 0.75, 0.2), Color(0.3, 0.8, 1)][k]
-		add_child(BowlingArt.box(Vector3(LANE_W + 2.0 * GUTTER_W + 0.2, 0.025, 0.065), BowlingArt.glow(stripe_col, 1.5), Vector3(0, 0.83 + k * 0.045, DECK_END - 0.05)))
-	var sign := BowlingArt.label("BOWLING", 0.16, Color(1.0, 0.9, 0.5), 10)
-	sign.position = Vector3(0, 1.08, DECK_END - 0.015)
-	add_child(sign)
+	# Enseigne néon au-dessus des quilles
+	_sign = NeonSign.new()
+	_sign.position = Vector3(0, 1.02, DECK_END - 0.05)
+	add_child(_sign)
 
 	# Éclairage chaud sur les quilles
 	var light := OmniLight3D.new()
@@ -1172,4 +1216,4 @@ func _selftest_finish() -> void:
 		print("SELFTEST ", line)
 	print("SELFTEST évènements ", _selftest_events)
 	print("SELFTEST score=OK")
-	get_tree().quit(0)
+	selftest_finished.emit()

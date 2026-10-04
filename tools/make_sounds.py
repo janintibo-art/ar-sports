@@ -323,6 +323,26 @@ def pour():
     return norm(fade(out * e + g * e * 0.25), 0.55)
 
 
+def dart_thud():
+    """Fléchette qui se plante dans le liège : toc sec + petit tintement du fût."""
+    n = int(0.4 * SR)
+    t = np.arange(n) / SR
+    f = 260 * np.exp(-t * 40) + 95
+    x = np.sin(2 * np.pi * np.cumsum(f) / SR) * np.exp(-t / 0.035)
+    x += bp(noise(n), 1200, 5000) * np.exp(-t / 0.006) * 0.7
+    x += np.sin(2 * np.pi * 3300 * t) * np.exp(-t / 0.07) * 0.18
+    return norm(fade(x), 0.8)
+
+
+def bull_ding():
+    """Cloche du bullseye."""
+    n = int(1.6 * SR)
+    t = np.arange(n) / SR
+    x = sum(a * np.sin(2 * np.pi * 1318.5 * m * t) * np.exp(-t / tau)
+            for m, a, tau in [(1, 1, 0.7), (2.76, 0.5, 0.35), (5.4, 0.25, 0.18), (8.9, 0.1, 0.08)])
+    return norm(reverb(fade(x), 0.8, 0.2), 0.7)
+
+
 def pinsetter():
     """Machine qui replace les quilles : moteur + clac."""
     n = int(1.1 * SR)
@@ -493,5 +513,7 @@ if __name__ == "__main__":
     save("clink", clink())
     save("pour", pour())
     save("pinsetter", pinsetter())
+    save("dart_thud", dart_thud())
+    save("bull_ding", bull_ding())
     save("ambience_loop", alley_ambience(), 2)
     save("music_lounge", music(), 3)

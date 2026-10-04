@@ -43,7 +43,14 @@ func _run() -> void:
 	await process_frame
 	_cam(main, Vector3(0, 1.6, 0), Vector3(0, 1.3, -1))
 	main.menu.place_in_front_of(main.camera.global_transform)
+	for t in [0.4, 1.2, 2.4, 2.8]:
+		main.menu.show_intro_at(t)
+		await _snap("00_intro_%02d" % int(t * 10))
+	main.menu.skip_intro()
 	await _snap("01_menu")
+	main.menu.update_hover([main.menu._panels[1]])
+	await _snap("01b_menu_survol")
+	main.menu.update_hover([])
 	main.start_game("bowling")
 	var game = main.game
 	await process_frame
@@ -65,10 +72,65 @@ func _run() -> void:
 	await _snap("06_quilles")
 	_cam(main, Vector3(0, 1.6, -2.0), Vector3(0, 1.8, -5.8))
 	await _snap("07_tableau")
+	game._scoreboard.announce("STRIKE !", Color(1, 0.8, 0.1), 30.0, true)
+	game._sign.celebrate("strike")
+	for i in 20:
+		await physics_frame
+	_cam(main, Vector3(0, 1.6, -2.0), Vector3(0, 1.8, -5.8))
+	await _snap("09_tableau_strike")
+	_cam(main, Vector3(0, 1.5, -3.5), Vector3(0, 1.8, -5.8))
+	await _snap("10_tableau_proche")
+	game.settings["players"] = 1
+	game.start_match()
+	for i in 30:
+		await physics_frame
+	_cam(main, Vector3(0, 1.6, -2.0), Vector3(0, 1.8, -5.8))
+	await _snap("11_tableau_1joueur")
+	game.settings["players"] = 4
+	game.start_match()
+	for i in 30:
+		await physics_frame
+	await _snap("12_tableau_4joueurs")
 	# un lancer pour voir l'impact
 	game._launch(game.to_global(Vector3(0.02, 0.13, -0.6)), game.global_basis * Vector3(0.0, 0, -7.0))
 	for i in 55:
 		await physics_frame
 	_cam(main, Vector3(0.9, 1.0, -3.2), Vector3(0, 0.2, -4.6))
 	await _snap("08_impact")
+	# ---- fléchettes
+	main.start_game("flechettes")
+	game = main.game
+	await process_frame
+	game.place_in_front_of(Transform3D(Basis(), Vector3(0, 1.6, 0)))
+	_cam(main, Vector3(0, 1.6, 0), Vector3(0, 1.4, -1))
+	game._open_panel()
+	await _snap("20_darts_reglages")
+	main.open_switcher()
+	await _snap("30_changer_de_jeu")
+	main.close_switcher()
+	game._close_panel()
+	game.settings["players"] = 2
+	game.settings["mode"] = "501"
+	game.settings["level"] = "normal"
+	game._assist_override = 0.0
+	game.start_match()
+	for i in 30:
+		await physics_frame
+	_cam(main, Vector3(0.1, 1.6, 0.5), Vector3(-0.2, 1.3, -2.0))
+	await _snap("21_darts_vue")
+	await game._st_throw(20, 3)
+	await game._st_throw(19, 2)
+	await game._st_throw(25, 2)
+	for i in 20:
+		await physics_frame
+	_cam(main, Vector3(0.1, 1.6, 0.5), Vector3(-0.2, 1.3, -2.0))
+	await _snap("22_darts_impacts")
+	_cam(main, Vector3(0, 1.5, -0.6), Vector3(0, 1.5, -2.0))
+	await _snap("23_darts_cible")
+	_cam(main, Vector3(-0.3, 1.5, 0.0), Vector3(-1.0, 1.5, -2.0))
+	await _snap("24_darts_tableau")
+	for i in 150:
+		await physics_frame
+	_cam(main, Vector3(0.3, 1.6, 0.4), Vector3(0.3, 1.0, -0.2))
+	await _snap("25_darts_porte")
 	quit()
