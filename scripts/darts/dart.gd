@@ -32,18 +32,16 @@ func _ready() -> void:
 	_model.rotation_degrees = Vector3(-90, 0, 0)   # l'axe +Y du modèle devient -Z
 	_model.scale = Vector3.ONE * SCALE
 	add_child(_model)
-	var steel := BowlingArt.mat(Color(0.78, 0.8, 0.85), 0.25, 0.9)
-	var brass := BowlingArt.mat(Color(0.85, 0.68, 0.25), 0.3, 0.85)
-	var dark := BowlingArt.mat(Color(0.25, 0.22, 0.12), 0.4, 0.8)
-	_model.add_child(BowlingArt.cylinder(0.0003, 0.0018, 0.032, steel, Vector3(0, 0.062, 0), 8))
-	_model.add_child(BowlingArt.cylinder(0.0036, 0.0036, 0.044, brass, Vector3(0, 0.024, 0), 10))
-	for y in [0.008, 0.02, 0.032]:
-		_model.add_child(BowlingArt.cylinder(0.0039, 0.0039, 0.0025, dark, Vector3(0, y, 0), 10))
+	_model.add_child(DartArt.body(VisualStyle.detailed))
 	_shaft = BowlingArt.cylinder(0.0026, 0.0026, 0.036, BowlingArt.mat(flight_color, 0.5), Vector3(0, -0.016, 0), 8)
+	_shaft.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	_model.add_child(_shaft)
 	for k in 2:
-		var f := BowlingArt.box(Vector3(0.034, 0.04, 0.0008), BowlingArt.mat(flight_color, 0.6), Vector3(0, -0.054, 0))
+		var f := MeshInstance3D.new()
+		f.mesh = DartArt.wing_mesh()
+		f.material_override = BowlingArt.mat(flight_color, 0.6)
 		f.rotation_degrees = Vector3(0, 90.0 * k, 0)
+		f.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		_model.add_child(f)
 		_flights.append(f)
 	_apply_color()

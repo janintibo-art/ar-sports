@@ -146,6 +146,13 @@ jobs:
           grep -q "SELFTEST ranged_v26=OK" ranged.log
           if grep -qE "SCRIPT ERROR|Parse Error" ranged.log; then exit 1; fi
 
+      - name: Vérifier les graphismes des fléchettes
+        run: |
+          set -o pipefail
+          timeout 30 godot --headless -s tools/check_v27_darts_art.gd 2>&1 | tee darts_art.log
+          grep -q "SELFTEST darts_art_v27=OK" darts_art.log
+          if grep -qE "SCRIPT ERROR|Parse Error" darts_art.log; then exit 1; fi
+
       - name: Exporter l'APK
         env:
           GODOT_ANDROID_KEYSTORE_DEBUG_PATH: ${{ github.workspace }}/keys/debug.keystore

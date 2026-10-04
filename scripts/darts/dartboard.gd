@@ -35,7 +35,7 @@ func _ready() -> void:
 	add_child(_content)
 
 	# Boîtier de bois derrière la cible
-	var wood := BowlingArt.mat(Color(0.22, 0.12, 0.07), 0.5)
+	var wood := BowlingArt.surface_material("wood", Color(0.32, 0.19, 0.09))
 	var cab := BowlingArt.cylinder(R_SURROUND, R_SURROUND, 0.07, wood, Vector3(0, 0, -0.04), 40)
 	cab.rotation_degrees = Vector3(90, 0, 0)
 	_content.add_child(cab)
@@ -48,6 +48,9 @@ func _ready() -> void:
 	var m := StandardMaterial3D.new()
 	m.vertex_color_use_as_albedo = true
 	m.roughness = 0.85
+	m.albedo_texture = DartArt.grain_texture()
+	m.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
+	mi.name = "Face"
 	m.cull_mode = BaseMaterial3D.CULL_DISABLED
 	mi.material_override = m
 	_content.add_child(mi)
@@ -111,6 +114,7 @@ static func _ring(st: SurfaceTool, r0: float, r1: float, a0: float, a1: float, c
 static func _quad(st: SurfaceTool, a: Vector2, b: Vector2, c: Vector2, d: Vector2, color: Color, z: float) -> void:
 	for p in [a, b, c, a, c, d]:
 		st.set_color(color)
+		st.set_uv(p * 5.0 + Vector2.ONE * 0.5)
 		st.set_normal(Vector3.BACK)
 		st.add_vertex(Vector3(p.x, p.y, z))
 

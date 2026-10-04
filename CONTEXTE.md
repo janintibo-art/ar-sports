@@ -253,3 +253,9 @@ Base v24 (bf94a52). GunArt génère un habillage statique regroupé : crosse pro
 ## v26 — arc, flèches et couteaux
 
 Base v25 (206d8ea). RangedArt génère les habillages statiques : arc profilé, empennages de flèche, lame et manche de couteau. Meshes partagés en cache, un nœud de rendu par modèle. GunArt.batch réutilisable ; métadonnées des fusils préservées. Remplacement des seules constructions visuelles dans arc.gd et couteau.gd ; corde et trajectoires inchangées. Test tools/check_v26_ranged.gd intégré au CI, captures tools/shot_v26.gd. Voir NOTES_V26.md. Version 0.26.0.
+
+## v27 — fléchettes et cible
+
+Base v26 (8ea0ad8). DartArt : corps métallique groupé et partagé par profil, ailettes profilées partagées, texture grain 128 × 128 en cache. Couleurs conservées par objet. Dart utilise ces habillages sans changement de pointe ni logique de vol ; Dartboard ajoute texture et UV sans changement de score. Test tools/check_v27_darts_art.gd dans le CI, captures tools/shot_v27.gd. Voir NOTES_V27.md. Version 0.27.0.
+
+Livraison utilisateur : un seul ZIP différentiel ar_sports_vN.zip. Présenter le lien Markdown seul sur sa ligne après « Voici le ZIP : », comme le renvoi v26 qui permettait le téléchargement (capture du 4 octobre, 12:13). Éviter le lien au milieu de « Télécharge ..., puis lance ». Deux commandes Termux séparées ensuite. Le rendu du lien dépend de l’application.
