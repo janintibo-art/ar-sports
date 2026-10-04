@@ -9,6 +9,8 @@ var potted := false
 var node: MeshInstance3D
 var shadow: MeshInstance3D
 
+static var _textures := {}
+
 
 func is_moving() -> bool:
 	return not potted and vel.length_squared() > 0.0
@@ -34,24 +36,51 @@ static func color_of(i: int) -> Color:
 	return cols[k]
 
 
+## Texture procédurale partagée par numéro. Le cache évite de reconstruire la même
+## image à chaque remise en place des billes. Les mipmaps stabilisent les motifs
+## blancs/rayés quand les billes sont éloignées dans le casque.
 static func texture_of(i: int) -> ImageTexture:
+	if _textures.has(i):
+		return _textures[i]
+
 	var s := 128
 	var img := Image.create(s, s, false, Image.FORMAT_RGB8)
 	var col := color_of(i)
-	var white := Color(0.96, 0.96, 0.93)
+	var white := Color(0.965, 0.96, 0.92)
 	for x in s:
 		for y in s:
-			var v: float = float(y) / s
+			var u := (float(x) + 0.5) / float(s)
+			var v := (float(y) + 0.5) / float(s)
 			var c := col
+
 			if i >= 9:
-				c = col if (v > 0.30 and v < 0.70) else white
-			# pastille blanche (deux faces) pour les billes numérotées
+				# Bande colorée centrale, avec une transition de 2 pixels environ
+				# pour limiter l'aliasing sur une petite sphère.
+				var edge := minf(absf(v - 0.30), absf(v - 0.70))
+				var inside := v > 0.30 and v < 0.70
+				if not inside:
+					c = white
+				elif edge < 0.018:
+					var t := clampf(edge / 0.018, 0.0, 1.0)
+					c = white.lerp(col, t)
+
+			# Pastille blanche des deux faces pour les billes numérotées.
 			if i > 0:
-				var u: float = float(x) / s
 				for cu in [0.25, 0.75]:
-					var du: float = (u - cu) * 2.0
-					var dv: float = v - 0.5
-					if du * du + dv * dv < 0.035:
-						c = white
+					var du := (u - cu) * 2.0
+					var dv := v - 0.5
+					var d2 := du * du + dv * dv
+					if d2 < 0.036:
+						var rim := clampf((0.036 - d2) / 0.010, 0.0, 1.0)
+						c = c.lerp(white, rim)
+
+			# Grain extrêmement léger et déterministe : il casse l'aplat sans
+			# scintiller d'une image à l'autre.
+			var grain := 0.985 + float((x * 17 + y * 31 + i * 13) % 11) / 700.0
+			c *= Color(grain, grain, grain)
 			img.set_pixel(x, y, c)
-	return ImageTexture.create_from_image(img)
+
+	img.generate_mipmaps()
+	var texture := ImageTexture.create_from_image(img)
+	_textures[i] = texture
+	return texture
