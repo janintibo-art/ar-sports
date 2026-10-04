@@ -181,7 +181,14 @@ et fléchettes, joués dans la vraie pièce grâce au passthrough.
 - Niveaux : facile (point rouge d'aide, cibles plus grandes/lentes), normal, expert (cibles petites/rapides, Robin plus précis).
 - Sons ajoutés : `air_shot`, `can_ping` (générés par `tools/make_sounds.py`). Sauvegarde `user://carabine.cfg`.
 - Selftest : barème, tir au centre à 10 et 25 m, cadence, hors cible, mi-rayon, boîte/canard, concours ×3, stand, entraînement.
-- Reste à faire : ball-trap, lancer de couteau.
+
+## Ball-trap
+- `scripts/tir/balltrap.gd` (BallTrapGame) : fusil dans la main de tir (même visée à deux mains que la carabine). Le plateau d'argile part après « Pull ! » ; 2 cartouches par plateau (touché au 1er coup 2 pts, au 2e 1 pt). On joue contre Robin (il tire chaque plateau avec une probabilité selon le niveau).
+- Parcours : Fosse (machine devant, direction aléatoire), Skeet (deux maisons, traversées), Chasse (trois types : fuyant, traversant, plongeant). 10 ou 25 plateaux. Niveaux : facile (gerbe large, plateaux lents), normal, expert (gerbe serrée, rapides).
+- Gerbe de plomb : tir « balayé » à 350 m/s ; touché si la distance plateau–trajectoire ≤ rayon du plateau + angle de gerbe × distance. `lead_point()` calcule l'anticipation (utilisé par le bot de test).
+- Sons ajoutés : `shotgun`, `clay_break`. Sauvegarde `user://balltrap.cfg` (records par parcours).
+- Selftest : touché 1er coup, anticipation, tir derrière, 2e cartouche et points, pas de tir sans plateau / 3e cartouche, 3 parties complètes.
+- Reste à faire : lancer de couteau.
 
 ## Commandes en jeu
 

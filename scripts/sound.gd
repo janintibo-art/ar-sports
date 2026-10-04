@@ -27,6 +27,8 @@ const SFX := {
 	"pet_land": preload("res://sounds/pet_land.ogg"),
 	"air_shot": preload("res://sounds/air_shot.ogg"),
 	"can_ping": preload("res://sounds/can_ping.ogg"),
+	"shotgun": preload("res://sounds/shotgun.ogg"),
+	"clay_break": preload("res://sounds/clay_break.ogg"),
 }
 
 const LOOPS := {

@@ -46,33 +46,26 @@ func _run() -> void:
 	var tir = main.game
 	tir.place_in_front_of(Transform3D(Basis(), Vector3(0, 1.6, 0)))
 	_cam(main, Vector3(0, 1.6, 0), Vector3(0, 1.4, -1))
-	await _snap("110_tir_choix")
-	tir.start_discipline("carabine")
+	await _snap("120_tir_choix")
+	tir.start_discipline("balltrap")
 	await process_frame
 	var game = tir._child
 	game.place_in_front_of(Transform3D(Basis(), Vector3(0, 1.6, 0)))
 	_cam(main, Vector3(0, 1.6, 0), Vector3(0, 1.4, -1))
 	game.show_setup()
-	await _snap("111_carabine_reglages")
+	await _snap("121_balltrap_reglages")
 	game._close_panel()
+	game.settings["mode"] = "skeet"
+	game._apply_layout()
+	game.start_match()
 	game._st_bot = true
-	game.settings["mode"] = "ordi"
-	game._apply_layout()
-	game.start_match()
-	for i in 90 * 12:
+	var got := false
+	for i in 90 * 8:
 		await physics_frame
-	_cam(main, Vector3(0, 1.6, 0.3), Vector3(0, 1.3, -10))
-	await _snap("112_carabine_vue")
-	_cam(main, Vector3(0.3, 1.45, -4), Vector3(0, 1.3, -10))
-	await _snap("113_carabine_cible")
-	game.settings["mode"] = "gallery"
-	game._apply_layout()
-	game._gallery_time = 30.0
-	game.start_match()
-	for i in 90 * 6:
-		await physics_frame
-	_cam(main, Vector3(0, 1.6, 0.3), Vector3(0, 1.4, -8))
-	await _snap("114_stand_vue")
-	_cam(main, Vector3(0.3, 1.5, -3), Vector3(0, 1.4, -8))
-	await _snap("115_stand_proche")
+		if game._clay_alive and game._clay_age > 0.12 and not got:
+			got = true
+			_cam(main, Vector3(0, 1.6, 0.3), Vector3(0, 2.6, -8))
+			await _snap("122_balltrap_plateau")
+	_cam(main, Vector3(0, 1.6, 0.3), Vector3(0, 1.8, -8))
+	await _snap("123_balltrap_vue")
 	quit()

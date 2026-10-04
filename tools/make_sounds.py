@@ -414,6 +414,25 @@ def can_ping():
     return norm(fade(x), 0.75)
 
 
+def shotgun():
+    """Fusil de chasse : détonation grave, souffle et écho."""
+    n = int(1.1 * SR)
+    t = np.arange(n) / SR
+    x = lp(noise(n), 3500) * np.exp(-t / 0.05) * 1.0
+    x += bp(noise(n), 400, 6000) * np.exp(-t / 0.012) * 0.9
+    x += np.sin(2 * np.pi * (110 * np.exp(-t * 14) + 45) * t) * np.exp(-t / 0.12) * 0.9
+    return norm(reverb(fade(x), 0.7, 0.18), 0.9)
+
+
+def clay_break():
+    """Plateau d'argile qui éclate : craquement sec."""
+    n = int(0.3 * SR)
+    t = np.arange(n) / SR
+    x = bp(noise(n), 1800, 9000) * np.exp(-t / 0.03) * 1.0
+    x += np.sin(2 * np.pi * 900 * t) * np.exp(-t / 0.02) * 0.4
+    return norm(fade(x), 0.8)
+
+
 def pinsetter():
     """Machine qui replace les quilles : moteur + clac."""
     n = int(1.1 * SR)
@@ -593,5 +612,7 @@ if __name__ == "__main__":
     save("pet_land", pet_land())
     save("air_shot", air_shot())
     save("can_ping", can_ping())
+    save("shotgun", shotgun())
+    save("clay_break", clay_break())
     save("ambience_loop", alley_ambience(), 2)
     save("music_lounge", music(), 3)
