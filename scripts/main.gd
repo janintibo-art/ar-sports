@@ -7,6 +7,7 @@ const GAMES := {
 	"flechettes": preload("res://scripts/darts.gd"),
 	"pingpong": preload("res://scripts/pingpong.gd"),
 	"petanque": preload("res://scripts/petanque.gd"),
+	"molkky": preload("res://scripts/molkky.gd"),
 }
 
 var xr_interface: XRInterface
@@ -30,7 +31,7 @@ var _xr_ok := false
 
 func _ready() -> void:
 	var args := OS.get_cmdline_user_args()
-	_selftest = args.has("--selftest") or args.has("--selftest-darts") or args.has("--selftest-pingpong") or args.has("--selftest-petanque")
+	_selftest = args.has("--selftest") or args.has("--selftest-darts") or args.has("--selftest-pingpong") or args.has("--selftest-petanque") or args.has("--selftest-molkky")
 	_build_world()
 	_start_xr()
 	menu = GameMenu.new()
@@ -42,7 +43,7 @@ func _ready() -> void:
 	_switcher.visible = false
 	if _selftest:
 		print("SELFTEST démarrage")
-		_run_selftests("darts" if args.has("--selftest-darts") else ("pingpong" if args.has("--selftest-pingpong") else ("petanque" if args.has("--selftest-petanque") else "")))
+		_run_selftests("darts" if args.has("--selftest-darts") else ("pingpong" if args.has("--selftest-pingpong") else ("petanque" if args.has("--selftest-petanque") else ("molkky" if args.has("--selftest-molkky") else ""))))
 	else:
 		show_menu()
 
@@ -72,6 +73,13 @@ func _run_selftests(only: String) -> void:
 		game.enable_selftest()
 		var pet_ok: bool = await game.selftest_finished
 		if not pet_ok:
+			get_tree().quit(1)
+			return
+	if only in ["", "molkky"]:
+		start_game("molkky")
+		game.enable_selftest()
+		var mol_ok: bool = await game.selftest_finished
+		if not mol_ok:
 			get_tree().quit(1)
 			return
 	if only != "":
@@ -293,20 +301,21 @@ func open_switcher(message: String = "") -> void:
 		game.visible = false
 	_switcher.clear()
 	_switcher.set_title("Changer de jeu", message if message != "" else "Le jeu en cours sera quitté")
-	var rows: Array = [[], []]
+	var rows: Array = [[], [], []]
 	for i in GameMenu.GAMES.size():
 		var g: Dictionary = GameMenu.GAMES[i]
 		var ready: bool = g["ready"]
 		var item := {
 			"id": "game_" + String(g["id"]),
-			"text": String(g["title"]) + ("" if ready else " (bientôt)"),
-			"width": 0.32,
+			"text": String(g["title"]),
+			"width": 0.26,
 			"selected": g["id"] == _current_id,
 			"color": (g["color"] as Color).darkened(0.25) if ready else Color(0.22, 0.23, 0.28),
 		}
-		rows[i / 2].append(item)
+		rows[i / 3].append(item)
 	_switcher.add_row("", rows[0])
 	_switcher.add_row("", rows[1])
+	_switcher.add_row("", rows[2])
 	_switcher.add_row("", [
 		{"id": "menu", "text": "Menu principal", "width": 0.3, "color": Color(0.35, 0.35, 0.4)},
 		{"id": "quit", "text": "Quitter", "width": 0.2, "color": Color(0.6, 0.2, 0.2)},

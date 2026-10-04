@@ -11,16 +11,23 @@ const GAMES := [
 	{"id": "flechettes", "title": "Fléchettes", "sub": "301 · 501 · horloge", "color": Color(0.25, 0.4, 0.85), "ready": true},
 	{"id": "petanque", "title": "Pétanque", "sub": "contre l'ordinateur", "color": Color(0.75, 0.6, 0.2), "ready": true},
 	{"id": "pingpong", "title": "Ping-pong", "sub": "contre l'ordinateur", "color": Color(0.2, 0.6, 0.35), "ready": true},
+	{"id": "molkky", "title": "Mölkky", "sub": "50 points · 2 à 4 joueurs", "color": Color(0.8, 0.5, 0.2), "ready": true},
+	{"id": "palet", "title": "Palet", "sub": "plusieurs variantes", "color": Color(0.5, 0.35, 0.7), "ready": false},
+	{"id": "billard", "title": "Billard", "sub": "américain · 8 · 9", "color": Color(0.1, 0.5, 0.45), "ready": false},
+	{"id": "babyfoot", "title": "Baby-foot", "sub": "contre l'ordinateur", "color": Color(0.85, 0.35, 0.15), "ready": false},
+	{"id": "tir", "title": "Tir", "sub": "ball-trap · carabine · couteaux", "color": Color(0.65, 0.2, 0.3), "ready": false},
 ]
 
 const QUIT := {"id": "quit", "title": "Quitter", "sub": "", "color": Color(0.35, 0.35, 0.42), "ready": true}
 
-const CARD_SIZE := Vector3(0.44, 0.24, 0.02)
+const CARD_SIZE := Vector3(0.29, 0.22, 0.02)
 const QUIT_SIZE := Vector3(0.3, 0.09, 0.02)
-const LOGO_Y := 0.51
-const CARD_X := 0.235
-const CARD_Y := [0.12, -0.17]
-const QUIT_Y := -0.37
+const LOGO_Y := 0.53
+const COLS := 3
+const CARD_DX := 0.305
+const CARD_Y0 := 0.15
+const CARD_DY := 0.235
+const QUIT_Y := -0.52
 
 const INTRO_HOLD := 1.9
 const INTRO_MOVE := 0.8
@@ -43,12 +50,12 @@ func _ready() -> void:
 	add_child(_logo)
 
 	_info = _make_label("Vise un jeu avec le laser et appuie sur la gâchette", 0.032)
-	_info.position = Vector3(0, -0.5, 0)
+	_info.position = Vector3(0, -0.62, 0)
 	add_child(_info)
 
 	for i in GAMES.size():
 		var panel := _make_card(GAMES[i], CARD_SIZE)
-		panel.position = Vector3((i % 2 - 0.5) * 2.0 * CARD_X, CARD_Y[i / 2], 0)
+		panel.position = Vector3((i % COLS - (COLS - 1) / 2.0) * CARD_DX, CARD_Y0 - CARD_DY * (i / COLS), 0)
 		add_child(panel)
 		_panels.append(panel)
 	var quit_panel := _make_card(QUIT, QUIT_SIZE)
@@ -237,25 +244,25 @@ func _make_card(game: Dictionary, size: Vector3) -> StaticBody3D:
 		body.add_child(l)
 		return body
 
-	# Pictogramme à gauche, titre et sous-titre à droite
+	# Pictogramme en haut, titre et sous-titre dessous
 	var icon := GameIcons.build(game["id"])
-	icon.position = Vector3(-size.x / 2.0 + 0.09, 0.0, 0.05)
-	icon.scale = Vector3.ONE * 1.05
+	icon.position = Vector3(0, 0.035, 0.05)
+	icon.scale = Vector3.ONE * 0.95
 	body.add_child(icon)
 	if game["ready"]:
 		_icons.append(icon)
-	var title := BowlingArt.label(game["title"], 0.046, Color.WHITE, 12)
+	var title := BowlingArt.label(game["title"], 0.036, Color.WHITE, 12)
 	title.font = BowlingArt.bold_font()
-	title.position = Vector3(0.085, 0.03, 0.006)
+	title.position = Vector3(0, -0.058, 0.006)
 	body.add_child(title)
-	var sub := BowlingArt.label(game["sub"], 0.024, Color(1, 0.95, 0.75) if game["ready"] else Color(1, 1, 1, 0.65), 8)
-	sub.position = Vector3(0.085, -0.03, 0.006)
+	var sub := BowlingArt.label(game["sub"], 0.019, Color(1, 0.95, 0.75) if game["ready"] else Color(1, 1, 1, 0.65), 8)
+	sub.position = Vector3(0, -0.092, 0.006)
 	body.add_child(sub)
 	if not game["ready"]:
-		var ribbon := BowlingArt.box(Vector3(0.2, 0.04, 0.004), BowlingArt.unshaded(Color(0.85, 0.2, 0.2)), Vector3(size.x / 2.0 - 0.1, size.y / 2.0 - 0.03, 0.004))
+		var ribbon := BowlingArt.box(Vector3(0.13, 0.032, 0.004), BowlingArt.unshaded(Color(0.85, 0.2, 0.2)), Vector3(size.x / 2.0 - 0.07, size.y / 2.0 - 0.025, 0.004))
 		body.add_child(ribbon)
-		var rl := BowlingArt.label("BIENTÔT", 0.026, Color.WHITE, 6)
-		rl.position = Vector3(size.x / 2.0 - 0.1, size.y / 2.0 - 0.03, 0.008)
+		var rl := BowlingArt.label("BIENTÔT", 0.02, Color.WHITE, 6)
+		rl.position = Vector3(size.x / 2.0 - 0.07, size.y / 2.0 - 0.025, 0.008)
 		body.add_child(rl)
 	return body
 

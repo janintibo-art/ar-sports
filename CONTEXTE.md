@@ -40,8 +40,7 @@ et fléchettes, joués dans la vraie pièce grâce au passthrough.
 - `scripts/main.gd` : démarrage XR, passthrough, sol, mains, menu, jeux, panneau
   « Changer de jeu » (bouton Menu de la manette gauche), auto-tests enchaînés.
 - `scripts/hand.gd` : manette (laser, vibration, vitesse de lancer).
-- `scripts/menu.gd` : menu d'accueil (logo animé, 4 cartes de jeux avec
-  pictogrammes, Quitter) ; intro au tout premier affichage.
+- `scripts/menu.gd` : menu d'accueil (logo animé, 9 cartes en grille 3×3 ; palet, billard, baby-foot et tir sont « bientôt ») ; intro au tout premier affichage.
 - `scripts/logo.gd` : logo néon « AR SPORTS » (médaillons, ampoules, teinte animée).
 - `scripts/game_icons.gd` : pictogrammes 3D des jeux (quille, cible, boules, raquette).
 - `scripts/ui_panel.gd` : panneaux flottants à boutons (réglages, pause, fin).
@@ -72,6 +71,8 @@ et fléchettes, joués dans la vraie pièce grâce au passthrough.
   lancer, records dans `user://petanque.cfg`).
 - `scripts/decor.gd` : décor en code (arbres, bancs, lampadaires, plantes, enseignes néon), utilisé par la pétanque et le ping-pong.
 - `scripts/ui_panel.gd` : panneaux de menu (cadre à ampoules, bandeau de titre, boutons bombés, couleur d'accent par jeu via `accent`).
+- `scripts/molkky.gd` : Mölkky (quilles et bâton en corps rigides Jolt, règle des 50 / dépassement = retour à la moitié / 3 ratés = éliminé, modes Ordi / 2-4 joueurs / entraînement, records dans `user://molkky.cfg`).
+- `scripts/molkky/mol_board.gd` : tableau des scores du Mölkky.
 - `scripts/petanque/pet_ball.gd` : boule / cochonnet (gravité, rebond amorti,
   roulement, chocs). Constantes de réglage : `LAND_KEEP` (0,45) et
   `ROLL_DECEL` (3,2 m/s²).
@@ -128,6 +129,15 @@ et fléchettes, joués dans la vraie pièce grâce au passthrough.
 - « Changer de jeu » gèle et masque le jeu en cours (plus de balle qui traîne).
 - Physique maison sans moteur : la même fonction sert au jeu et aux
   simulations de l'ordinateur (solveur de pointage par dichotomie, tir au fer).
+
+## Mölkky
+
+- Quilles 0,06 × 0,15 m, bâton 0,21 m ; couches de collision WORLD=1, PINS=4, STICK=8 ; sol d'herbe propre au jeu (friction 0,8).
+- Après chaque lancer les quilles sont remises là où elles sont tombées (écartées de 0,068 m) et gelées jusqu'au lancer suivant.
+- Limites Jolt dans `project.godot` (vitesses 25 / 60) pour éviter les quilles qui s'envolent.
+- IA : vise la quille qui donne les points manquants, atterrit 0,3 m avant ; amortissement du bâton au sol 0,5 / 2,0. Réglage au casque à faire.
+- Auto-test : `--selftest-molkky` (règles, parties complètes, entraînement, lancer humain simulé).
+- Ordre prévu des ajouts : Palet (plusieurs variantes), Billard, Baby-foot, groupe Tir (ball-trap, carabine à plomb, pistolet, lancer de couteau).
 
 ## Commandes en jeu
 

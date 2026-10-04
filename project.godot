@@ -12,7 +12,7 @@ config_version=5
 
 config/name="AR Sports"
 config/description="Bowling, pétanque, ping-pong et fléchettes en réalité augmentée sur Quest 3."
-config/version="0.6.0"
+config/version="0.7.0"
 run/main_scene="res://main.tscn"
 config/features=PackedStringArray("4.7", "GL Compatibility")
 config/icon="res://icon.svg"
@@ -37,6 +37,8 @@ window/vsync/vsync_mode=0
 3d/physics_engine="Jolt Physics"
 common/physics_ticks_per_second=90
 common/max_physics_steps_per_frame=4
+jolt_physics_3d/limits/max_linear_velocity=25.0
+jolt_physics_3d/limits/max_angular_velocity=60.0
 
 [rendering]
 
