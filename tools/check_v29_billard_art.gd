@@ -43,21 +43,31 @@ func _run() -> void:
 	main.start_game("billard")
 	await process_frame
 	var game = main.game
-	assert(game is BillardGame)
-	assert(game.R == 0.0285)
+
+	# Ne pas référencer directement BillardGame ici : ce test est lancé avec
+	# `godot -s`, et une référence de type explicite force son script à être
+	# compilé avant l'initialisation normale des autoloads (dont Sound).
+	assert(game != null)
+	assert(game.has_method("start_match"))
+	assert(game.get("R") == 0.0285)
 
 	# Au menu de configuration, show_setup() retire volontairement les billes.
-	assert(game._balls.is_empty())
+	var balls = game.get("_balls")
+	assert(balls.is_empty())
 
 	# Le rendu des billes doit être contrôlé pendant une vraie partie.
-	game.settings["mode"] = "training"
-	game.settings["variant"] = "8"
+	var settings = game.get("settings")
+	settings["mode"] = "training"
+	settings["variant"] = "8"
+	game.set("settings", settings)
 	game.start_match()
 	await process_frame
-	assert(game._balls.size() == 16)
 
-	for ball in game._balls:
-		assert(ball.node.mesh.radius == game.R)
+	balls = game.get("_balls")
+	assert(balls.size() == 16)
+
+	for ball in balls:
+		assert(ball.node.mesh.radius == game.get("R"))
 		assert(ball.node.material_override.albedo_texture == BillBall.texture_of(ball.id))
 
 	main.queue_free()
