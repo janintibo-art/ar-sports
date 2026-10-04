@@ -202,6 +202,13 @@ jobs:
           grep -q "SELFTEST babyfoot_player_detail_v43=OK" babyfoot_players_v43.log
           if grep -qE "SCRIPT ERROR|Parse Error" babyfoot_players_v43.log; then exit 1; fi
 
+      - name: Vérifier terrain du baby-foot v45
+        run: |
+          set -o pipefail
+          timeout 30 godot --headless -s tools/check_v45_babyfoot_field.gd 2>&1 | tee babyfoot_field.log
+          grep -q "SELFTEST babyfoot_field_v45=OK" babyfoot_field.log
+          if grep -qE "SCRIPT ERROR|Parse Error" babyfoot_field.log; then exit 1; fi
+
       - name: Exporter l'APK
         env:
           GODOT_ANDROID_KEYSTORE_DEBUG_PATH: ${{ github.workspace }}/keys/debug.keystore
