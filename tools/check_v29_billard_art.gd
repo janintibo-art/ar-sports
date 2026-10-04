@@ -44,18 +44,13 @@ func _run() -> void:
 	await process_frame
 	var game = main.game
 
-	# Ne pas référencer directement BillardGame ici : ce test est lancé avec
-	# `godot -s`, et une référence de type explicite force son script à être
-	# compilé avant l'initialisation normale des autoloads (dont Sound).
 	assert(game != null)
 	assert(game.has_method("start_match"))
-	assert(game.get("R") == 0.0285)
+	assert(is_equal_approx(float(game.get("R")), 0.0285))
 
-	# Au menu de configuration, show_setup() retire volontairement les billes.
 	var balls = game.get("_balls")
 	assert(balls.is_empty())
 
-	# Le rendu des billes doit être contrôlé pendant une vraie partie.
 	var settings = game.get("settings")
 	settings["mode"] = "training"
 	settings["variant"] = "8"
@@ -67,8 +62,10 @@ func _run() -> void:
 	assert(balls.size() == 16)
 
 	for ball in balls:
-		assert(ball.node.mesh.radius == game.get("R"))
-		assert(ball.node.material_override.albedo_texture == BillBall.texture_of(ball.id))
+		assert(is_equal_approx(float(ball.node.mesh.radius), float(game.get("R"))))
+		var mat = ball.node.material_override
+		assert(mat != null)
+		assert(mat.albedo_texture == BillBall.texture_of(ball.id))
 
 	main.queue_free()
 	await process_frame

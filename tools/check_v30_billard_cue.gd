@@ -13,15 +13,18 @@ func _run() -> void:
 	await process_frame
 
 	var game = main.game
-	assert(game is BillardGame)
-	var cue: Node3D = game.get("_cue")
+	assert(game != null)
+	var cue = game.get("_cue")
 	assert(is_instance_valid(cue))
 	assert(cue.has_meta("cue_art_v30"))
-	assert(is_equal_approx(float(cue.get_meta("cue_tip_distance")), game.CUE_TIP))
-	assert(is_equal_approx(float(cue.get_meta("cue_back_distance")), game.CUE_BACK))
-	assert(is_equal_approx(float(cue.get_meta("cue_total_length")), game.CUE_TIP + game.CUE_BACK))
-	assert(game.CUE_TIP == 0.6)
-	assert(game.CUE_BACK == 0.4)
+
+	var cue_tip := float(game.get("CUE_TIP"))
+	var cue_back := float(game.get("CUE_BACK"))
+	assert(is_equal_approx(float(cue.get_meta("cue_tip_distance")), cue_tip))
+	assert(is_equal_approx(float(cue.get_meta("cue_back_distance")), cue_back))
+	assert(is_equal_approx(float(cue.get_meta("cue_total_length")), cue_tip + cue_back))
+	assert(is_equal_approx(cue_tip, 0.6))
+	assert(is_equal_approx(cue_back, 0.4))
 	assert(cue.get_child_count() >= 6)
 
 	for child in cue.get_children():
