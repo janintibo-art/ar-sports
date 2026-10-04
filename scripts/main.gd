@@ -6,6 +6,7 @@ const GAMES := {
 	"bowling": preload("res://scripts/bowling.gd"),
 	"flechettes": preload("res://scripts/darts.gd"),
 	"pingpong": preload("res://scripts/pingpong.gd"),
+	"petanque": preload("res://scripts/petanque.gd"),
 }
 
 var xr_interface: XRInterface
@@ -29,7 +30,7 @@ var _xr_ok := false
 
 func _ready() -> void:
 	var args := OS.get_cmdline_user_args()
-	_selftest = args.has("--selftest") or args.has("--selftest-darts") or args.has("--selftest-pingpong")
+	_selftest = args.has("--selftest") or args.has("--selftest-darts") or args.has("--selftest-pingpong") or args.has("--selftest-petanque")
 	_build_world()
 	_start_xr()
 	menu = GameMenu.new()
@@ -41,7 +42,7 @@ func _ready() -> void:
 	_switcher.visible = false
 	if _selftest:
 		print("SELFTEST démarrage")
-		_run_selftests("darts" if args.has("--selftest-darts") else ("pingpong" if args.has("--selftest-pingpong") else ""))
+		_run_selftests("darts" if args.has("--selftest-darts") else ("pingpong" if args.has("--selftest-pingpong") else ("petanque" if args.has("--selftest-petanque") else "")))
 	else:
 		show_menu()
 
@@ -66,6 +67,13 @@ func _run_selftests(only: String) -> void:
 		if not pp_ok:
 			get_tree().quit(1)
 			return
+	if only in ["", "petanque"]:
+		start_game("petanque")
+		game.enable_selftest()
+		var pet_ok: bool = await game.selftest_finished
+		if not pet_ok:
+			get_tree().quit(1)
+			return
 	if only != "":
 		get_tree().quit(0)
 		return
@@ -85,7 +93,9 @@ func _selftest_nav() -> bool:
 	ok = ok and game is DartsGame and _current_id == "flechettes" and not _switcher_open
 	open_switcher()
 	_on_switcher_pressed("game_petanque")
-	ok = ok and _switcher_open
+	await get_tree().process_frame
+	ok = ok and game is PetanqueGame and _current_id == "petanque" and not _switcher_open
+	open_switcher()
 	_on_switcher_pressed("close")
 	ok = ok and not _switcher_open
 	open_switcher()

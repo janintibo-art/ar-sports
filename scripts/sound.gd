@@ -23,6 +23,8 @@ const SFX := {
 	"pp_paddle": preload("res://sounds/pp_paddle.ogg"),
 	"pp_table": preload("res://sounds/pp_table.ogg"),
 	"pp_net": preload("res://sounds/pp_net.ogg"),
+	"pet_clack": preload("res://sounds/pet_clack.ogg"),
+	"pet_land": preload("res://sounds/pet_land.ogg"),
 }
 
 const LOOPS := {

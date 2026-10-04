@@ -12,6 +12,10 @@ const LINES := {
 	"cheers": ["Santé !", "À la tienne !", "Tchin !"],
 	"empty": ["Cul sec !", "Elle était bonne ?", "Une autre ?"],
 	"win": ["Champion !", "Bravo !", "Quelle partie !"],
+	"carreau": ["Carreau !", "Au fer, bravo !", "Boum, dehors !"],
+	"pointe": ["Joli point !", "Collée au cochonnet !", "Quelle main !"],
+	"oups": ["Aïe, trop long…", "Pas de chance !", "Rien ne va plus…"],
+	"fanny": ["Fanny !", "On n'a pas vu le jeu…"],
 }
 
 var display_name := ""
@@ -158,11 +162,11 @@ func say(kind: String, force: bool = false) -> void:
 ## Réaction à un évènement de jeu : strike, spare, gutter, low, good, win.
 func react(kind: String) -> void:
 	match kind:
-		"strike", "win":
+		"strike", "win", "carreau":
 			_play("cheer", 2.2)
-		"spare", "good":
+		"spare", "good", "pointe":
 			_play("clap", 1.6)
-		"gutter", "low":
+		"gutter", "low", "oups", "fanny":
 			_play("sad", 2.0)
 	# Chacun ne parle pas forcément à chaque fois
 	if randf() < 0.75 or kind == "strike":

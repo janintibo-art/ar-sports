@@ -160,4 +160,33 @@ func _run() -> void:
 		await physics_frame
 	_cam(main, Vector3(0.2, 1.7, -2.2), Vector3(0, 1.2, -4.4))
 	await _snap("44_pp_adversaire")
+	# ---- pétanque
+	main.start_game("petanque")
+	game = main.game
+	await process_frame
+	game.place_in_front_of(Transform3D(Basis(), Vector3(0, 1.6, 0)))
+	_cam(main, Vector3(0, 1.6, 0), Vector3(0, 1.4, -1))
+	game._open_panel()
+	await _snap("50_pet_reglages")
+	game._close_panel()
+	game.settings["level"] = "normal"
+	game.start_match()
+	for i in 30:
+		await physics_frame
+	_cam(main, Vector3(0, 1.65, 0.3), Vector3(0, 0.6, -5.0))
+	await _snap("51_pet_depart")
+	_cam(main, Vector3(0.3, 1.5, 0.2), Vector3(0.38, 1.0, -0.2))
+	await _snap("52_pet_support")
+	game._clear_balls()
+	game._st_bot = true
+	game.start_match()
+	for i in 90 * 14:
+		await physics_frame
+	_cam(main, Vector3(0, 1.65, 0.3), Vector3(0, 0.3, -7.0))
+	await _snap("53_pet_manche")
+	var jz: float = game._jack.pos.z if game._jack else -7.0
+	_cam(main, Vector3(0.3, 0.9, jz + 1.8), Vector3(0, 0.05, jz))
+	await _snap("54_pet_pres")
+	_cam(main, Vector3(2.4, 1.6, -0.5), Vector3(0.3, 1.2, -3.0))
+	await _snap("55_pet_tableau")
 	quit()

@@ -373,6 +373,26 @@ def pp_net():
     return norm(fade(x), 0.6)
 
 
+def pet_clack():
+    """Deux boules d'acier qui s'entrechoquent : clac métallique sec."""
+    n = int(0.6 * SR)
+    t = np.arange(n) / SR
+    x = np.sin(2 * np.pi * 2350 * t) * np.exp(-t / 0.05)
+    x += np.sin(2 * np.pi * 3720 * t) * np.exp(-t / 0.035) * 0.6
+    x += np.sin(2 * np.pi * 5480 * t) * np.exp(-t / 0.02) * 0.35
+    x += bp(noise(n), 2000, 8000) * np.exp(-t / 0.004) * 0.8
+    return norm(fade(x), 0.8)
+
+
+def pet_land():
+    """Boule qui retombe dans le gravier : crissement sourd."""
+    n = int(0.35 * SR)
+    t = np.arange(n) / SR
+    x = lp(noise(n), 2500) * np.exp(-t / 0.07) * 0.9
+    x += np.sin(2 * np.pi * 110 * t) * np.exp(-t / 0.05) * 0.5
+    return norm(fade(x), 0.6)
+
+
 def pinsetter():
     """Machine qui replace les quilles : moteur + clac."""
     n = int(1.1 * SR)
@@ -548,5 +568,7 @@ if __name__ == "__main__":
     save("pp_paddle", pp_paddle())
     save("pp_table", pp_table())
     save("pp_net", pp_net())
+    save("pet_clack", pet_clack())
+    save("pet_land", pet_land())
     save("ambience_loop", alley_ambience(), 2)
     save("music_lounge", music(), 3)

@@ -1,6 +1,6 @@
 # AR Sports — contexte du projet
 
-Jeu en réalité augmentée pour **Meta Quest 3** : bowling, pétanque, ping-pong
+Jeu en réalité augmentée pour **Meta Quest 3** : bowling, fléchettes, pétanque, ping-pong
 et fléchettes, joués dans la vraie pièce grâce au passthrough.
 
 ## Pile technique
@@ -28,8 +28,10 @@ et fléchettes, joués dans la vraie pièce grâce au passthrough.
   puis les fléchettes (tous les secteurs, 301/501, bust, sortie double, horloge,
   libre, aide à la visée), le ping-pong (tirs calculés, règles, matchs complets
   aux 3 niveaux contre un joueur virtuel, table compacte, entraînement) et la
-  navigation entre jeux. `-- --selftest-darts` / `-- --selftest-pingpong` ne
-  lancent qu'un jeu.
+  la pétanque (solveur de pointage, chocs, boules mortes, règles, aide au
+  lancer, parties complètes aux 3 niveaux, entraînement, lancer humain simulé)
+  et la navigation entre jeux. `-- --selftest-darts` / `-- --selftest-pingpong`
+  / `-- --selftest-petanque` ne lancent qu'un jeu.
 - Captures hors casque : `xvfb-run godot --rendering-driver opengl3 -s
   tools/shot.gd -- <dossier>`.
 
@@ -65,7 +67,12 @@ et fléchettes, joués dans la vraie pièce grâce au passthrough.
   `user://pingpong.cfg`).
 - `scripts/pingpong/ping_table.gd` : table réglementaire (normale ou compacte).
 - `scripts/pingpong/paddle.gd` : raquette (face rouge devant, noire derrière).
-- `scripts/pingpong/ping_scoreboard.gd` : tableau Vous / Ordi.
+- `scripts/pingpong/ping_scoreboard.gd` : tableau Vous / Ordi (réutilisé par la pétanque).
+- `scripts/petanque.gd` : pétanque (terrain, règles, adversaire Marcel, aide au
+  lancer, records dans `user://petanque.cfg`).
+- `scripts/petanque/pet_ball.gd` : boule / cochonnet (gravité, rebond amorti,
+  roulement, chocs). Constantes de réglage : `LAND_KEEP` (0,45) et
+  `ROLL_DECEL` (3,2 m/s²).
 
 ## Bowling
 
@@ -101,6 +108,23 @@ et fléchettes, joués dans la vraie pièce grâce au passthrough.
 - Physique : pas de moteur, gravité simple, rebond table 0,9, raquette 0,55,
   test de traversée de la raquette (la balle ne passe jamais au travers).
 
+## Pétanque
+
+- Modes : **Contre l'ordi** (Marcel), **2 joueurs** (on se passe les manettes),
+  **Entraînement** (3 boules, points selon la distance : <15 cm = 3, <40 cm = 2,
+  <1 m = 1). Niveaux Facile / Normal / Expert, partie à 7 ou 13 points,
+  terrain Normal (12 m, cochonnet à 6-10 m) ou Court (9 m, 4-7 m).
+- Règles : celui qui lance le cochonnet joue la 1re boule ; la boule la plus
+  éloignée du cochonnet rejoue (égalité : l'autre équipe) ; 3 boules chacun ;
+  on marque un point par boule plus proche que la meilleure adverse. Boule
+  sortie du terrain = morte. Cochonnet sorti = manche rejouée. Cochonnet non
+  valable (hors repères) = on relance, puis l'arbitre le pose.
+- En jeu : boule sur le support à droite ; **gâchette ou poignée** près d'elle
+  pour la prendre, **relâcher** pour lancer. Distance affichée sur la boule qui
+  tient le point.
+- Physique maison sans moteur : la même fonction sert au jeu et aux
+  simulations de l'ordinateur (solveur de pointage par dichotomie, tir au fer).
+
 ## Commandes en jeu
 
 - Menu : viser avec le laser, **gâchette** pour choisir. **A/X** replace le
@@ -118,6 +142,6 @@ et fléchettes, joués dans la vraie pièce grâce au passthrough.
 
 ## À faire
 
-- Pétanque (carte déjà au menu, marquée « bientôt »).
+- Pétanque : réglage fin du roulement au casque, mode équipes 2 contre 2.
 - Ping-pong : mode à deux joueurs humains, effets (spin), détection d'une vraie table.
 - Détection des tables et murs (scène Meta) pour le ping-pong et les fléchettes.

@@ -9,7 +9,7 @@ signal game_chosen(game_id: String)
 const GAMES := [
 	{"id": "bowling", "title": "Bowling", "sub": "1 à 4 joueurs", "color": Color(0.85, 0.25, 0.25), "ready": true},
 	{"id": "flechettes", "title": "Fléchettes", "sub": "301 · 501 · horloge", "color": Color(0.25, 0.4, 0.85), "ready": true},
-	{"id": "petanque", "title": "Pétanque", "sub": "arrive bientôt", "color": Color(0.75, 0.6, 0.2), "ready": false},
+	{"id": "petanque", "title": "Pétanque", "sub": "contre l'ordinateur", "color": Color(0.75, 0.6, 0.2), "ready": true},
 	{"id": "pingpong", "title": "Ping-pong", "sub": "contre l'ordinateur", "color": Color(0.2, 0.6, 0.35), "ready": true},
 ]
 
