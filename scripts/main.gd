@@ -141,6 +141,9 @@ func show_menu() -> void:
 
 
 func start_game(game_id: String) -> void:
+	if game_id == "quit":
+		quit_app()
+		return
 	if not GAMES.has(game_id):
 		return
 	menu.visible = false
@@ -178,6 +181,13 @@ func _process(_delta: float) -> void:
 
 
 func _on_button_pressed(button: String, hand: Hand) -> void:
+	# Bouton Menu de la manette gauche : retour au menu, ou quitter depuis le menu.
+	if button == "menu_button":
+		if game:
+			show_menu()
+		else:
+			quit_app()
+		return
 	if game:
 		game.on_button_pressed(hand, button)
 		return
@@ -193,3 +203,9 @@ func _on_button_pressed(button: String, hand: Hand) -> void:
 func _on_button_released(button: String, hand: Hand) -> void:
 	if game:
 		game.on_button_released(hand, button)
+
+
+func quit_app() -> void:
+	if xr_interface and xr_interface.is_initialized():
+		xr_interface.uninitialize()
+	get_tree().quit()

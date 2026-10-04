@@ -11,7 +11,10 @@ const GAMES := [
 	{"id": "flechettes", "title": "Fléchettes", "color": Color(0.25, 0.4, 0.85), "ready": false},
 ]
 
+const QUIT := {"id": "quit", "title": "Quitter", "color": Color(0.35, 0.35, 0.4), "ready": true}
+
 const PANEL_SIZE := Vector3(0.36, 0.24, 0.02)
+const QUIT_SIZE := Vector3(0.3, 0.1, 0.02)
 const SPACING := 0.42
 
 var _panels: Array[StaticBody3D] = []
@@ -24,8 +27,8 @@ func _ready() -> void:
 	title.position = Vector3(0, 0.36, 0)
 	add_child(title)
 
-	_info = _make_label("Vise un jeu et appuie sur la gâchette", 0.035)
-	_info.position = Vector3(0, -0.34, 0)
+	_info = _make_label("Vise un jeu et appuie sur la gâchette\nBouton Menu (manette gauche) : quitter", 0.035)
+	_info.position = Vector3(0, -0.5, 0)
 	add_child(_info)
 
 	for i in GAMES.size():
@@ -36,6 +39,11 @@ func _ready() -> void:
 		panel.position = Vector3((col - 0.5) * SPACING, (0.5 - row) * 0.3 + 0.02, 0)
 		add_child(panel)
 		_panels.append(panel)
+
+	var quit_panel := _make_panel(QUIT, QUIT_SIZE)
+	quit_panel.position = Vector3(0, -0.38, 0)
+	add_child(quit_panel)
+	_panels.append(quit_panel)
 
 
 ## Place le menu à environ un mètre devant le regard.
@@ -80,7 +88,7 @@ func click(obj: Object) -> bool:
 	return false
 
 
-func _make_panel(game: Dictionary) -> StaticBody3D:
+func _make_panel(game: Dictionary, size: Vector3 = PANEL_SIZE) -> StaticBody3D:
 	var body := StaticBody3D.new()
 	body.collision_layer = 2
 	body.collision_mask = 0
@@ -88,14 +96,14 @@ func _make_panel(game: Dictionary) -> StaticBody3D:
 
 	var shape := CollisionShape3D.new()
 	var box := BoxShape3D.new()
-	box.size = PANEL_SIZE
+	box.size = size
 	shape.shape = box
 	body.add_child(shape)
 
 	var mesh := MeshInstance3D.new()
 	mesh.name = "Fond"
 	var bm := BoxMesh.new()
-	bm.size = PANEL_SIZE
+	bm.size = size
 	mesh.mesh = bm
 	var mat := StandardMaterial3D.new()
 	var base_color: Color = game["color"]
@@ -107,14 +115,14 @@ func _make_panel(game: Dictionary) -> StaticBody3D:
 	body.add_child(mesh)
 	body.set_meta("base_color", base_color)
 
-	var label := _make_label(game["title"], 0.055)
-	label.position = Vector3(0, 0.02, PANEL_SIZE.z / 2.0 + 0.002)
+	var label := _make_label(game["title"], 0.055 if size == PANEL_SIZE else 0.045)
+	label.position = Vector3(0, 0.02 if size == PANEL_SIZE else 0.0, size.z / 2.0 + 0.002)
 	body.add_child(label)
 
 	if not game["ready"]:
 		var soon := _make_label("bientôt", 0.03)
 		soon.modulate = Color(1, 1, 1, 0.7)
-		soon.position = Vector3(0, -0.06, PANEL_SIZE.z / 2.0 + 0.002)
+		soon.position = Vector3(0, -0.06, size.z / 2.0 + 0.002)
 		body.add_child(soon)
 	return body
 

@@ -32,7 +32,10 @@ et fléchettes, joués dans la vraie pièce grâce au passthrough.
 ## Commandes en jeu
 
 - Menu : viser avec le laser, **gâchette** pour choisir. **A/X** replace le
-  menu devant soi.
+  menu devant soi. Panneau **Quitter** ou bouton **Menu** (manette gauche)
+  pour fermer l'application.
+- Partout : bouton **Menu** de la manette gauche = retour au menu (en jeu) ou
+  quitter (depuis le menu).
 - Bowling : **gâchette ou poignée** pour prendre la boule (elle vient dans la
   main), mouvement de lancer, **relâcher** pour lancer. **A** rejoue en fin de
   partie, **B/Y** revient au menu. Recentrer le Quest (bouton Meta maintenu)
