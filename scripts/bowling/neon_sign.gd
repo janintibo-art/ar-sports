@@ -86,6 +86,8 @@ func _ready() -> void:
 
 ## kind : strike, spare, gutter, win
 func celebrate(kind: String) -> void:
+	if kind in ["strike", "spare", "win"]:
+		SuccessBurst.play(self, kind in ["win", "big", "strike"])
 	match kind:
 		"strike", "win":
 			_marquee.boost("rainbow", 3.5)

@@ -37,6 +37,8 @@ const INTRO_END := 4.0
 
 var _panels: Array[StaticBody3D] = []
 var _hovered: StaticBody3D = null
+var _help_title: Label3D
+var _help_bg: MeshInstance3D
 var _info: Label3D
 var _logo: Logo
 var _active := false
@@ -49,8 +51,14 @@ func _ready() -> void:
 	_logo = Logo.new()
 	add_child(_logo)
 
-	_info = _make_label("Vise un jeu avec le laser et appuie sur la gâchette", 0.032)
-	_info.position = Vector3(0, -0.62, 0)
+	_help_bg = BowlingArt.rounded_panel(Vector2(0.92, 0.16), Color(0.06, 0.09, 0.15), Color(0.015, 0.025, 0.05))
+	_help_bg.position = Vector3(0, -0.695, -0.01)
+	add_child(_help_bg)
+	_help_title = BowlingArt.label("Choisis un jeu", 0.029, Color(0.75, 0.9, 1), 6)
+	_help_title.position = Vector3(0, -0.648, 0.004)
+	add_child(_help_title)
+	_info = _make_label("Vise une carte avec le laser\net appuie sur la gâchette", 0.026)
+	_info.position = Vector3(0, -0.716, 0.004)
 	add_child(_info)
 
 	for i in GAMES.size():
@@ -149,6 +157,8 @@ func _apply_intro() -> void:
 		_panels[i].scale = Vector3.ONE * maxf(s * hover, 0.001)
 		_panels[i].visible = s > 0.001
 	_info.visible = done
+	_help_title.visible = done
+	_help_bg.visible = done
 	_apply_collisions()
 
 
@@ -182,8 +192,8 @@ func place_in_front_of(head: Transform3D) -> void:
 	if forward.length() < 0.01:
 		forward = Vector3.FORWARD
 	forward = forward.normalized()
-	var pos := head.origin + forward * 1.0
-	pos.y = max(head.origin.y - 0.1, 0.8)
+	var pos := head.origin + forward * 1.15
+	pos.y = max(head.origin.y - 0.04, 0.8)
 	global_position = pos
 	# Le panneau regarde le joueur : son axe +Z pointe vers lui.
 	global_basis = Basis.looking_at(forward, Vector3.UP)
@@ -202,6 +212,7 @@ func update_hover(objects: Array) -> void:
 	_hovered = target
 	if _hovered:
 		_set_highlight(_hovered, true)
+	_update_help()
 
 
 ## Appelé quand une gâchette est pressée en visant `obj`.
@@ -214,7 +225,9 @@ func click(obj: Object) -> bool:
 		var result := VisualStyle.set_detailed(not VisualStyle.detailed)
 		var label := obj.get_node("CompactLabel") as Label3D
 		label.text = _quality_title()
+		_help_title.text = _quality_title()
 		_info.text = "Appliqué au prochain jeu" if result == OK else "Réglage appliqué, sauvegarde impossible"
+		BowlingArt.fit_label(_info, 0.84)
 		Sound.play("ui_click", -4.0)
 		return false
 	if game["ready"]:
@@ -314,3 +327,29 @@ static func _make_label(text: String, size: float) -> Label3D:
 
 static func _quality_title() -> String:
 	return "Décor : détaillé" if VisualStyle.detailed else "Décor : léger"
+
+
+const HELP := {
+	"bowling": "Prends la boule avec gâchette ou poignée.\nFais ton geste, puis relâche pour lancer.",
+	"flechettes": "Prends une fléchette avec gâchette ou poignée.\nVise la cible et relâche pour lancer.",
+	"petanque": "Prends une boule sur le support.\nLance doucement, puis relâche la prise.",
+	"pingpong": "Gâchette : lance la balle en l'air.\nFrappe-la ensuite avec ta raquette.",
+	"molkky": "Prends le bâton, puis relâche pour lancer.\nVise les quilles pour atteindre 50 points.",
+	"palet": "Prends un palet, puis relâche pour lancer.\nFais-le atterrir sur la planche.",
+	"billard": "Prends la queue sur son support.\nFrappe la boule blanche avec la pointe.",
+	"babyfoot": "Prends une poignée près de la barre.\nDéplace la main pour glisser et faire tourner.",
+	"tir": "Arc · carabine · ball-trap · couteau.\nChoisis ta discipline sur l'écran suivant.",
+	"quality": "Détaillé : accessoires et végétation enrichis.\nLéger : moins d'objets, au prochain jeu.",
+	"quit": "Ferme AR Sports et retourne au Quest.",
+}
+
+func _update_help() -> void:
+	_info.pixel_size = 0.026 / 96.0
+	if _hovered:
+		var game: Dictionary = _hovered.get_meta("game")
+		_help_title.text = _quality_title() if game["id"] == "quality" else String(game["title"])
+		_info.text = HELP.get(game["id"], "Vise puis appuie sur la gâchette")
+	else:
+		_help_title.text = "Choisis un jeu"
+		_info.text = "Vise une carte avec le laser\net appuie sur la gâchette"
+	BowlingArt.fit_label(_info, 0.84)

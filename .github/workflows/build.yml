@@ -97,6 +97,13 @@ jobs:
           grep -q "SELFTEST style_v19=OK" style.log
           if grep -qE "SCRIPT ERROR|Parse Error" style.log; then exit 1; fi
 
+      - name: Vérifier aide du menu et effets
+        run: |
+          set -o pipefail
+          timeout 30 godot --headless -s tools/check_v20_feedback.gd 2>&1 | tee feedback.log
+          grep -q "SELFTEST feedback_v20=OK" feedback.log
+          if grep -qE "SCRIPT ERROR|Parse Error" feedback.log; then exit 1; fi
+
       - name: Exporter l'APK
         env:
           GODOT_ANDROID_KEYSTORE_DEBUG_PATH: ${{ github.workspace }}/keys/debug.keystore

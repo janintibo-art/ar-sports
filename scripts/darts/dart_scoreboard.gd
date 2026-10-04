@@ -96,6 +96,8 @@ func build(count: int, title: String, record_text: String) -> void:
 
 
 func celebrate(kind: String) -> void:
+	if kind in ["win", "big", "good"]:
+		SuccessBurst.play(self, kind in ["win", "big", "strike"])
 	if _marquee == null:
 		return
 	match kind:

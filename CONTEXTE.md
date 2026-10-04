@@ -225,3 +225,7 @@ Base v17 (82627ec), livraison différentielle ar_sports_v18.zip. Menu à coins a
 ## v19 — personnages et ambiances
 
 Base v18 (4a0b211). Personnages expressifs et vêtements détaillés dans Spectator. Accessoires par sport via Decor.sport_corner. VisualStyle (classe à préférence statique) mémorise Décor détaillé/léger ; bouton du menu, appliqué au prochain jeu. Test tools/check_v19_style.gd dans le CI, captures tools/shot_v19.gd. Voir NOTES_V19.md. Version affichée 0.19.0.
+
+## v20 — aide au menu et célébrations
+
+Base v19 (fd64003). Aide gestuelle au survol des neuf jeux, menu placé à 1,15 m. SuccessBurst : confettis groupés MultiMesh, un effet par tableau, durée limitée et réduction en qualité légère. Raccordé aux célébrations existantes des tableaux et de l’enseigne bowling. Test tools/check_v20_feedback.gd dans le CI. Captures tools/shot_v20.gd. Version 0.20.0 ; voir NOTES_V20.md.
