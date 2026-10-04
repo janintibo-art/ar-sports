@@ -94,6 +94,7 @@ func _ready() -> void:
 	_message.visible = false
 	add_child(_message)
 	_panel = UiPanel.new()
+	_panel.accent = Color(0.95, 0.3, 0.3)
 	_panel.pressed.connect(_on_panel_pressed)
 	add_child(_panel)
 	_apply_level()

@@ -83,6 +83,7 @@ var _ai_plan_t := 0.0
 var _ai_kick := 0.0
 
 var _table: PingTable
+var _decor: Node3D
 var _ball: MeshInstance3D
 var _shadow: MeshInstance3D
 var _player_paddle: PingPaddle
@@ -153,6 +154,7 @@ func _ready() -> void:
 	_hint.no_depth_test = true
 	add_child(_hint)
 	_panel = UiPanel.new()
+	_panel.accent = Color(0.2, 0.8, 0.45)
 	_panel.pressed.connect(_on_panel_pressed)
 	add_child(_panel)
 
@@ -189,6 +191,7 @@ func _apply_layout() -> void:
 	_table.position = Vector3(0, 0, z_net)
 	_scoreboard.position = Vector3(0, 1.7, z_far - 1.0)
 	_scoreboard.scale = Vector3.ONE * 1.5
+	_build_decor()
 	_robot_anchor = Vector3(tw / 2.0 + 0.55, 1.05, z_far - 0.4)
 	_build_robot()
 	_referee.position = Vector3(-(tw / 2.0 + 0.9), 0, z_far + 0.4)
@@ -201,6 +204,28 @@ func _apply_layout() -> void:
 	_ai_target = _ai_pad.pos
 	_pad.pos = Vector3(0.3, 1.0, 0.0)
 	_pad.prev = _pad.pos
+
+
+## Salle de jeu : tapis sous la table, enseigne néon, plantes, lampadaires.
+func _build_decor() -> void:
+	if _decor == null:
+		_decor = Node3D.new()
+		add_child(_decor)
+	for c in _decor.get_children():
+		c.queue_free()
+	_decor.add_child(Decor.rug(Vector2(tw + 2.4, tl + 2.6), Color(0.1, 0.16, 0.3), Vector3(0, 0.002, z_net)))
+	_decor.add_child(Decor.rug(Vector2(tw + 2.6, tl + 2.8), Color(0.22, 0.27, 0.4), Vector3(0, 0.0015, z_net)))
+	var sign_node := Decor.neon_sign("PING-PONG", Color(0.2, 0.8, 0.45), 1.7, 0.48)
+	sign_node.position = Vector3(-(tw / 2.0 + 1.9), 1.6, z_net)
+	sign_node.rotation.y = PI / 2.0
+	_decor.add_child(sign_node)
+	for sx in [-1.0, 1.0]:
+		var pl := Decor.plant(1.0)
+		pl.position = Vector3(sx * (tw / 2.0 + 1.0), 0, z_far - 0.5)
+		_decor.add_child(pl)
+		var lp := Decor.lamp(2.2, Color(0.6, 0.85, 1.0))
+		lp.position = Vector3(sx * (tw / 2.0 + 1.4), 0, Z_NEAR + 0.3)
+		_decor.add_child(lp)
 
 
 func _build_robot() -> void:

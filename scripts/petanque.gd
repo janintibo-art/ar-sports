@@ -23,6 +23,8 @@ const AI := -1
 const STAND := Vector3(0.38, 0.99, -0.2)
 const GRAB_RADIUS := 0.38
 const BOULES_PER_TEAM := 3
+const THROW_GAIN_H := 2.1     # un geste doux porte loin : la vitesse de la main est amplifiée
+const THROW_GAIN_V := 1.45
 const CLR_PLAYER := Color(0.55, 0.68, 0.95)
 const CLR_AI := Color(0.95, 0.5, 0.25)
 
@@ -139,6 +141,7 @@ func _ready() -> void:
 	_hint.no_depth_test = true
 	add_child(_hint)
 	_panel = UiPanel.new()
+	_panel.accent = Color(1.0, 0.75, 0.2)
 	_panel.pressed.connect(_on_panel_pressed)
 	add_child(_panel)
 
@@ -216,6 +219,7 @@ func _build_terrain() -> void:
 	# Cercle de lancer
 	_terrain.add_child(BowlingArt.cylinder(0.27, 0.27, 0.003, BowlingArt.unshaded(Color(1, 1, 1)), Vector3(0, 0.004, 0), 40))
 	_terrain.add_child(BowlingArt.cylinder(0.24, 0.24, 0.004, gm, Vector3(0, 0.0045, 0), 40))
+	_build_decor()
 	# Repères de distance posés au sol
 	for d in [jack_min, jack_max]:
 		for sx in [-1.0, 1.0]:
@@ -659,7 +663,8 @@ func _throw(from: Vector3, vel: Vector3) -> void:
 		_held.node.position = _held.pos
 		_hint.text = "Lance plus fort !"
 		return
-	vel = vel.limit_length(16.0)
+	vel = Vector3(vel.x * THROW_GAIN_H, vel.y * THROW_GAIN_V, vel.z * THROW_GAIN_H)
+	vel = vel.limit_length(18.0)
 	vel = _assist(from, vel, as_jack)
 	var team := to_play
 	_launch(team, from, vel, as_jack)
@@ -677,18 +682,37 @@ func _flight_time(p: Vector3, v: Vector3, r: float) -> float:
 func _assist(p: Vector3, v: Vector3, as_jack: bool) -> Vector3:
 	var a: float = LEVELS[settings["level"]]["assist"]
 	var r := R_J if as_jack else R_B
+	if as_jack:
+		# Le cochonnet doit s'arrêter entre les repères : on simule où il finirait
+		var rest := _sim_rest(p, v, R_J, M_J)
+		var d := -rest.z
+		var xm_j := tw / 2.0 - 0.4
+		if d >= jack_min + 0.2 and d <= jack_max - 0.2 and absf(rest.x) <= xm_j:
+			return v
+		if a < 0.5:
+			return v
+		var goal := Vector3(clampf(rest.x, -xm_j, xm_j), R_J, -clampf(d, jack_min + 0.5, jack_max - 0.5))
+		return _solve_point(p, goal, R_J, M_J)
 	var t := _flight_time(p, v, r)
 	if t < 0.08:
 		return v
 	var land := Vector2(p.x + v.x * t, p.z + v.z * t)
 	var xm := tw / 2.0 - 0.15
-	var zmin: float = -(jack_max - 1.5) if as_jack else -(tlen - 0.4)
-	var zmax: float = -(jack_min - 0.5) if as_jack else -1.0
+	var zmin: float = -(tlen - 0.4)
+	var zmax: float = -1.0
 	var clamped := Vector2(clampf(land.x, -xm, xm), clampf(land.y, zmin, zmax))
-	if clamped.is_equal_approx(land):
-		return v
-	var target := land.lerp(clamped, a)
-	return Vector3((target.x - p.x) / t, v.y, (target.y - p.z) / t)
+	var out := v
+	if not clamped.is_equal_approx(land):
+		var target := land.lerp(clamped, a)
+		out = Vector3((target.x - p.x) / t, v.y, (target.y - p.z) / t)
+	# La boule roule encore après l'atterrissage : si elle finirait hors du terrain, on la retient
+	if a >= 0.5:
+		var rest := _sim_rest(p, out, R_B, M_B)
+		var rx := tw / 2.0 - 0.2
+		if absf(rest.x) > rx or rest.z < -tlen + 0.3 or rest.z > -0.6:
+			var goal := Vector3(clampf(rest.x, -rx, rx), R_B, clampf(rest.z, -tlen + 0.5, -1.0))
+			out = _solve_point(p, goal, R_B, M_B)
+	return out
 
 
 # ================================================================ physique
@@ -1369,3 +1393,39 @@ func _selftest_run() -> void:
 		print("SELFTEST petanque ", line)
 	print("SELFTEST petanque=", "OK" if _st_failures.is_empty() else "ECHEC " + str(_st_failures))
 	selftest_finished.emit(_st_failures.is_empty())
+
+
+## Place de village : platanes, bancs, lampadaires, muret et enseigne au fond.
+func _build_decor() -> void:
+	var side := tw / 2.0
+	var zs := [-3.5, -6.0, -8.5, -11.0]
+	for i in zs.size():
+		var z: float = zs[i]
+		if z < -tlen + 0.5:
+			continue
+		for sx in [-1.0, 1.0]:
+			var t := Decor.tree(2.6 + 0.3 * ((i + int(sx)) % 3), i * 2 + (1 if sx > 0 else 0))
+			t.position = Vector3(sx * (side + 2.0 + 0.3 * (i % 2)), 0, z)
+			_terrain.add_child(t)
+	for sx in [-1.0, 1.0]:
+		var b := Decor.bush(0.4)
+		b.position = Vector3(sx * (side + 0.35), 0, -tlen * 0.5)
+		_terrain.add_child(b)
+	var bench := Decor.bench()
+	bench.position = Vector3(-(side + 0.75), 0, -3.2)
+	bench.rotation.y = -PI / 2.0
+	_terrain.add_child(bench)
+	var bench2 := Decor.bench()
+	bench2.position = Vector3(side + 0.75, 0, -5.2)
+	bench2.rotation.y = PI / 2.0
+	_terrain.add_child(bench2)
+	for sx in [-1.0, 1.0]:
+		var l := Decor.lamp(2.6)
+		l.position = Vector3(sx * (side + 0.35), 0, -tlen - 0.05)
+		_terrain.add_child(l)
+	var wall := BowlingArt.box(Vector3(tw + 3.4, 0.9, 0.25), BowlingArt.mat(Color(0.62, 0.58, 0.5), 0.95), Vector3(0, 0.45, -tlen - 0.35))
+	_terrain.add_child(wall)
+	_terrain.add_child(BowlingArt.box(Vector3(tw + 3.5, 0.06, 0.3), BowlingArt.mat(Color(0.45, 0.42, 0.37), 0.9), Vector3(0, 0.93, -tlen - 0.35)))
+	var sign_node := Decor.neon_sign("PÉTANQUE", Color(1.0, 0.75, 0.2), 1.8, 0.5)
+	sign_node.position = Vector3(0, 1.75, -tlen - 0.4)
+	_terrain.add_child(sign_node)

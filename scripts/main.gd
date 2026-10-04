@@ -289,6 +289,8 @@ func open_switcher(message: String = "") -> void:
 		_switcher_lasers = [left_hand.laser_enabled, right_hand.laser_enabled]
 		if game.has_method("suspend_panel"):
 			game.suspend_panel()
+		game.process_mode = Node.PROCESS_MODE_DISABLED
+		game.visible = false
 	_switcher.clear()
 	_switcher.set_title("Changer de jeu", message if message != "" else "Le jeu en cours sera quitté")
 	var rows: Array = [[], []]
@@ -323,6 +325,9 @@ func close_switcher() -> void:
 		return
 	_switcher_open = false
 	_switcher.hide_panel()
+	if game:
+		game.process_mode = Node.PROCESS_MODE_INHERIT
+		game.visible = true
 	if game and game.has_method("resume_panel"):
 		game.resume_panel()
 	left_hand.laser_enabled = _switcher_lasers[0]

@@ -70,6 +70,8 @@ et fléchettes, joués dans la vraie pièce grâce au passthrough.
 - `scripts/pingpong/ping_scoreboard.gd` : tableau Vous / Ordi (réutilisé par la pétanque).
 - `scripts/petanque.gd` : pétanque (terrain, règles, adversaire Marcel, aide au
   lancer, records dans `user://petanque.cfg`).
+- `scripts/decor.gd` : décor en code (arbres, bancs, lampadaires, plantes, enseignes néon), utilisé par la pétanque et le ping-pong.
+- `scripts/ui_panel.gd` : panneaux de menu (cadre à ampoules, bandeau de titre, boutons bombés, couleur d'accent par jeu via `accent`).
 - `scripts/petanque/pet_ball.gd` : boule / cochonnet (gravité, rebond amorti,
   roulement, chocs). Constantes de réglage : `LAND_KEEP` (0,45) et
   `ROLL_DECEL` (3,2 m/s²).
@@ -122,6 +124,8 @@ et fléchettes, joués dans la vraie pièce grâce au passthrough.
 - En jeu : boule sur le support à droite ; **gâchette ou poignée** près d'elle
   pour la prendre, **relâcher** pour lancer. Distance affichée sur la boule qui
   tient le point.
+- Geste amplifié (`THROW_GAIN_H` 2,1 / `THROW_GAIN_V` 1,45) : un lancer doux porte loin. L'aide simule où la boule s'arrêterait et la retient dans le terrain (niveaux Facile/Normal).
+- « Changer de jeu » gèle et masque le jeu en cours (plus de balle qui traîne).
 - Physique maison sans moteur : la même fonction sert au jeu et aux
   simulations de l'ordinateur (solveur de pointage par dichotomie, tir au fer).
 

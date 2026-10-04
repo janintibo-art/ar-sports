@@ -189,4 +189,26 @@ func _run() -> void:
 	await _snap("54_pet_pres")
 	_cam(main, Vector3(2.4, 1.6, -0.5), Vector3(0.3, 1.2, -3.0))
 	await _snap("55_pet_tableau")
+	_cam(main, Vector3(0, 1.7, 0.4), Vector3(0, 1.2, -5.5))
+	await _snap("56_pet_decor")
+	_cam(main, Vector3(1.6, 1.6, -9.0), Vector3(0, 1.3, -12.5))
+	await _snap("57_pet_fond")
+	game._st_bot = false
+	game.show_pause()
+	_cam(main, Vector3(0, 1.6, 0), Vector3(0, 1.4, -1))
+	await _snap("58_pet_pause")
+	game._close_panel()
+	main.start_game("pingpong")
+	game = main.game
+	await process_frame
+	game.place_in_front_of(Transform3D(Basis(), Vector3(0, 1.6, 0)))
+	game._close_panel()
+	game.start_match()
+	for i in 20:
+		await physics_frame
+	_cam(main, Vector3(0, 1.8, 1.0), Vector3(0, 0.8, -2.3))
+	await _snap("59_pp_decor")
+	_cam(main, Vector3(0, 1.6, 0), Vector3(0, 1.4, -1))
+	main.open_switcher()
+	await _snap("60_switcher")
 	quit()
