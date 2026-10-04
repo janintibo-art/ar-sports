@@ -31,6 +31,9 @@ var _switcher_lasers := [false, false]
 var _current_id := ""
 var _intro_done := false
 var _xr_ok := false
+var _comfort: UiPanel
+var _comfort_open := false
+var _comfort_message := "Taille et distance des menus"
 
 
 func _ready() -> void:
@@ -47,6 +50,11 @@ func _ready() -> void:
 	_switcher.pressed.connect(_on_switcher_pressed)
 	add_child(_switcher)
 	_switcher.visible = false
+	_comfort = UiPanel.new()
+	_comfort.accent = Color(0.4, 0.7, 1.0)
+	_comfort.pressed.connect(_on_comfort_pressed)
+	add_child(_comfort)
+	_comfort.hide_panel()
 	if _selftest:
 		print("SELFTEST démarrage")
 		_run_selftests("darts" if args.has("--selftest-darts") else ("pingpong" if args.has("--selftest-pingpong") else ("petanque" if args.has("--selftest-petanque") else ("molkky" if args.has("--selftest-molkky") else ("palet" if args.has("--selftest-palet") else ("billard" if args.has("--selftest-billard") else ("babyfoot" if args.has("--selftest-babyfoot") else ("tir" if args.has("--selftest-tir") else ""))))))))
@@ -260,6 +268,7 @@ func _set_passthrough(enable: bool) -> void:
 # ---------------------------------------------------------------- navigation
 
 func show_menu() -> void:
+	close_comfort()
 	close_switcher()
 	if game:
 		remove_child(game)
@@ -287,6 +296,10 @@ func _start_intro_if_needed() -> void:
 
 
 func start_game(game_id: String) -> void:
+	if game_id == "comfort":
+		open_comfort()
+		return
+	close_comfort()
 	if game_id == "quit":
 		quit_app()
 		return
@@ -316,6 +329,9 @@ func start_game(game_id: String) -> void:
 
 func _place_current() -> void:
 	var head := camera.global_transform
+	if _comfort_open:
+		_comfort.place_in_front_of(head, 1.15)
+		return
 	if _switcher_open:
 		_switcher.place_in_front_of(head, 0.7)
 	if game:
@@ -406,6 +422,9 @@ func _on_switcher_pressed(id: String) -> void:
 # ---------------------------------------------------------------- entrées
 
 func _process(_delta: float) -> void:
+	if _comfort_open:
+		_comfort.update_hover([right_hand.pointed_object(), left_hand.pointed_object()])
+		return
 	if _switcher_open:
 		_switcher.update_hover([right_hand.pointed_object(), left_hand.pointed_object()])
 	if game == null and menu.visible:
@@ -413,6 +432,14 @@ func _process(_delta: float) -> void:
 
 
 func _on_button_pressed(button: String, hand: Hand) -> void:
+	if _comfort_open:
+		if button == "menu_button" or button == "by_button":
+			close_comfort()
+		elif button == "ax_button":
+			_place_current()
+		elif button == "trigger_click":
+			_comfort.click(hand.pointed_object())
+		return
 	# Bouton Menu de la manette gauche : panneau « Changer de jeu », ou quitter depuis le menu.
 	if button == "menu_button":
 		if _switcher_open:
@@ -450,3 +477,61 @@ func quit_app() -> void:
 	if xr_interface and xr_interface.is_initialized():
 		xr_interface.uninitialize()
 	get_tree().quit()
+
+
+# ---------------------------------------------------------------- confort
+func open_comfort() -> void:
+	if game != null:
+		return
+	_comfort_open = true
+	menu.set_active(false)
+	menu.update_hover([])
+	menu.visible = false
+	menu.process_mode = Node.PROCESS_MODE_DISABLED
+	_build_comfort()
+
+func _build_comfort() -> void:
+	_comfort.clear()
+	_comfort.set_title("Confort", _comfort_message)
+	var sizes: Array = []
+	for value in [1.0, 1.15, 1.3]:
+		sizes.append({"id": "size_" + str(value), "text": "%d %%" % roundi(value * 100), "width": 0.19, "selected": is_equal_approx(VisualStyle.ui_scale, value)})
+	_comfort.add_row("Taille", sizes)
+	var distances: Array = []
+	for item in [[0.85, "Proche"], [1.0, "Normal"], [1.25, "Éloigné"]]:
+		distances.append({"id": "distance_" + str(item[0]), "text": item[1], "width": 0.19, "selected": is_equal_approx(VisualStyle.distance_factor, item[0])})
+	_comfort.add_row("Distance", distances)
+	_comfort.add_row("", [{"id": "reset", "text": "Réinitialiser", "width": 0.27}, {"id": "close", "text": "Retour au menu", "width": 0.30, "color": Color(0.1, 0.4, 0.35)}])
+	_comfort.build()
+	_comfort.show_panel()
+	_comfort.place_in_front_of(camera.global_transform, 1.15)
+
+func _on_comfort_pressed(id: String) -> void:
+	if id == "close":
+		close_comfort()
+		return
+	var size := VisualStyle.ui_scale
+	var distance := VisualStyle.distance_factor
+	if id.begins_with("size_"):
+		size = id.substr(5).to_float()
+	elif id.begins_with("distance_"):
+		distance = id.substr(9).to_float()
+	elif id == "reset":
+		size = 1.0
+		distance = 1.0
+	else:
+		return
+	var result := VisualStyle.set_comfort(size, distance)
+	_comfort_message = "Réglage appliqué et mémorisé" if result == OK else "Appliqué, sauvegarde impossible"
+	_build_comfort()
+
+func close_comfort() -> void:
+	if not _comfort_open:
+		return
+	_comfort_open = false
+	_comfort.hide_panel()
+	menu.visible = true
+	menu.process_mode = Node.PROCESS_MODE_INHERIT
+	menu.set_active(true)
+	menu.skip_intro()
+	menu.place_in_front_of(camera.global_transform)

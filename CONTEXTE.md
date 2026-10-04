@@ -229,3 +229,7 @@ Base v18 (4a0b211). Personnages expressifs et vêtements détaillés dans Specta
 ## v20 — aide au menu et célébrations
 
 Base v19 (fd64003). Aide gestuelle au survol des neuf jeux, menu placé à 1,15 m. SuccessBurst : confettis groupés MultiMesh, un effet par tableau, durée limitée et réduction en qualité légère. Raccordé aux célébrations existantes des tableaux et de l’enseigne bowling. Test tools/check_v20_feedback.gd dans le CI. Captures tools/shot_v20.gd. Version 0.20.0 ; voir NOTES_V20.md.
+
+## v21 — confort commun
+
+Base v20 (08abce5). Bouton Confort à l’accueil : tailles 100/115/130 %, distance Proche/Normal/Éloigné. VisualStyle mémorise ces choix avec la qualité graphique sans les écraser. UiPanel applique les facteurs au placement ; menu également. Panneau géré dans main.gd ; Menu/BY ferme, AX recentre. Test tools/check_v21_comfort.gd ajouté au CI. Voir NOTES_V21.md. Version 0.21.0.

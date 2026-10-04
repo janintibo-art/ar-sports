@@ -104,6 +104,13 @@ jobs:
           grep -q "SELFTEST feedback_v20=OK" feedback.log
           if grep -qE "SCRIPT ERROR|Parse Error" feedback.log; then exit 1; fi
 
+      - name: Vérifier les réglages de confort
+        run: |
+          set -o pipefail
+          timeout 30 godot --headless -s tools/check_v21_comfort.gd 2>&1 | tee comfort.log
+          grep -q "SELFTEST comfort_v21=OK" comfort.log
+          if grep -qE "SCRIPT ERROR|Parse Error" comfort.log; then exit 1; fi
+
       - name: Exporter l'APK
         env:
           GODOT_ANDROID_KEYSTORE_DEBUG_PATH: ${{ github.workspace }}/keys/debug.keystore

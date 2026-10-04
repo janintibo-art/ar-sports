@@ -33,7 +33,7 @@ const INTRO_HOLD := 1.9
 const INTRO_MOVE := 0.8
 const INTRO_CARD0 := 2.1
 const INTRO_CARD_STEP := 0.14
-const INTRO_END := 4.0
+const INTRO_END := 4.2
 
 var _panels: Array[StaticBody3D] = []
 var _hovered: StaticBody3D = null
@@ -67,12 +67,17 @@ func _ready() -> void:
 		add_child(panel)
 		_panels.append(panel)
 	var quality := {"id": "quality", "title": _quality_title(), "sub": "", "color": Color(0.17, 0.42, 0.48), "ready": true}
-	var quality_panel := _make_card(quality, Vector3(0.40, 0.09, 0.02))
-	quality_panel.position = Vector3(-0.19, QUIT_Y, 0)
+	var quality_panel := _make_card(quality, Vector3(0.29, 0.09, 0.02))
+	quality_panel.position = Vector3(-0.305, QUIT_Y, 0)
 	add_child(quality_panel)
 	_panels.append(quality_panel)
-	var quit_panel := _make_card(QUIT, QUIT_SIZE)
-	quit_panel.position = Vector3(0.185, QUIT_Y, 0)
+	var comfort := {"id": "comfort", "title": "Confort", "sub": "", "color": Color(0.3, 0.3, 0.55), "ready": true}
+	var comfort_panel := _make_card(comfort, Vector3(0.27, 0.09, 0.02))
+	comfort_panel.position = Vector3(0, QUIT_Y, 0)
+	add_child(comfort_panel)
+	_panels.append(comfort_panel)
+	var quit_panel := _make_card(QUIT, Vector3(0.27, 0.09, 0.02))
+	quit_panel.position = Vector3(0.29, QUIT_Y, 0)
 	add_child(quit_panel)
 	_panels.append(quit_panel)
 	_apply_intro()
@@ -192,11 +197,12 @@ func place_in_front_of(head: Transform3D) -> void:
 	if forward.length() < 0.01:
 		forward = Vector3.FORWARD
 	forward = forward.normalized()
-	var pos := head.origin + forward * 1.15
+	var pos := head.origin + forward * (1.15 * VisualStyle.distance_factor)
 	pos.y = max(head.origin.y - 0.04, 0.8)
 	global_position = pos
 	# Le panneau regarde le joueur : son axe +Z pointe vers lui.
 	global_basis = Basis.looking_at(forward, Vector3.UP)
+	scale = Vector3.ONE * VisualStyle.ui_scale
 
 
 func update_hover(objects: Array) -> void:
@@ -340,6 +346,7 @@ const HELP := {
 	"babyfoot": "Prends une poignée près de la barre.\nDéplace la main pour glisser et faire tourner.",
 	"tir": "Arc · carabine · ball-trap · couteau.\nChoisis ta discipline sur l'écran suivant.",
 	"quality": "Détaillé : accessoires et végétation enrichis.\nLéger : moins d'objets, au prochain jeu.",
+	"comfort": "Ajuste la taille des menus et leur distance.\nLes réglages sont mémorisés pour tous les jeux.",
 	"quit": "Ferme AR Sports et retourne au Quest.",
 }
 

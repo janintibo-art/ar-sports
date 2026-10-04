@@ -153,10 +153,11 @@ func place_in_front_of(head: Transform3D, distance: float = 0.85) -> void:
 	if forward.length() < 0.01:
 		forward = Vector3.FORWARD
 	forward = forward.normalized()
-	var pos := head.origin + forward * distance
+	var pos := head.origin + forward * (distance * VisualStyle.distance_factor)
 	pos.y = maxf(head.origin.y - 0.2, 0.8)
 	global_position = pos
 	global_basis = Basis.looking_at(forward, Vector3.UP)
+	scale = Vector3.ONE * VisualStyle.ui_scale
 
 
 func update_hover(objects: Array) -> void:
