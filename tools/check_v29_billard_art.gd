@@ -33,9 +33,6 @@ func _run() -> void:
 	var white := Color(0.965, 0.96, 0.92)
 	var yellow := BillBall.color_of(9)
 
-	# Sur une rayée, le bord doit être plus proche du blanc et le centre plus
-	# proche de la couleur de la bille. On compare la couleur complète plutôt
-	# qu'un seul canal (le rouge du jaune peut être supérieur à celui du blanc).
 	assert(_color_distance(stripe_edge, white) < _color_distance(stripe_edge, yellow))
 	assert(_color_distance(stripe_mid, yellow) < _color_distance(stripe_mid, white))
 	assert(solid_edge.b < 0.5)
@@ -46,8 +43,19 @@ func _run() -> void:
 	main.start_game("billard")
 	await process_frame
 	var game = main.game
+	assert(game is BillardGame)
 	assert(game.R == 0.0285)
-	assert(game._balls.size() in [10, 16])
+
+	# Au menu de configuration, show_setup() retire volontairement les billes.
+	assert(game._balls.is_empty())
+
+	# Le rendu des billes doit être contrôlé pendant une vraie partie.
+	game.settings["mode"] = "training"
+	game.settings["variant"] = "8"
+	game.start_match()
+	await process_frame
+	assert(game._balls.size() == 16)
+
 	for ball in game._balls:
 		assert(ball.node.mesh.radius == game.R)
 		assert(ball.node.material_override.albedo_texture == BillBall.texture_of(ball.id))
