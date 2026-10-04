@@ -65,7 +65,12 @@ jobs:
           "$SDK/cmdline-tools/latest/bin/sdkmanager" "platform-tools" "platforms;android-36" "build-tools;36.1.0" "ndk;29.0.14206865" > /dev/null
           SETTINGS_MINOR="${GODOT_VERSION%.*}"
           mkdir -p ~/.config/godot
-          printf '[gd_resource type="EditorSettings" format=3]\n\n[resource]\nexport/android/android_sdk_path = "%s"\nexport/android/java_sdk_path = "%s"\n' "$SDK" "$JAVA_HOME" > "$HOME/.config/godot/editor_settings-${SETTINGS_MINOR}.tres"
+          printf '[gd_resource type="EditorSettings" format=3]
+
+[resource]
+export/android/android_sdk_path = "%s"
+export/android/java_sdk_path = "%s"
+' "$SDK" "$JAVA_HOME" > "$HOME/.config/godot/editor_settings-${SETTINGS_MINOR}.tres"
           godot --version
 
       - name: Importer le projet
@@ -187,6 +192,13 @@ jobs:
           timeout 30 godot --headless -s tools/check_v37_babyfoot_art.gd 2>&1 | tee babyfoot_art.log
           grep -q "SELFTEST babyfoot_art_v37=OK" babyfoot_art.log
           if grep -qE "SCRIPT ERROR|Parse Error" babyfoot_art.log; then exit 1; fi
+
+      - name: Vérifier joueurs et balle du baby-foot v41
+        run: |
+          set -o pipefail
+          timeout 30 godot --headless -s tools/check_v41_babyfoot_players.gd 2>&1 | tee babyfoot_players.log
+          grep -q "SELFTEST babyfoot_players_v41=OK" babyfoot_players.log
+          if grep -qE "SCRIPT ERROR|Parse Error" babyfoot_players.log; then exit 1; fi
 
       - name: Exporter l'APK
         env:

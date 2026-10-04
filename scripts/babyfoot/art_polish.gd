@@ -1,16 +1,15 @@
 extends Node
-## Habillage visuel v37 du baby-foot.
-## Cette couche ajoute seulement des détails graphiques à la table et aux barres.
-## La physique, les dimensions du terrain et les mouvements restent dans babyfoot.gd.
+## Habillage visuel du baby-foot.
+## Cette couche ajoute seulement des détails graphiques à la table, aux barres,
+## aux figurines et à la balle. La physique reste dans babyfoot.gd.
 
 const META_KEY := "babyfoot_art_v37"
+const PLAYER_META_KEY := "babyfoot_players_v41"
 
 
 func _ready() -> void:
-	# Le gros auto-test fonctionnel valide déjà le gameplay du baby-foot et
-	# termine très vite plusieurs scènes successives. La couche graphique v37
-	# possède son propre test dédié (`check_v37_babyfoot_art.gd`) juste après.
-	# On évite donc d'instancier ces décorations pendant `--selftest`.
+	# Le gros auto-test fonctionnel valide déjà le gameplay. Les graphismes
+	# possèdent leurs tests dédiés séparés.
 	if "--selftest" in OS.get_cmdline_user_args():
 		return
 	get_tree().node_added.connect(_on_node_added)
@@ -136,6 +135,107 @@ func _polish(game: Node) -> void:
 		ring.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		art_node.add_child(ring)
 
+	_polish_players(game, rods, blue, red)
+	_polish_ball(game)
+
 	game.set_meta(META_KEY, true)
 	game.set_meta("babyfoot_art_v37_rods", rods.size())
 	game.set_meta("babyfoot_art_v37_table_children", deco.get_child_count())
+
+
+func _polish_players(game: Node, rods, blue, red) -> void:
+	var white = BowlingArt.mat(Color(0.94, 0.94, 0.90), 0.58)
+	var skin = BowlingArt.mat(Color(0.93, 0.76, 0.60), 0.62)
+	var shoe = BowlingArt.mat(Color(0.035, 0.04, 0.05), 0.70)
+	var hair = BowlingArt.mat(Color(0.12, 0.075, 0.045), 0.72)
+	var player_count: int = 0
+
+	for r in rods:
+		if not is_instance_valid(r.pivot):
+			continue
+		var team_color = blue if int(r.team) == 1 else red
+		var shorts_color = BowlingArt.mat(
+			Color(0.035, 0.08, 0.20) if int(r.team) == 1 else Color(0.22, 0.035, 0.035),
+			0.58
+		)
+
+		for man in r.pivot.get_children():
+			if not is_instance_valid(man):
+				continue
+			var player_art := Node3D.new()
+			player_art.name = "PlayerArtV41"
+			man.add_child(player_art)
+
+			# Maillot : bande claire sur le torse existant.
+			player_art.add_child(BowlingArt.box(
+				Vector3(0.031, 0.018, 0.028),
+				white,
+				Vector3(0, -0.028, 0)
+			))
+			# Short sous le maillot.
+			player_art.add_child(BowlingArt.box(
+				Vector3(0.032, 0.018, 0.029),
+				shorts_color,
+				Vector3(0, -0.050, 0)
+			))
+			# Deux bras courts, légèrement écartés.
+			for side_value in [-1.0, 1.0]:
+				var side: float = float(side_value)
+				var arm = BowlingArt.box(
+					Vector3(0.010, 0.034, 0.010),
+					skin,
+					Vector3(side * 0.020, -0.026, 0)
+				)
+				arm.rotation_degrees = Vector3(0, 0, side * 16.0)
+				player_art.add_child(arm)
+
+			# Petite chevelure/casque au-dessus de la tête d'origine.
+			player_art.add_child(BowlingArt.sphere(
+				0.014,
+				hair,
+				Vector3(0, 0.021, 0),
+				8
+			))
+			# Chaussure sombre sur le pied de frappe, sans collider.
+			player_art.add_child(BowlingArt.box(
+				Vector3(0.040, 0.012, 0.032),
+				shoe,
+				Vector3(0, -0.092, 0)
+			))
+			# Petit écusson d'équipe sur le maillot.
+			player_art.add_child(BowlingArt.box(
+				Vector3(0.008, 0.008, 0.030),
+				team_color,
+				Vector3(0, -0.020, -0.001)
+			))
+			player_count += 1
+
+	game.set_meta(PLAYER_META_KEY, true)
+	game.set_meta("babyfoot_players_v41_count", player_count)
+
+
+func _polish_ball(game: Node) -> void:
+	var ball = game.get("_ball_node")
+	if not is_instance_valid(ball):
+		return
+
+	var ball_art := Node3D.new()
+	ball_art.name = "BallArtV41"
+	ball.add_child(ball_art)
+
+	var patch = BowlingArt.mat(Color(0.07, 0.075, 0.08), 0.52)
+	var positions := [
+		Vector3(0.014, 0, 0),
+		Vector3(-0.014, 0, 0),
+		Vector3(0, 0.014, 0),
+		Vector3(0, -0.014, 0),
+		Vector3(0, 0, 0.014),
+		Vector3(0, 0, -0.014),
+	]
+	for p in positions:
+		var dot = BowlingArt.sphere(0.004, patch, p, 8)
+		dot.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		ball_art.add_child(dot)
+
+	game.set_meta("babyfoot_ball_v41", true)
+	game.set_meta("babyfoot_ball_v41_patches", ball_art.get_child_count())
