@@ -7,6 +7,13 @@ const META_KEY := "babyfoot_art_v37"
 
 
 func _ready() -> void:
+	# Le gros auto-test fonctionnel valide déjà le gameplay du baby-foot et
+	# termine très vite plusieurs scènes successives. La couche graphique v37
+	# possède son propre test dédié (`check_v37_babyfoot_art.gd`) juste après.
+	# On évite donc d'instancier ces décorations pendant `--selftest`, ce qui
+	# laisse à Godot une fermeture propre sans objets graphiques en attente.
+	if "--selftest" in OS.get_cmdline_user_args():
+		return
 	get_tree().node_added.connect(_on_node_added)
 
 
