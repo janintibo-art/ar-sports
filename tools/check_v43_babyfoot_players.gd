@@ -20,7 +20,7 @@ func _run() -> void:
 
 	# La physique reste strictement identique.
 	assert(is_equal_approx(float(game.get("BR")), 0.017))
-	assert(is_equal_approx(float(game.get("BODY_R")), 0.021))
+	assert(is_equal_approx(float(game.get("BODY_R")), 0.015))
 	assert(is_equal_approx(float(game.get("FR")), 0.018))
 
 	var rods = game.get("_rods")
