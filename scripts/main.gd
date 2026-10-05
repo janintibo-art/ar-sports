@@ -13,6 +13,7 @@ const GAMES := {
 	"babyfoot": preload("res://scripts/babyfoot.gd"),
 	"tir": preload("res://scripts/tir.gd"),
 	"grenouille": preload("res://scripts/grenouille.gd"),
+	"basket": preload("res://scripts/basket.gd"),
 }
 
 var xr_interface: XRInterface
@@ -41,7 +42,7 @@ var _comfort_message := "Taille et distance des menus"
 
 func _ready() -> void:
 	var args := OS.get_cmdline_user_args()
-	_selftest = args.has("--selftest") or args.has("--selftest-darts") or args.has("--selftest-pingpong") or args.has("--selftest-petanque") or args.has("--selftest-molkky") or args.has("--selftest-palet") or args.has("--selftest-billard") or args.has("--selftest-babyfoot") or args.has("--selftest-tir") or args.has("--selftest-grenouille")
+	_selftest = args.has("--selftest") or args.has("--selftest-darts") or args.has("--selftest-pingpong") or args.has("--selftest-petanque") or args.has("--selftest-molkky") or args.has("--selftest-palet") or args.has("--selftest-billard") or args.has("--selftest-babyfoot") or args.has("--selftest-tir") or args.has("--selftest-grenouille") or args.has("--selftest-basket")
 	if not _selftest:
 		VisualStyle.load_preferences()
 	Sound.apply_preferences()
@@ -61,7 +62,7 @@ func _ready() -> void:
 	_comfort.hide_panel()
 	if _selftest:
 		print("SELFTEST démarrage")
-		_run_selftests("darts" if args.has("--selftest-darts") else ("pingpong" if args.has("--selftest-pingpong") else ("petanque" if args.has("--selftest-petanque") else ("molkky" if args.has("--selftest-molkky") else ("palet" if args.has("--selftest-palet") else ("billard" if args.has("--selftest-billard") else ("babyfoot" if args.has("--selftest-babyfoot") else ("tir" if args.has("--selftest-tir") else ("grenouille" if args.has("--selftest-grenouille") else "")))))))))
+		_run_selftests("darts" if args.has("--selftest-darts") else ("pingpong" if args.has("--selftest-pingpong") else ("petanque" if args.has("--selftest-petanque") else ("molkky" if args.has("--selftest-molkky") else ("palet" if args.has("--selftest-palet") else ("billard" if args.has("--selftest-billard") else ("babyfoot" if args.has("--selftest-babyfoot") else ("tir" if args.has("--selftest-tir") else ("grenouille" if args.has("--selftest-grenouille") else ("basket" if args.has("--selftest-basket") else ""))))))))))
 	else:
 		show_menu()
 
@@ -152,6 +153,13 @@ func _run_selftests(only: String) -> void:
 		game.enable_selftest()
 		var gre_ok: bool = await game.selftest_finished
 		if not gre_ok:
+			await _finish_selftest(1)
+			return
+	if only in ["", "basket"]:
+		start_game("basket")
+		game.enable_selftest()
+		var bas_ok: bool = await game.selftest_finished
+		if not bas_ok:
 			await _finish_selftest(1)
 			return
 	if only != "":

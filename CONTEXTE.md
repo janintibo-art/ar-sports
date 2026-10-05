@@ -277,3 +277,7 @@ Base v49. `UiPanel.floor_clearance` empêche le panneau de descendre dans la tab
 - Nouveau jeu `grenouille` (scripts/grenouille.gd) : meuble à 8 trous, grenouille à 500 points, palet physique, ordi/2–4 joueurs/entraînement, distances Bar 1,5 m et Classique 3 m, 1/3/5 manches de 5 palets.
 - Menu en 4 colonnes (10 cartes), sélecteur de jeux sur 4 colonnes.
 - Auto-test `--selftest-grenouille` ajouté à la CI ; contrôle check_v52_grenouille.
+
+## v53 (0.53.0) — Basket
+- Nouveau jeu `basket` (scripts/basket.gd) : anneau à 2 m, zones 1/2/3 points (près 2 m, moyen 3 m, loin 4,2 m, mixte), ordi Léo, 2–4 joueurs, entraînement 10 tirs ou chrono 60 s, aide au lancer par niveau.
+- 11 cartes au menu ; auto-test `--selftest-basket` dans la CI ; contrôle check_v53_basket.

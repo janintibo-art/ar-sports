@@ -74,6 +74,33 @@ static func build(id: String) -> Node3D:
 			var puck := BowlingArt.cylinder(0.022, 0.022, 0.008, BowlingArt.mat(Color(0.8, 0.8, 0.88), 0.2, 0.95), Vector3(0.05, 0.04, 0.06), 16)
 			puck.rotation_degrees = Vector3(70, 0, 20)
 			root.add_child(puck)
+		"basket":
+			var orange := BowlingArt.mat(Color(0.93, 0.45, 0.1), 0.7)
+			root.add_child(BowlingArt.sphere(0.04, orange, Vector3(-0.03, -0.045, 0.03), 18))
+			var seam := BowlingArt.mat(Color(0.08, 0.05, 0.03), 0.8)
+			for k in 2:
+				var st := MeshInstance3D.new()
+				var tm := TorusMesh.new()
+				tm.inner_radius = 0.0395
+				tm.outer_radius = 0.0415
+				tm.rings = 16
+				tm.ring_segments = 4
+				st.mesh = tm
+				st.material_override = seam
+				st.position = Vector3(-0.03, -0.045, 0.03)
+				st.rotation = Vector3(PI / 2.0 * k, 0, 0)
+				root.add_child(st)
+			root.add_child(BowlingArt.box(Vector3(0.1, 0.075, 0.008), BowlingArt.mat(Color(0.9, 0.93, 1.0), 0.3), Vector3(0.0, 0.045, -0.02)))
+			var rim := MeshInstance3D.new()
+			var rt := TorusMesh.new()
+			rt.inner_radius = 0.026
+			rt.outer_radius = 0.032
+			rt.rings = 20
+			rt.ring_segments = 6
+			rim.mesh = rt
+			rim.material_override = BowlingArt.mat(Color(1.0, 0.4, 0.05), 0.4, 0.4)
+			rim.position = Vector3(0.0, 0.015, 0.012)
+			root.add_child(rim)
 		"palet":
 			var board := BowlingArt.box(Vector3(0.15, 0.012, 0.1), BowlingArt.mat(Color(0.45, 0.3, 0.15), 0.7), Vector3(0, -0.04, 0))
 			board.rotation_degrees = Vector3(-35, 0, 0)

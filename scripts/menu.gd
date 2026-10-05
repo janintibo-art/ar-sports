@@ -17,6 +17,7 @@ const GAMES := [
 	{"id": "babyfoot", "title": "Baby-foot", "sub": "contre l'ordinateur", "color": Color(0.85, 0.35, 0.15), "ready": true},
 	{"id": "tir", "title": "Tir", "sub": "4 disciplines", "color": Color(0.65, 0.2, 0.3), "ready": true},
 	{"id": "grenouille", "title": "Grenouille", "sub": "palets · 500 points", "color": Color(0.3, 0.7, 0.3), "ready": true},
+	{"id": "basket", "title": "Basket", "sub": "10 tirs · chrono 60 s", "color": Color(0.9, 0.45, 0.1), "ready": true},
 ]
 
 const QUIT := {"id": "quit", "title": "Quitter", "sub": "", "color": Color(0.35, 0.35, 0.42), "ready": true}
@@ -347,6 +348,7 @@ const HELP := {
 	"billard": "Prends la queue sur son support.\nFrappe la boule blanche avec la pointe.",
 	"babyfoot": "Prends une poignée près de la barre.\nDéplace la main pour glisser et faire tourner.",
 	"grenouille": "Prends le palet, puis lance-le en cloche.\nVise la bouche de la grenouille : 500 points !",
+	"basket": "Prends le ballon, puis lance-le en cloche.\nMarque 1, 2 ou 3 points selon la zone.",
 	"tir": "Arc · carabine · ball-trap · couteau.\nChoisis ta discipline sur l'écran suivant.",
 	"quality": "Détaillé : accessoires et végétation enrichis.\nLéger : moins d'objets, au prochain jeu.",
 	"comfort": "Réglages des menus, gestes et volumes.\nGuide des commandes de chaque jeu.",

@@ -79,7 +79,7 @@ jobs:
           timeout 300 godot --headless --fixed-fps 90 -- --selftest 2>&1 | grep -vE "OpenXR-Loader" | tee selftest.log
           grep -q "SELFTEST score=" selftest.log
           if grep -qE "SCRIPT ERROR|Parse Error" selftest.log; then exit 1; fi
-          for game in darts pingpong petanque molkky palet billard babyfoot tir grenouille nav; do
+          for game in darts pingpong petanque molkky palet billard babyfoot tir grenouille basket nav; do
             grep -q "SELFTEST ${game}=OK" selftest.log || exit 1
           done
 
@@ -229,6 +229,13 @@ jobs:
           timeout 60 godot --headless -s tools/check_v52_grenouille.gd 2>&1 | tee grenouille.log
           grep -q "SELFTEST grenouille_v52=OK" grenouille.log
           if grep -qE "SCRIPT ERROR|Parse Error" grenouille.log; then exit 1; fi
+
+      - name: Vérifier le jeu de basket v53
+        run: |
+          set -o pipefail
+          timeout 60 godot --headless -s tools/check_v53_basket.gd 2>&1 | tee basket.log
+          grep -q "SELFTEST basket_v53=OK" basket.log
+          if grep -qE "SCRIPT ERROR|Parse Error" basket.log; then exit 1; fi
 
       - name: Exporter l'APK
         env:

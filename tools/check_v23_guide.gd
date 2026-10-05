@@ -12,7 +12,7 @@ func _run() -> void:
 	main._on_comfort_pressed("tab_guide")
 	assert(main._comfort_tab == "guide" and main._guide_page == 0)
 	assert(not main.menu.visible)
-	assert(QuickGuide.PAGES.size() == 14)
+	assert(QuickGuide.PAGES.size() == 15)
 	var seen := {}
 	for i in QuickGuide.PAGES.size():
 		var page: Dictionary = QuickGuide.PAGES[i]
@@ -38,11 +38,11 @@ func _run() -> void:
 		main._on_comfort_pressed("guide_next")
 	assert(main._guide_page == 0)
 	main._on_comfort_pressed("guide_previous")
-	assert(main._guide_page == 13)
+	assert(main._guide_page == 14)
 	main._on_comfort_pressed("tab_menus")
 	main._on_comfort_pressed("tab_gestures")
 	main._on_comfort_pressed("tab_guide")
-	assert(main._guide_page == 13)
+	assert(main._guide_page == 14)
 	assert(original == [VisualStyle.ui_scale, VisualStyle.distance_factor, VisualStyle.throw_gain, VisualStyle.cue_gain, VisualStyle.rod_gain, VisualStyle.detailed])
 	main._on_comfort_pressed("close")
 	assert(main.menu.visible and not main._comfort.visible)

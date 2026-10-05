@@ -346,6 +346,7 @@ func _apply_layout() -> void:
 	_message.position = Vector3(0, 1.7, cz)
 	_hint.position = STAND + Vector3(0, 0.28, 0)
 	_refresh_tray(0)
+	_board.set_data("GRENOUILLE", [], 0, 0, "")
 
 
 func _build_decor() -> void:
