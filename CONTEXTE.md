@@ -281,3 +281,9 @@ Base v49. `UiPanel.floor_clearance` empêche le panneau de descendre dans la tab
 ## v53 (0.53.0) — Basket
 - Nouveau jeu `basket` (scripts/basket.gd) : anneau à 2 m, zones 1/2/3 points (près 2 m, moyen 3 m, loin 4,2 m, mixte), ordi Léo, 2–4 joueurs, entraînement 10 tirs ou chrono 60 s, aide au lancer par niveau.
 - 11 cartes au menu ; auto-test `--selftest-basket` dans la CI ; contrôle check_v53_basket.
+
+## v54 (0.54.0) — corrections après essai en casque
+- Baby-foot : lampe remontée (menu libre), adversaire plus réactif (`_predict_y`, vitesses, frappes plus larges), test CI à 3 buts en normal.
+- Arc : `assisted_dir` (aide à la visée par niveau : assist/cone) et réticule jaune `_sight` (facile, normal).
+- Grenouille : la bouche ouverte est le trou des 500 points (mâchoire derrière, dents, langue).
+- Contrôle check_v54 dans la CI. Voir NOTES_V54.md.

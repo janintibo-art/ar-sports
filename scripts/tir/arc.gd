@@ -29,9 +29,9 @@ const PER_END := 3
 const MOBILE_ARROWS := 10
 
 const LEVELS := {
-	"facile": {"title": "Facile", "wind": 0.0, "preview": true, "sigma": 0.17},
-	"normal": {"title": "Normal", "wind": 2.0, "preview": false, "sigma": 0.11},
-	"expert": {"title": "Expert", "wind": 5.0, "preview": false, "sigma": 0.065},
+	"facile": {"title": "Facile", "wind": 0.0, "preview": true, "sigma": 0.17, "assist": 0.85, "cone": 2.0, "sight": true},
+	"normal": {"title": "Normal", "wind": 2.0, "preview": false, "sigma": 0.11, "assist": 0.7, "cone": 1.3, "sight": true},
+	"expert": {"title": "Expert", "wind": 5.0, "preview": false, "sigma": 0.065, "assist": 0.4, "cone": 0.8, "sight": false},
 }
 
 enum State { SETUP, READY, DRAW, FLIGHT, PAUSE, AI_TURN, GAME_OVER }
@@ -66,6 +66,7 @@ var _fx_root: Node3D
 var _bow: Node3D
 var _bow_string: Array[MeshInstance3D] = []
 var _preview: Array[MeshInstance3D] = []
+var _sight: MeshInstance3D
 var _flag: Node3D
 var _wind_label: Label3D
 var _robin: Spectator
@@ -418,6 +419,15 @@ func _build_bow() -> void:
 		dot.visible = false
 		add_child(dot)
 		_preview.append(dot)
+	var tm := TorusMesh.new()
+	tm.inner_radius = 0.06
+	tm.outer_radius = 0.085
+	_sight = MeshInstance3D.new()
+	_sight.mesh = tm
+	_sight.material_override = BowlingArt.unshaded(Color(1.0, 0.9, 0.2, 0.9))
+	_sight.rotation_degrees = Vector3(90, 0, 0)
+	_sight.visible = false
+	add_child(_sight)
 	_bow.visible = false
 
 
@@ -482,7 +492,41 @@ func _update_bow() -> void:
 	_update_preview(dir)
 
 
+## Aide à la visée : attire la direction vers le centre de la cible si on vise à peu près juste.
+func assisted_dir(from: Vector3, dir: Vector3, speed: float) -> Vector3:
+	var lvl: Dictionary = LEVELS[settings["level"]]
+	var k := float(lvl["assist"])
+	if k <= 0.0:
+		return dir
+	var d := float(settings["dist"])
+	var tf := d / maxf(speed, 1.0)
+	var target := Vector3(target_x_at(_time + tf), TARGET_Y, -d)
+	var ideal := aim_dir(from, target, speed, _wind)
+	var cone := float(lvl["cone"]) / d
+	var ang := dir.angle_to(ideal)
+	if ang >= cone or ang < 0.0001:
+		return dir
+	var w := k * (1.0 - smoothstep(cone * 0.5, cone, ang))
+	return dir.slerp(ideal, w).normalized()
+
+
+func _update_sight(dir: Vector3) -> void:
+	_sight.visible = false
+	if state != State.DRAW or not bool(LEVELS[settings["level"]]["sight"]) or _draw_len < DRAW_MIN:
+		return
+	var speed := _speed_for(_draw_len)
+	var from := _bow.position + dir * 0.15
+	var ad := assisted_dir(from, dir, speed)
+	var hit = predict_hit(from, ad * speed, _wind)
+	if hit == null:
+		return
+	var h := hit as Vector3
+	_sight.position = Vector3(h.x, h.y, h.z + 0.04)
+	_sight.visible = true
+
+
 func _update_preview(dir: Vector3) -> void:
+	_update_sight(dir)
 	for p in _preview:
 		p.visible = false
 	if state != State.DRAW or not bool(LEVELS[settings["level"]]["preview"]) or _draw_len < DRAW_MIN:
@@ -991,7 +1035,10 @@ func _loose(bow_pos: Vector3, draw_pos: Vector3) -> bool:
 		_hint.text = "Tends plus la corde !"
 		return false
 	var dir := d / length
-	_fire(bow_pos + dir * 0.15, dir, _speed_for(length), PLAYER)
+	var from := bow_pos + dir * 0.15
+	var spd := _speed_for(length)
+	dir = assisted_dir(from, dir, spd)
+	_fire(from, dir, spd, PLAYER)
 	return true
 
 

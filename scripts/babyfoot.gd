@@ -35,9 +35,9 @@ const TRAIN_TIME := 60.0
 var _train_time := TRAIN_TIME
 
 const LEVELS := {
-	"facile": {"title": "Facile", "speed": 0.55, "k": 4.0, "kick_p": 0.35, "assist": 0.9},
-	"normal": {"title": "Normal", "speed": 1.0, "k": 8.0, "kick_p": 0.7, "assist": 0.6},
-	"expert": {"title": "Expert", "speed": 1.8, "k": 15.0, "kick_p": 1.0, "assist": 0.35},
+	"facile": {"title": "Facile", "speed": 0.85, "k": 5.0, "kick_p": 0.5, "anticip": 0.3, "assist": 0.9},
+	"normal": {"title": "Normal", "speed": 1.5, "k": 10.0, "kick_p": 0.85, "anticip": 0.7, "assist": 0.6},
+	"expert": {"title": "Expert", "speed": 1.8, "k": 12.0, "kick_p": 1.0, "anticip": 0.2, "assist": 0.35},
 }
 
 enum State { SETUP, SERVE, PLAY, GOAL, GAME_OVER }
@@ -243,10 +243,10 @@ func _build_decor() -> void:
 		pl.position = Vector3(sx * 2.0, 0, TZ - 1.3)
 		_table.add_child(pl)
 	var shade := BowlingArt.mat(Color(0.5, 0.1, 0.1), 0.4, 0.3)
-	_table.add_child(BowlingArt.box(Vector3(1.4, 0.1, 0.4), shade, Vector3(0, 2.1, TZ)))
-	_table.add_child(BowlingArt.box(Vector3(1.3, 0.02, 0.3), BowlingArt.unshaded(Color(1.0, 0.95, 0.75)), Vector3(0, 2.04, TZ)))
+	_table.add_child(BowlingArt.box(Vector3(1.4, 0.1, 0.4), shade, Vector3(0, 2.75, TZ)))
+	_table.add_child(BowlingArt.box(Vector3(1.3, 0.02, 0.3), BowlingArt.unshaded(Color(1.0, 0.95, 0.75)), Vector3(0, 2.69, TZ)))
 	for sx in [-0.6, 0.6]:
-		_table.add_child(BowlingArt.cylinder(0.006, 0.006, 1.2, BowlingArt.mat(Color(0.1, 0.1, 0.1), 0.5), Vector3(sx, 2.7, TZ), 8))
+		_table.add_child(BowlingArt.cylinder(0.006, 0.006, 1.2, BowlingArt.mat(Color(0.1, 0.1, 0.1), 0.5), Vector3(sx, 3.4, TZ), 8))
 
 
 func place_in_front_of(head: Transform3D) -> void:
@@ -536,8 +536,24 @@ func _assist_rod(r: BfRod, delta: float, lvl: Dictionary) -> void:
 	r.omega = -8.0 * r.theta
 
 
+## Ordonnée où la balle va croiser la barre (rebonds sur les bandes inclus).
+func _predict_y(r: BfRod) -> float:
+	var dxb := r.x - _ball_pos.x
+	if absf(_ball_vel.x) < 0.1 or dxb * _ball_vel.x <= 0.0:
+		return _ball_pos.y
+	var t := dxb / _ball_vel.x
+	var h := W * 0.5 - BR
+	var y := _ball_pos.y + _ball_vel.y * t
+	var period := 4.0 * h
+	y = fposmod(y + h, period)
+	if y > 2.0 * h:
+		y = period - y
+	return y - h
+
+
 func _ai_rod(r: BfRod, delta: float, lvl: Dictionary) -> void:
-	r.track_y += (_ball_pos.y - r.track_y) * minf(1.0, delta * float(lvl["k"]))
+	var goal_y := lerpf(_ball_pos.y, _predict_y(r), float(lvl["anticip"]))
+	r.track_y += (goal_y - r.track_y) * minf(1.0, delta * float(lvl["k"]))
 	r.off = move_toward(r.off, _best_offset(r, r.track_y), float(lvl["speed"]) * delta)
 	if r.kick_t > 0.0:
 		r.kick_t -= delta
@@ -547,17 +563,17 @@ func _ai_rod(r: BfRod, delta: float, lvl: Dictionary) -> void:
 	if r.cd > 0.0 or state != State.PLAY:
 		return
 	var dx := (_ball_pos.x - r.x) * r.dir
-	if dx < -0.005 or dx > 0.095:
+	if dx < -0.02 or dx > 0.13:
 		return
 	var aligned := false
 	for i in r.men.size():
-		if absf(_ball_pos.y - (r.men[i] + r.off)) < 0.032:
+		if absf(_ball_pos.y - (r.men[i] + r.off)) < 0.04:
 			aligned = true
 	if not aligned:
 		return
 	if randf() < float(lvl["kick_p"]):
 		r.kick_t = 0.11
-		r.cd = 0.45
+		r.cd = 0.3
 		_kicks += 1
 
 
@@ -947,7 +963,7 @@ func _selftest_run() -> void:
 	for lv in ["facile", "normal", "expert"]:
 		settings["level"] = lv
 		settings["mode"] = "ordi"
-		settings["goals"] = 5 if lv == "normal" else 2
+		settings["goals"] = 3 if lv == "normal" else 2
 		_st_bot = true
 		start_match()
 		var guard := 0

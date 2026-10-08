@@ -237,6 +237,13 @@ jobs:
           grep -q "SELFTEST basket_v53=OK" basket.log
           if grep -qE "SCRIPT ERROR|Parse Error" basket.log; then exit 1; fi
 
+      - name: Vérifier les corrections v54
+        run: |
+          set -o pipefail
+          timeout 60 godot --headless -s tools/check_v54.gd 2>&1 | tee v54.log
+          grep -q "SELFTEST v54=OK" v54.log
+          if grep -qE "SCRIPT ERROR|Parse Error" v54.log; then exit 1; fi
+
       - name: Exporter l'APK
         env:
           GODOT_ANDROID_KEYSTORE_DEBUG_PATH: ${{ github.workspace }}/keys/debug.keystore
